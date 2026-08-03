@@ -7,6 +7,8 @@ import {
   formatAppointmentDateTime,
   formatShortDate,
 } from "@/utils/dateFormatters";
+import Heading from "@/shared/ui/Heading";
+import AdminSearch from "@/features/admin/components/AdminSearch";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -103,9 +105,14 @@ export default async function ClientsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-white">Clientes</h2>
-        <p className="mt-2 text-zinc-400">Gestión de clientes registrados</p>
+        <Heading level={1}>Clientes</Heading>
+        <p className="mt-2 text-zinc-500">Gestión de clientes registrados</p>
       </div>
+
+      <AdminSearch
+        initialQuery={query}
+        placeholder="Buscar por nombre, teléfono, email o notas"
+      />
 
       <ClientsTable customers={customersForTable} />
 

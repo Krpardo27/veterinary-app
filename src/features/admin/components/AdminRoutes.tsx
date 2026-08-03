@@ -3,17 +3,14 @@
 import LogoutButton from "@/features/auth/components/LogoutButton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { FaHippo } from "react-icons/fa";
 import {
   FiHome,
   FiCalendar,
   FiClock,
   FiUsers,
   FiScissors,
-  FiArchive,
   FiUserCheck,
-  FiBriefcase,
-  FiShield,
-  FiSettings,
 } from "react-icons/fi";
 
 export function isAdminRouteActive(pathname: string, routeHref: string) {
@@ -23,7 +20,6 @@ export function isAdminRouteActive(pathname: string, routeHref: string) {
 
   return pathname === routeHref || pathname.startsWith(`${routeHref}/`);
 }
-
 
 export const ADMIN_ROUTES = [
   {
@@ -47,62 +43,36 @@ export const ADMIN_ROUTES = [
     icon: FiUsers,
   },
   {
+    href: "/admin/veterinarios",
+    label: "Veterinarios",
+    icon: FiUserCheck,
+  },
+  {
     href: "/admin/servicios",
     label: "Servicios",
     icon: FiScissors,
-    requiresCatalogAccess: true,
   },
   {
-    href: "/admin/barberos",
-    label: "Barberos",
-    icon: FiUserCheck,
-    requiresCatalogAccess: true,
-  },
-  {
-    href: "/admin/configuracion",
-    label: "Configuración",
-    icon: FiSettings,
-    requiresCatalogAccess: true,
-    tenantOnly: true,
-  },
-  {
-    href: "/admin/barberias",
-    label: "Barberías",
-    icon: FiBriefcase,
-    platformOnly: true,
-  },
-  {
-    href: "/admin/auditoria",
-    label: "Auditoría",
-    icon: FiShield,
-    platformOnly: true,
-  },
+    href: "/",
+    label: "Sitio Web",
+    icon: FaHippo,
+    external: true,
+  }
 ];
 
-export default function AdminRoutes({
-  showPlatformRoutes = false,
-  canManageCatalog = false,
-}: {
-  showPlatformRoutes?: boolean;
-  canManageCatalog?: boolean;
-}) {
+export default function AdminRoutes() {
   const pathname = usePathname();
-  const routes = ADMIN_ROUTES.filter((route) => {
-    if (route.platformOnly && !showPlatformRoutes) return false;
-    if (route.requiresCatalogAccess && !canManageCatalog) return false;
-    if (route.tenantOnly && showPlatformRoutes) return false;
-    return true;
-  });
 
   return (
     <nav className="mt-4 flex flex-col gap-1.5">
-      {routes.map((route) => {
+      {ADMIN_ROUTES.map((route) => {
         const active = isAdminRouteActive(pathname, route.href);
 
         return (
           <Link
             key={route.href}
             href={route.href}
+            {...(route.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             className={
               active
                 ? "relative rounded-xl bg-[#0F766E] py-2 pl-4 pr-3 text-sm font-semibold text-white"

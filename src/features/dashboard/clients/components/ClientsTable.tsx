@@ -15,94 +15,94 @@ export default function ClientsTable({ customers }: ClientsTableProps) {
     <>
       {/* Desktop: Tabla */}
       {customers.length === 0 ? (
-        <div className="hidden md:block rounded-2xl border border-dashed border-[#E2E8F0] bg-[#F8FAFC] p-12 text-center">
-          <p className="text-[#64748B]">No hay clientes registrados aún.</p>
+        <div className="hidden md:block rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-12 text-center">
+          <p className="text-zinc-500">No hay clientes registrados aún.</p>
         </div>
       ) : (
-        <div className="hidden md:block overflow-hidden rounded-2xl border border-[#E2E8F0] bg-[#FFFFFF] shadow-[0_10px_30px_-20px_rgba(15,118,110,0.2)]">
+        <div className="hidden md:block overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
+              <thead className="border-b border-zinc-200 bg-zinc-50">
                 <tr>
-                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-[#0F172A]">
+                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-zinc-900">
                     Nombre
                   </th>
-                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-[#0F172A]">
+                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-zinc-900">
                     Teléfono
                   </th>
-                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-[#0F172A]">
+                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-zinc-900">
                     Email
                   </th>
-                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-[#0F172A]">
+                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-zinc-900">
                     Reservas
                   </th>
-                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-[#0F172A]">
+                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-zinc-900">
                     Registrado
                   </th>
-                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-[#0F172A]">
+                  <th className="whitespace-nowrap px-6 py-4 text-left font-semibold text-zinc-900">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E2E8F0]">
+              <tbody className="divide-y divide-zinc-100">
                 {customers.map((customer) => {
                   const nextReservation = customer.reservations[0];
 
                   return (
                     <tr
                       key={customer.id}
-                      className="transition-colors hover:bg-[#F8FAFC]"
+                      className="transition-colors hover:bg-zinc-50"
                     >
-                      <td className="px-6 py-4 font-medium text-[#0F172A]">
+                      <td className="px-6 py-4 font-medium text-zinc-900">
                         {customer.name}
                       </td>
-                      <td className="px-6 py-4 text-[#0F172A]">
+                      <td className="px-6 py-4 text-zinc-700">
                         <div className="flex items-center gap-2">
                           <FiPhone className="h-4 w-4 shrink-0 text-[#0F766E]" />
                           <span>{customer.phone}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-[#0F172A]">
+                      <td className="px-6 py-4 text-zinc-700">
                         <div className="flex items-center gap-2">
                           <FiMail className="h-4 w-4 shrink-0 text-[#0F766E]" />
                           <span>{customer.email || "—"}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#D1FAE5] px-3 py-1 text-sm font-medium text-[#0F766E]">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-sm font-medium text-[#0F766E]">
                           <FiCalendar className="h-3 w-3 shrink-0" />
                           <span>{customer.reservations.length}</span>
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-xs text-[#64748B]">
+                      <td className="px-6 py-4 text-xs text-zinc-500">
                         {customer.createdAtLabel}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-2">
                           {nextReservation ? (
-                            <div className="space-y-2 border-t border-[#E2E8F0] pt-3">
+                            <div className="space-y-2 border-t border-zinc-100 pt-3">
                               <div>
-                                <p className="mb-1 text-xs uppercase tracking-wide text-[#64748B]">
+                                <p className="mb-1 text-xs uppercase tracking-wide text-zinc-500">
                                   Próxima cita
                                 </p>
                                 <div className="space-y-1">
-                                  <p className="text-sm font-medium text-[#0F172A]">
+                                  <p className="text-sm font-medium text-zinc-900">
                                     {nextReservation.serviceName}
                                   </p>
-                                  <p className="text-xs text-[#64748B]">
+                                  <p className="text-xs text-zinc-500">
                                     {nextReservation.startAtLabel}
                                   </p>
                                 </div>
                               </div>
                             </div>
                           ) : (
-                            <div className="border-t border-[#E2E8F0] pt-3">
-                              <p className="text-xs italic text-[#64748B]">
+                            <div className="border-t border-zinc-100 pt-3">
+                              <p className="text-xs italic text-zinc-400">
                                 Sin cita activa
                               </p>
                             </div>
                           )}
-                          <div className="border-t border-white/5 pt-3 space-y-2">
+                          <div className="border-t border-zinc-100 pt-3 space-y-2">
                             {nextReservation ? (
                               <div className="flex justify-between w-full gap-2">
                                 <CancelReservationButton
@@ -130,8 +130,8 @@ export default function ClientsTable({ customers }: ClientsTableProps) {
       {/* Mobile: Cards */}
       <div className="block md:hidden space-y-4">
         {customers.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#E2E8F0] bg-[#F8FAFC] p-12 text-center">
-            <p className="text-[#64748B]">No hay clientes registrados aún.</p>
+        <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-12 text-center">
+            <p className="text-zinc-500">No hay clientes registrados aún.</p>
           </div>
         ) : (
           customers.map((customer) => (
