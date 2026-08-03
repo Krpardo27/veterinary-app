@@ -1,12 +1,11 @@
-import {
-  PrismaClient,
-  ReservationStatus,
-} from "../src/generated/prisma/client";
+import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { categories } from "./data/categories";
 import { services } from "./data/services";
 import { vets } from "./data/veterinarians";
 import { customers } from "./data/customers";
+import { buildVeterinarianServices } from "./data/veterinarian-services";
+import { buildReservations } from "./data/reservation";
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({
@@ -114,90 +113,29 @@ async function main() {
     },
   });
 
-  for (const veterinarian of veterinarians) {
-    for (const service of allServices) {
-      await prisma.veterinarianService.upsert({
-        where: {
-          veterinarianId_serviceId: {
-            veterinarianId: veterinarian.id,
-            serviceId: service.id,
-          },
+  const vetServicePairs = buildVeterinarianServices(veterinarians, allServices);
+
+  for (const pair of vetServicePairs) {
+    await prisma.veterinarianService.upsert({
+      where: {
+        veterinarianId_serviceId: {
+          veterinarianId: pair.veterinarianId,
+          serviceId: pair.serviceId,
         },
-        update: {},
-        create: {
-          veterinarianId: veterinarian.id,
-          serviceId: service.id,
-        },
-      });
-    }
-  }
-
-  const service = await prisma.service.findFirst({
-    where: {
-      isActive: true,
-    },
-  });
-
-  const veterinarian = await prisma.veterinarian.findFirst({
-    where: {
-      isActive: true,
-    },
-  });
-
-  if (!service || !veterinarian) {
-    throw new Error(
-      "No se pudieron crear los servicios o veterinarios necesarios para la reserva.",
-    );
-  }
-
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(10, 0, 0, 0);
-
-  const end = new Date(tomorrow);
-  end.setMinutes(end.getMinutes() + service.durationMin);
-
-  for (let i = 0; i < createdCustomers.length; i++) {
-    const customer = createdCustomers[i];
-
-    if (i % 3 === 0) continue;
-
-    const service = allServices[Math.floor(Math.random() * allServices.length)];
-
-    const veterinarian =
-      veterinarians[Math.floor(Math.random() * veterinarians.length)];
-
-    const start = new Date();
-
-    start.setDate(start.getDate() + Math.floor(Math.random() * 20));
-
-    start.setHours(9 + Math.floor(Math.random() * 9), 0, 0, 0);
-
-    const end = new Date(start);
-
-    end.setMinutes(end.getMinutes() + service.durationMin);
-
-    await prisma.reservation.create({
-      data: {
-        customerId: customer.id,
-
-        veterinarianId: veterinarian.id,
-
-        serviceId: service.id,
-
-        serviceName: service.name,
-
-        servicePrice: service.price,
-
-        durationMin: service.durationMin,
-
-        startAt: start,
-
-        endAt: end,
-
-        status: ReservationStatus.CONFIRMED,
       },
+      update: {},
+      create: pair,
     });
+  }
+
+  const reservations = buildReservations(
+    createdCustomers,
+    veterinarians,
+    allServices,
+  );
+
+  for (const reservation of reservations) {
+    await prisma.reservation.create({ data: reservation });
   }
 
   console.log("✅ Reserva creada");

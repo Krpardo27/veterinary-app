@@ -54,8 +54,11 @@ export default function Pagination({
     <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
       <p className="text-sm text-zinc-400">
         Mostrando{" "}
-        <span className="font-medium text-zinc-200">{from}–{to}</span> de{" "}
-        <span className="font-medium text-zinc-200">{totalItems}</span> {itemLabel}
+        <span className="font-medium text-zinc-800">
+          {from}–{to}
+        </span>{" "}
+        de <span className="font-medium text-zinc-800">{totalItems}</span>{" "}
+        {itemLabel}
       </p>
 
       {hasMultiplePages && (
@@ -82,14 +85,15 @@ export default function Pagination({
                 onClick={() => goToPage(page as number)}
                 aria-current={currentPage === page ? "page" : undefined}
                 aria-label={`Ir a la página ${page}`}
-                className={`flex h-9 w-9 items-center justify-center rounded-lg border text-sm font-medium transition-colors ${currentPage === page
-                  ? "border-[#C8A96E] bg-[#C8A96E]/10 text-[#C8A96E]"
-                  : "border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white"
-                  }`}
+                className={`flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border text-sm font-medium transition-colors ${
+                  currentPage === page
+                    ? " bg-[#0F766E] border-[#0F766E] text-white hover:bg-[#0D6B63]"
+                    : "border-white/10 bg-white/5 text-zinc-400 hover:bg-[#0F766E]  hover:text-white"
+                }`}
               >
                 {page}
               </button>
-            )
+            ),
           )}
 
           <button
