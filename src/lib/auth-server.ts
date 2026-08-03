@@ -32,6 +32,10 @@ export async function getServerSession() {
 //   return { error: null };
 // }
 
+export async function requireAdminAction() {
+  return { error: null };
+}
+
 export async function requireAuth() {
   try {
     const session = await getServerSession();

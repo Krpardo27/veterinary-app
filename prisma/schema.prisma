@@ -6,3 +6,225 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  services    Service[]
+
+  @@unique([slug])
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Service {
+  id                   String                @id @default(cuid())
+  name                 String
+  slug                 String
+  description          String?
+  price                Int
+  durationMin          Int
+  imageUrl             String?
+  featured             Boolean               @default(false)
+  isActive             Boolean               @default(true)
+  categoryId           String
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  veterinarianServices VeterinarianService[]
+  reservations         Reservation[]
+  category             Category              @relation(fields: [categoryId], references: [id])
+
+  @@unique([slug])
+  @@index([slug])
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+model Veterinarian {
+  id           String                @id @default(cuid())
+  name         String
+  phone        String?
+  email        String?
+  bio          String?
+  imageUrl     String?
+  isActive     Boolean               @default(true)
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  services     VeterinarianService[]
+  reservations Reservation[]
+
+  @@index([name])
+  @@index([isActive])
+}
+
+model VeterinarianService {
+  id             String       @id @default(cuid())
+  veterinarianId String
+  serviceId      String
+  durationMin    Int?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  veterinarian   Veterinarian @relation(fields: [veterinarianId], references: [id], onDelete: Cascade)
+  service        Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([veterinarianId, serviceId])
+  @@index([serviceId])
+  @@index([isActive])
+}
+
+model Customer {
+  id    String  @id @default(cuid())
+  name  String
+  phone String  @unique
+  email String? @unique
+
+  notes String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pets         Pet[]
+  reservations Reservation[]
+
+  @@index([name])
+  @@index([phone])
+  @@index([email])
+}
+
+enum PetSpecies {
+  DOG
+  CAT
+  BIRD
+  OTHER
+}
+
+enum PetSex {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+model Pet {
+  id             String   @id @default(cuid())
+  name           String
+  species        PetSpecies
+  breed          String?
+  sex            PetSex?
+  birthDate      DateTime?
+  weight         Float?
+  color          String?
+  imageUrl       String?
+  notes          String?
+  isActive       Boolean @default(true)
+  customerId     String
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  reservations   Reservation[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([customerId])
+  @@index([species])
+  @@index([name])
+}
+
+model Reservation {
+  id             String            @id @default(cuid())
+  customerId     String
+  serviceId      String
+  serviceName    String
+  servicePrice   Int
+  durationMin    Int
+  startAt        DateTime
+  endAt          DateTime
+  notes          String?
+  status         ReservationStatus @default(PENDING)
+  cancelledAt    DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  veterinarianId String?
+  veterinarian   Veterinarian?     @relation(fields: [veterinarianId], references: [id])
+  customer       Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  service        Service           @relation(fields: [serviceId], references: [id])
+  petId          String?
+  pet            Pet?              @relation(fields: [petId], references: [id])
+
+  @@index([customerId])
+  @@index([serviceId])
+  @@index([veterinarianId])
+  @@index([startAt])
+  @@index([status])
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
