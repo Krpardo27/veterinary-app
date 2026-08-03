@@ -1,0 +1,58 @@
+export const services = [
+  {
+    name: "Consulta General",
+    slug: "consulta-general",
+    price: 25000,
+    durationMin: 30,
+    categorySlug: "consulta-general",
+  },
+  {
+    name: "Vacuna Óctuple",
+    slug: "vacuna-octuple",
+    price: 22000,
+    durationMin: 20,
+    categorySlug: "vacunacion",
+  },
+  {
+    name: "Vacuna Antirrábica",
+    slug: "vacuna-antirrabica",
+    price: 18000,
+    durationMin: 20,
+    categorySlug: "vacunacion",
+  },
+  {
+    name: "Esterilización",
+    slug: "esterilizacion",
+    price: 90000,
+    durationMin: 90,
+    categorySlug: "cirugia",
+  },
+  {
+    name: "Limpieza Dental",
+    slug: "limpieza-dental",
+    price: 70000,
+    durationMin: 60,
+    categorySlug: "cirugia",
+  },
+  {
+    name: "Baño Completo",
+    slug: "bano-completo",
+    price: 18000,
+    durationMin: 45,
+    categorySlug: "peluqueria",
+  },
+  {
+    name: "Corte de Pelo",
+    slug: "corte-pelo",
+    price: 22000,
+    durationMin: 60,
+    categorySlug: "peluqueria",
+  },
+  {
+    name: "Hemograma",
+    slug: "hemograma",
+    price: 30000,
+    durationMin: 25,
+    categorySlug: "laboratorio",
+  },
+];
