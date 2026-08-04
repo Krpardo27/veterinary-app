@@ -68,7 +68,7 @@ export default function Pagination({
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage === 1}
             aria-label="Ir a la página anterior"
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-9 w-9 items-center cursor-pointer justify-center rounded-lg border border-white/10 bg-white/5 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
             <FiChevronLeft className="h-4 w-4" />
           </button>
@@ -85,7 +85,7 @@ export default function Pagination({
                 onClick={() => goToPage(page as number)}
                 aria-current={currentPage === page ? "page" : undefined}
                 aria-label={`Ir a la página ${page}`}
-                className={`flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border text-sm font-medium transition-colors ${
+                className={`flex h-9 w-9 cursor-pointer hover:text-slate-800 items-center justify-center rounded-lg border text-sm font-medium transition-colors ${
                   currentPage === page
                     ? " bg-[#0F766E] border-[#0F766E] text-white hover:bg-[#0D6B63]"
                     : "border-white/10 bg-white/5 text-zinc-400 hover:bg-[#0F766E]  hover:text-white"
@@ -101,7 +101,7 @@ export default function Pagination({
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage === totalPages}
             aria-label="Ir a la página siguiente"
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-9 w-9 items-center cursor-pointer hover:text-slate-800 justify-center rounded-lg border border-white/10 bg-white/5 text-zinc-400 transition-colors hover:bg-white/10  disabled:cursor-not-allowed disabled:opacity-40"
           >
             <FiChevronRight className="h-4 w-4" />
           </button>

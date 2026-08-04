@@ -3,7 +3,7 @@
 import LogoutButton from "@/features/auth/components/LogoutButton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHippo } from "react-icons/fa";
+import { CgWebsite } from "react-icons/cg";
 import {
   FiHome,
   FiCalendar,
@@ -11,6 +11,7 @@ import {
   FiUsers,
   FiScissors,
   FiUserCheck,
+
 } from "react-icons/fi";
 
 export function isAdminRouteActive(pathname: string, routeHref: string) {
@@ -55,7 +56,7 @@ export const ADMIN_ROUTES = [
   {
     href: "/",
     label: "Sitio Web",
-    icon: FaHippo,
+    icon: CgWebsite,
     external: true,
   }
 ];
