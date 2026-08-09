@@ -10,7 +10,7 @@ export default function VetsPageHeader({ services, total }: VetsPageHeaderProps)
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-sm text-zinc-500">
-        {total} {total === 1 ? "veterinario" : "veterinarios"} en total
+        {total} {total === 1 ? "profesional" : "profesionales"} en total
       </p>
       <CreateVetButton services={services} />
     </div>

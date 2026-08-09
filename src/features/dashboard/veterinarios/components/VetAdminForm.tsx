@@ -38,10 +38,10 @@ export default function VetAdminForm() {
             </p>
           </div>
           <h3 className="mt-2 text-2xl font-bold tracking-tight text-zinc-900">
-            {editing ? "Editar veterinario" : "Crear veterinario"}
+            {editing ? "Editar profesional" : "Crear profesional"}
           </h3>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
-            Define los datos del veterinario, su estado y los servicios que puede atender.
+            Define el rol, los datos y los servicios que puede atender.
           </p>
         </div>
         {vet?.isActive && (
@@ -78,6 +78,19 @@ export default function VetAdminForm() {
             <FormInput id="email" name="email" type="email" defaultValue={values?.email ?? vet?.email ?? ""}
               error={!!errors?.email?.[0]} />
             {errors?.email?.[0] && <FormErrors>{errors.email[0]}</FormErrors>}
+          </div>
+
+          <div className="space-y-2">
+            <FormLabel htmlFor="role">Rol</FormLabel>
+            <select
+              id="role"
+              name="role"
+              defaultValue={values?.role ?? vet?.role ?? "VETERINARY"}
+              className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-3 text-sm text-zinc-900 outline-none transition-colors focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E]/20"
+            >
+              <option value="VETERINARY">Veterinario/a</option>
+              <option value="GROOMING">Peluquería y baño</option>
+            </select>
           </div>
 
           <div className="space-y-2">

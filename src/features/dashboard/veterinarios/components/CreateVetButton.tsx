@@ -21,7 +21,7 @@ export default function CreateVetButton({ services }: CreateVetButtonProps) {
         className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-4 text-xs font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#0D6B63] sm:w-auto"
       >
         <FiPlus className="h-4 w-4" />
-        Nuevo veterinario
+        Crear Profesional
       </button>
 
       {isOpen ? (

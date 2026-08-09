@@ -91,7 +91,7 @@ model Service {
   categoryId           String
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
-  veterinarianServices VeterinarianService[]
+  professionalServices ProfessionalService[]
   reservations         Reservation[]
   category             Category              @relation(fields: [categoryId], references: [id])
 
@@ -101,37 +101,45 @@ model Service {
   @@index([isActive])
 }
 
-model Veterinarian {
+enum ProfessionalRole {
+  VETERINARY
+  GROOMING
+}
+
+model Professional {
   id           String                @id @default(cuid())
   name         String
   phone        String?
   email        String?
   bio          String?
   imageUrl     String?
+  role         ProfessionalRole      @default(VETERINARY)
   isActive     Boolean               @default(true)
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
-  services     VeterinarianService[]
+  services     ProfessionalService[]
   reservations Reservation[]
 
-  @@index([name])
-  @@index([isActive])
+  @@index([name], map: "Veterinarian_name_idx")
+  @@index([isActive], map: "Veterinarian_isActive_idx")
+  @@map("Veterinarian")
 }
 
-model VeterinarianService {
+model ProfessionalService {
   id             String       @id @default(cuid())
-  veterinarianId String
+  professionalId String       @map("veterinarianId")
   serviceId      String
   durationMin    Int?
   isActive       Boolean      @default(true)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
-  veterinarian   Veterinarian @relation(fields: [veterinarianId], references: [id], onDelete: Cascade)
+  professional   Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade, map: "VeterinarianService_veterinarianId_fkey")
   service        Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
-  @@unique([veterinarianId, serviceId])
-  @@index([serviceId])
-  @@index([isActive])
+  @@unique([professionalId, serviceId], map: "VeterinarianService_veterinarianId_serviceId_key")
+  @@index([serviceId], map: "VeterinarianService_serviceId_idx")
+  @@index([isActive], map: "VeterinarianService_isActive_idx")
+  @@map("VeterinarianService")
 }
 
 model Customer {
@@ -183,6 +191,8 @@ model Pet {
   customerId     String
   customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   reservations   Reservation[]
+  weightRecords  WeightRecord[]
+  vaccinations   VaccinationRecord[]
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -190,6 +200,37 @@ model Pet {
   @@index([customerId])
   @@index([species])
   @@index([name])
+}
+
+model WeightRecord {
+  id         String   @id @default(cuid())
+  petId      String
+  weight     Float
+  measuredAt DateTime @default(now())
+  notes      String?
+  pet        Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([petId])
+  @@index([measuredAt])
+}
+
+model VaccinationRecord {
+  id          String   @id @default(cuid())
+  petId       String
+  vaccineName String
+  appliedAt   DateTime @default(now())
+  nextDueAt   DateTime?
+  notes       String?
+  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([petId])
+  @@index([appliedAt])
+  @@index([nextDueAt])
 }
 
 model Reservation {
@@ -207,8 +248,8 @@ model Reservation {
   completedAt    DateTime?
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
-  veterinarianId String?
-  veterinarian   Veterinarian?     @relation(fields: [veterinarianId], references: [id])
+  professionalId String?           @map("veterinarianId")
+  professional   Professional?     @relation(fields: [professionalId], references: [id], map: "Reservation_veterinarianId_fkey")
   customer       Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
   service        Service           @relation(fields: [serviceId], references: [id])
   petId          String?
@@ -216,7 +257,7 @@ model Reservation {
 
   @@index([customerId])
   @@index([serviceId])
-  @@index([veterinarianId])
+  @@index([professionalId], map: "Reservation_veterinarianId_idx")
   @@index([startAt])
   @@index([status])
 }

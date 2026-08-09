@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import AdminMobileDock from "@/features/admin/components/AdminMobileDock";
 import SidebarAdmin from "@/features/admin/components/SidebarAdmin";
 
 export default async function DashboardLayout({
@@ -21,11 +22,11 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A]">
-      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-4 p-4 lg:grid-cols-[280px_1fr] lg:gap-6">
+      <div className="mx-auto grid w-full grid-cols-1 gap-4 p-4 lg:grid-cols-[280px_1fr] lg:gap-6">
         <SidebarAdmin userName={displayName} userEmail={displayEmail} />
         <section
           id="admin-content"
-          className="min-h-[calc(100vh-2rem)] rounded-[1.75rem] border border-[#E2E8F0] bg-white p-4 shadow-lg md:p-8"
+          className="min-h-[calc(100vh-2rem)] rounded-[1.75rem] border border-[#E2E8F0] bg-white p-4 pb-24 shadow-lg md:p-8 md:pb-24 lg:pb-8"
         >
           <header className="mb-8 flex flex-col gap-4 border-b border-[#E2E8F0] pb-6 md:flex-row md:items-center md:justify-between">
             <div>
@@ -53,6 +54,7 @@ export default async function DashboardLayout({
           <div className="w-full">{children}</div>
         </section>
       </div>
+      <AdminMobileDock />
     </div>
   );
 }

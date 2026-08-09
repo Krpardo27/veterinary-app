@@ -154,7 +154,7 @@ export default function Footer() {
                 <FiClock className="mt-0.5 h-4 w-4 shrink-0 text-[#0F766E]" />
                 <div>
                   <p className="font-medium text-[#17322c]">Sábado</p>
-                  <p>09:00 – 14:00</p>
+                  <p>09:30 – 16:30</p>
                 </div>
               </li>
             </ul>

@@ -1,14 +1,24 @@
-import type { Service, Veterinarian } from "../../src/generated/prisma/client";
+import type { Professional, Service } from "../../src/generated/prisma/client";
 
-export function buildVeterinarianServices(
-  veterinarians: Veterinarian[],
+export const GROOMING_SERVICE_SLUGS = ["bano-completo", "corte-pelo"];
+
+export function buildProfessionalServices(
+  professionals: Professional[],
   services: Service[],
 ) {
-  const pairs: Array<{ veterinarianId: string; serviceId: string }> = [];
+  const pairs: Array<{ professionalId: string; serviceId: string }> = [];
 
-  for (const vet of veterinarians) {
-    for (const service of services) {
-      pairs.push({ veterinarianId: vet.id, serviceId: service.id });
+  for (const professional of professionals) {
+    const eligibleServices = services.filter((service) => {
+      const isGroomingService = GROOMING_SERVICE_SLUGS.includes(service.slug);
+
+      return professional.role === "GROOMING"
+        ? isGroomingService
+        : !isGroomingService;
+    });
+
+    for (const service of eligibleServices) {
+      pairs.push({ professionalId: professional.id, serviceId: service.id });
     }
   }
 

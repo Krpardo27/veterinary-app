@@ -11,7 +11,7 @@ export const ReservationSchema = z
       message: "Selecciona un servicio",
     }),
 
-    veterinarianId: z.string().optional(),
+    professionalId: z.string().optional(),
 
     customerMode: z.enum(["search", "new"]),
     customerId: z.string().optional(),
@@ -31,6 +31,20 @@ export const ReservationSchema = z
       .refine((email) => email === "" || z.email().safeParse(email).success, {
         message: "Email inválido",
       })
+      .optional(),
+
+    petName: z
+      .string()
+      .trim()
+      .min(1, { message: "El nombre de la mascota es obligatorio" })
+      .max(80, { message: "El nombre no puede superar los 80 caracteres" }),
+    petSpecies: z.enum(["DOG", "CAT"], {
+      message: "Selecciona la especie de la mascota",
+    }),
+    petBreed: z
+      .string()
+      .trim()
+      .max(80, { message: "La raza no puede superar los 80 caracteres" })
       .optional(),
 
     startAt: z

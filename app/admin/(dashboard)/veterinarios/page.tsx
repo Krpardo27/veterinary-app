@@ -3,8 +3,8 @@ import AdminSectionPage from "@/features/admin/components/AdminSectionPage";
 import { VetCard, VetsEmptyState, VetsPageHeader } from "@/features/dashboard/veterinarios/components";
 
 export default async function VeterinariosPage() {
-  const [vets, services] = await Promise.all([
-    prisma.veterinarian.findMany({
+  const [professionals, services] = await Promise.all([
+    prisma.professional.findMany({
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -12,7 +12,12 @@ export default async function VeterinariosPage() {
         bio: true,
         phone: true,
         email: true,
+        role: true,
         isActive: true,
+        services: {
+          where: { isActive: true },
+          select: { service: { select: { id: true, name: true } } },
+        },
       },
     }),
     prisma.service.findMany({
@@ -25,18 +30,18 @@ export default async function VeterinariosPage() {
   return (
     <AdminSectionPage
       eyebrow="Equipo"
-      title="Veterinarios"
-      description="Gestiona los perfiles del equipo clínico y su asignación de citas."
+      title="Profesionales"
+      description="Gestiona perfiles, especialidades y asignación de servicios."
       badge="Equipo"
     >
       <div className="space-y-6">
-        <VetsPageHeader services={services} total={vets.length} />
+        <VetsPageHeader services={services} total={professionals.length} />
 
-        {vets.length === 0 ? (
+        {professionals.length === 0 ? (
           <VetsEmptyState />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {vets.map((vet) => (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {professionals.map((vet) => (
               <VetCard key={vet.id} vet={vet} />
             ))}
           </div>

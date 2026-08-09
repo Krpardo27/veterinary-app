@@ -34,6 +34,7 @@ export const VetSchema = z.object({
     .max(500, "La biografía no puede superar los 500 caracteres")
     .transform((value) => (value.length > 0 ? value : "")),
   imageUrl: optionalText,
+  role: z.enum(["VETERINARY", "GROOMING"]),
   isActive: z.boolean(),
 });
 

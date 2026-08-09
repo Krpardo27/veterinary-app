@@ -2,9 +2,9 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { categories } from "./data/categories";
 import { services } from "./data/services";
-import { vets } from "./data/veterinarians";
+import { professionals as professionalData } from "./data/veterinarians";
 import { customers } from "./data/customers";
-import { buildVeterinarianServices } from "./data/veterinarian-services";
+import { buildProfessionalServices } from "./data/veterinarian-services";
 import { buildReservations } from "./data/reservation";
 
 const prisma = new PrismaClient({
@@ -76,32 +76,33 @@ async function main() {
     });
   }
 
-  for (const vet of vets) {
-    const existingVeterinarian = await prisma.veterinarian.findFirst({
+  for (const professional of professionalData) {
+    const existingProfessional = await prisma.professional.findFirst({
       where: {
-        OR: [{ email: vet.email }, { phone: vet.phone }],
+        OR: [{ email: professional.email }, { phone: professional.phone }],
       },
     });
 
-    if (existingVeterinarian) {
-      await prisma.veterinarian.update({
-        where: { id: existingVeterinarian.id },
+    if (existingProfessional) {
+      await prisma.professional.update({
+        where: { id: existingProfessional.id },
         data: {
-          name: vet.name,
-          phone: vet.phone,
-          email: vet.email,
-          bio: vet.bio,
+          name: professional.name,
+          phone: professional.phone,
+          email: professional.email,
+          bio: professional.bio,
+          role: professional.role,
         },
       });
       continue;
     }
 
-    await prisma.veterinarian.create({
-      data: vet,
+    await prisma.professional.create({
+      data: professional,
     });
   }
 
-  const veterinarians = await prisma.veterinarian.findMany({
+  const professionals = await prisma.professional.findMany({
     where: {
       isActive: true,
     },
@@ -113,13 +114,13 @@ async function main() {
     },
   });
 
-  const vetServicePairs = buildVeterinarianServices(veterinarians, allServices);
+  const professionalServicePairs = buildProfessionalServices(professionals, allServices);
 
-  for (const pair of vetServicePairs) {
-    await prisma.veterinarianService.upsert({
+  for (const pair of professionalServicePairs) {
+    await prisma.professionalService.upsert({
       where: {
-        veterinarianId_serviceId: {
-          veterinarianId: pair.veterinarianId,
+        professionalId_serviceId: {
+          professionalId: pair.professionalId,
           serviceId: pair.serviceId,
         },
       },
@@ -130,7 +131,7 @@ async function main() {
 
   const reservations = buildReservations(
     createdCustomers,
-    veterinarians,
+    professionals,
     allServices,
   );
 

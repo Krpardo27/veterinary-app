@@ -5,6 +5,7 @@ import {
   parseBusinessDateInputRange,
   parseBusinessDateTimeInput,
 } from "@/shared/utils/businessTime";
+import { getRequiredProfessionalRole } from "../serviceRoles";
 
 export const OPEN_HOUR = 9;
 export const CLOSE_HOUR = 20;
@@ -24,17 +25,18 @@ const ACTIVE_RESERVATION_STATUSES = [
 
 type AvailabilityClient = Pick<
   PrismaClient,
-  "service" | "veterinarian" | "reservation" | "veterinarianService"
+  "service" | "professional" | "reservation" | "professionalService"
 >;
 
 type ServiceSnapshot = {
   id: string;
+  slug: string;
   name: string;
   price: number;
   durationMin: number;
 };
 
-type VeterinarianCandidate = {
+type ProfessionalCandidate = {
   id: string;
   name?: string;
   services: Array<{
@@ -43,14 +45,14 @@ type VeterinarianCandidate = {
   }>;
 };
 
-export type AvailableVeterinarian = {
-  veterinarianId: string;
-  veterinarianName: string;
+export type AvailableProfessional = {
+  professionalId: string;
+  professionalName: string;
   durationMin: number;
 };
 
 type ReservationWindow = {
-  veterinarianId: string | null;
+  professionalId: string | null;
   startAt: Date;
   endAt: Date;
 };
@@ -143,13 +145,13 @@ function getReservationConflicts(
   );
 }
 
-function mapReservationsByVeterinarian(reservations: ReservationWindow[]) {
+function mapReservationsByProfessional(reservations: ReservationWindow[]) {
   return reservations.reduce<Map<string, ReservationWindow[]>>((acc, reservation) => {
-    if (!reservation.veterinarianId) return acc;
+    if (!reservation.professionalId) return acc;
 
-    const current = acc.get(reservation.veterinarianId) ?? [];
+    const current = acc.get(reservation.professionalId) ?? [];
     current.push(reservation);
-    acc.set(reservation.veterinarianId, current);
+    acc.set(reservation.professionalId, current);
 
     return acc;
   }, new Map());
@@ -186,8 +188,8 @@ export function isValidReservationStart(
   return startTotalMinutes < closeTotalMinutes;
 }
 
-function getCandidateDurationForVeterinarian(service: ServiceSnapshot, veterinarian: VeterinarianCandidate) {
-  const assignment = veterinarian.services[0];
+function getCandidateDurationForProfessional(service: ServiceSnapshot, professional: ProfessionalCandidate) {
+  const assignment = professional.services[0];
 
   if (assignment?.isActive === false) {
     return null;
@@ -199,19 +201,20 @@ function getCandidateDurationForVeterinarian(service: ServiceSnapshot, veterinar
 export async function getActiveService(db: AvailabilityClient, serviceId: string) {
   return db.service.findFirst({
     where: { id: serviceId, isActive: true },
-    select: { id: true, name: true, price: true, durationMin: true },
+    select: { id: true, slug: true, name: true, price: true, durationMin: true },
   });
 }
 
-export async function getDurationForVeterinarian(
+export async function getDurationForProfessional(
   db: AvailabilityClient,
   service: ServiceSnapshot,
-  veterinarianId: string,
+  professionalId: string,
 ) {
-  const veterinarian = await db.veterinarian.findFirst({
+  const professional = await db.professional.findFirst({
     where: {
-      id: veterinarianId,
+      id: professionalId,
       isActive: true,
+      role: getRequiredProfessionalRole(service.slug),
     },
     select: {
       id: true,
@@ -225,15 +228,15 @@ export async function getDurationForVeterinarian(
     },
   });
 
-  if (!veterinarian) return null;
+  if (!professional) return null;
 
-  return getCandidateDurationForVeterinarian(service, veterinarian);
+  return getCandidateDurationForProfessional(service, professional);
 }
 
 export async function hasReservationConflict(
   db: AvailabilityClient,
   params: {
-    veterinarianId: string;
+    professionalId: string;
     start: Date;
     end: Date;
     excludeReservationId?: string;
@@ -241,7 +244,7 @@ export async function hasReservationConflict(
 ) {
   const conflict = await db.reservation.findFirst({
     where: {
-      veterinarianId: params.veterinarianId,
+      professionalId: params.professionalId,
       status: { in: ACTIVE_RESERVATION_STATUSES },
       ...(params.excludeReservationId ? { id: { not: params.excludeReservationId } } : {}),
       OR: [{ startAt: { lt: params.end }, endAt: { gt: params.start } }],
@@ -252,13 +255,14 @@ export async function hasReservationConflict(
   return Boolean(conflict);
 }
 
-export async function findAvailableVeterinarian(
+export async function findAvailableProfessional(
   db: AvailabilityClient,
   params: { service: ServiceSnapshot; start: Date },
-): Promise<AvailableVeterinarian | null> {
-  const veterinarians = await db.veterinarian.findMany({
+): Promise<AvailableProfessional | null> {
+  const professionals = await db.professional.findMany({
     where: {
       isActive: true,
+      role: getRequiredProfessionalRole(params.service.slug),
     },
     orderBy: { name: "asc" },
     select: {
@@ -274,19 +278,19 @@ export async function findAvailableVeterinarian(
     },
   });
 
-  const candidates = veterinarians
-    .map((veterinarian) => {
-      const durationMin = getCandidateDurationForVeterinarian(params.service, veterinarian);
+  const candidates = professionals
+    .map((professional) => {
+      const durationMin = getCandidateDurationForProfessional(params.service, professional);
 
       if (!durationMin) return null;
 
       return {
-        veterinarianId: veterinarian.id,
-        veterinarianName: veterinarian.name,
+        professionalId: professional.id,
+        professionalName: professional.name,
         durationMin,
       };
     })
-    .filter((candidate): candidate is AvailableVeterinarian => candidate !== null);
+    .filter((candidate): candidate is AvailableProfessional => candidate !== null);
 
   if (!candidates.length) {
     return null;
@@ -297,20 +301,20 @@ export async function findAvailableVeterinarian(
 
   const activeReservations = await db.reservation.findMany({
     where: {
-      veterinarianId: { in: candidates.map((candidate) => candidate.veterinarianId) },
+      professionalId: { in: candidates.map((candidate) => candidate.professionalId) },
       status: { in: ACTIVE_RESERVATION_STATUSES },
       startAt: { lt: maxEnd },
       endAt: { gt: params.start },
     },
-    select: { veterinarianId: true, startAt: true, endAt: true },
+    select: { professionalId: true, startAt: true, endAt: true },
   });
 
-  const reservationsByVeterinarian = mapReservationsByVeterinarian(activeReservations);
+  const reservationsByProfessional = mapReservationsByProfessional(activeReservations);
 
   for (const candidate of candidates) {
     const end = new Date(params.start.getTime() + candidate.durationMin * 60 * 1000);
     const hasConflict = getReservationConflicts(
-      reservationsByVeterinarian.get(candidate.veterinarianId),
+      reservationsByProfessional.get(candidate.professionalId),
       params.start,
       end,
     );
@@ -326,19 +330,20 @@ export async function findAvailableVeterinarian(
 export async function getAvailabilityCandidates(
   db: AvailabilityClient,
   service: ServiceSnapshot,
-  veterinarianId?: string,
+  professionalId?: string,
 ) {
-  if (veterinarianId) {
-    const durationMin = await getDurationForVeterinarian(db, service, veterinarianId);
+  if (professionalId) {
+    const durationMin = await getDurationForProfessional(db, service, professionalId);
 
     return durationMin
-      ? [{ veterinarianId, durationMin }]
+      ? [{ professionalId, durationMin }]
       : [];
   }
 
-  const veterinarians = await db.veterinarian.findMany({
+  const professionals = await db.professional.findMany({
     where: {
       isActive: true,
+      role: getRequiredProfessionalRole(service.slug),
     },
     orderBy: { name: "asc" },
     select: {
@@ -353,10 +358,10 @@ export async function getAvailabilityCandidates(
     },
   });
 
-  return veterinarians.flatMap((veterinarian) => {
-    const durationMin = getCandidateDurationForVeterinarian(service, veterinarian);
+  return professionals.flatMap((professional) => {
+    const durationMin = getCandidateDurationForProfessional(service, professional);
 
-    return durationMin ? [{ veterinarianId: veterinarian.id, durationMin }] : [];
+    return durationMin ? [{ professionalId: professional.id, durationMin }] : [];
   });
 }
 

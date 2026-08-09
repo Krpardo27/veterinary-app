@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { FiEdit3, FiMail, FiPhone, FiUser } from "react-icons/fi";
+import { FiBriefcase, FiEdit3, FiUser } from "react-icons/fi";
 
 type VetCardData = {
   id: string;
   name: string;
   bio: string | null;
-  phone: string | null;
-  email: string | null;
+  role: "VETERINARY" | "GROOMING";
   isActive: boolean;
+  services: Array<{ service: { id: string; name: string } }>;
 };
 
 type VetCardProps = {
@@ -23,6 +23,9 @@ export default function VetCard({ vet }: VetCardProps) {
             <FiUser className="h-5 w-5" />
           </div>
           <h3 className="text-lg font-semibold text-zinc-900">{vet.name}</h3>
+          <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[#0F766E]">
+            {vet.role === "VETERINARY" ? "Veterinario/a" : "Peluquería y baño"}
+          </p>
           {vet.bio && (
             <p className="mt-1 line-clamp-2 text-sm text-zinc-500">{vet.bio}</p>
           )}
@@ -39,14 +42,24 @@ export default function VetCard({ vet }: VetCardProps) {
       </div>
 
       <div className="space-y-2 border-t border-zinc-100 pt-4">
-        <div className="flex items-center gap-2 text-sm text-zinc-600">
-          <FiPhone className="h-4 w-4 text-zinc-400" />
-          <span>{vet.phone || "Sin teléfono"}</span>
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          <FiBriefcase className="h-4 w-4 text-[#0F766E]" />
+          Servicios asignados
         </div>
-        <div className="flex items-center gap-2 text-sm text-zinc-600">
-          <FiMail className="h-4 w-4 text-zinc-400" />
-          <span className="truncate">{vet.email || "Sin email"}</span>
-        </div>
+        {vet.services.length === 0 ? (
+          <p className="text-sm text-zinc-500">Sin servicios asignados</p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {vet.services.map(({ service }) => (
+              <span
+                key={service.id}
+                className="inline-flex items-center border border-[#B9D9CF] bg-[#F0F8F5] px-2 py-1 text-xs font-medium text-[#1D554A]"
+              >
+                {service.name}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mt-5 border-t border-zinc-100 pt-4">
@@ -55,7 +68,7 @@ export default function VetCard({ vet }: VetCardProps) {
           className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-[#0F766E]/30 px-4 text-xs font-bold uppercase tracking-wide text-[#0F766E] transition-colors hover:border-[#0F766E] hover:bg-[#0F766E]/5 sm:w-auto"
         >
           <FiEdit3 className="h-4 w-4" />
-          Editar veterinario
+          Editar profesional
         </Link>
       </div>
     </div>

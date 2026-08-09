@@ -20,7 +20,7 @@ export default function Navbar() {
         </Link>
       ))}
       <Link
-        href="#contacto"
+        href="/reservar"
         className="rounded-full bg-[#e08b4f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#c9742f]"
       >
         Agenda hoy

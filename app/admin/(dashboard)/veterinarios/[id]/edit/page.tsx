@@ -14,7 +14,7 @@ export default async function EditVetPage({ params }: EditVetPageProps) {
 
   if (!id) notFound();
 
-  const vet = await prisma.veterinarian.findUnique({
+  const vet = await prisma.professional.findUnique({
     where: { id },
     include: {
       services: {
@@ -36,7 +36,7 @@ export default async function EditVetPage({ params }: EditVetPageProps) {
       <GoBackButton />
 
       <div>
-        <Heading level={2}>Editar veterinario</Heading>
+        <Heading level={2}>Editar profesional</Heading>
         <p className="mt-2 text-zinc-500">Actualiza los datos de {vet.name}.</p>
       </div>
 

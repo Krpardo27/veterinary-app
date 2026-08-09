@@ -7,7 +7,7 @@ export type Slot = {
   available: boolean;
 };
 
-export function useAvailableSlots(serviceId: string, date: string, veterinarianId?: string) {
+export function useAvailableSlots(serviceId: string, date: string, professionalId?: string) {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loading, setLoading] = useState(false);
   const [closed, setClosed] = useState(false);
@@ -27,8 +27,8 @@ export function useAvailableSlots(serviceId: string, date: string, veterinarianI
         try {
           const params = new URLSearchParams({ serviceId, date });
 
-          if (veterinarianId) {
-            params.set("veterinarianId", veterinarianId);
+          if (professionalId) {
+            params.set("professionalId", professionalId);
           }
 
           const res = await fetch(`/api/slots?${params.toString()}`, {
@@ -76,7 +76,7 @@ export function useAvailableSlots(serviceId: string, date: string, veterinarianI
     fetchSlots();
 
     return () => controller.abort();
-  }, [serviceId, date, veterinarianId]);
+  }, [serviceId, date, professionalId]);
 
   return { slots, loading, closed };
 }

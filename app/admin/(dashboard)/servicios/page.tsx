@@ -30,7 +30,7 @@ export default async function ServicesPage() {
         <CreateServiceButton categories={categories} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {services.map((service) => (
           <div
             key={service.id}

@@ -19,6 +19,7 @@ export type VetFormValues = {
   email: string;
   bio: string;
   imageUrl: string;
+  role: "VETERINARY" | "GROOMING";
   isActive: boolean;
   services: Record<string, { isActive: boolean; durationMin: string }>;
 };
@@ -30,6 +31,7 @@ function vetFormDataFrom(formData: FormData) {
     email: formData.get("email") ?? "",
     bio: formData.get("bio") ?? "",
     imageUrl: formData.get("imageUrl") ?? "",
+    role: formData.get("role") ?? "VETERINARY",
     isActive: formData.get("isActive") === "on",
   };
 }
@@ -64,6 +66,7 @@ function vetValuesFrom(formData: FormData): VetFormValues {
     email: formData.get("email")?.toString() ?? "",
     bio: formData.get("bio")?.toString() ?? "",
     imageUrl: formData.get("imageUrl")?.toString() ?? "",
+    role: formData.get("role") === "GROOMING" ? "GROOMING" : "VETERINARY",
     isActive: formData.get("isActive") === "on",
     services: serviceValues,
   };
@@ -136,7 +139,7 @@ export async function createVetAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Revisa los campos del veterinario",
+      message: "Revisa los campos del profesional",
       fieldErrors: z.flattenError(parsed.error).fieldErrors,
       values,
     };
@@ -149,13 +152,14 @@ export async function createVetAction(
   }
 
   try {
-    await prisma.veterinarian.create({
+    await prisma.professional.create({
       data: {
         name: parsed.data.name,
         phone: parsed.data.phone || null,
         email: parsed.data.email || null,
         bio: parsed.data.bio || null,
         imageUrl: parsed.data.imageUrl || null,
+        role: parsed.data.role,
         isActive: parsed.data.isActive,
         services: {
           create: serviceConfigs.configs.map((config) => ({
@@ -169,10 +173,10 @@ export async function createVetAction(
 
     revalidateVets();
 
-    return { status: "success", message: "Veterinario creado correctamente" };
+    return { status: "success", message: "Profesional creado correctamente" };
   } catch (error) {
     console.error(error);
-    return { status: "error", message: "No fue posible crear el veterinario", values };
+    return { status: "error", message: "No fue posible crear el profesional", values };
   }
 }
 
@@ -193,7 +197,7 @@ export async function updateVetAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Revisa los campos del veterinario",
+      message: "Revisa los campos del profesional",
       fieldErrors: z.flattenError(parsed.error).fieldErrors,
       values,
     };
@@ -205,18 +209,18 @@ export async function updateVetAction(
     return { status: "error", message: serviceConfigs.error, values };
   }
 
-  const vet = await prisma.veterinarian.findUnique({
+  const vet = await prisma.professional.findUnique({
     where: { id: vetId },
     select: { id: true },
   });
 
   if (!vet) {
-    return { status: "error", message: "Veterinario no encontrado", values };
+    return { status: "error", message: "Profesional no encontrado", values };
   }
 
   try {
     await prisma.$transaction(async (tx) => {
-      await tx.veterinarian.update({
+      await tx.professional.update({
         where: { id: vetId },
         data: {
           name: parsed.data.name,
@@ -224,17 +228,18 @@ export async function updateVetAction(
           email: parsed.data.email || null,
           bio: parsed.data.bio || null,
           imageUrl: parsed.data.imageUrl || null,
+          role: parsed.data.role,
           isActive: parsed.data.isActive,
         },
       });
 
-      await tx.veterinarianService.deleteMany({ where: { veterinarianId: vetId } });
+      await tx.professionalService.deleteMany({ where: { professionalId: vetId } });
 
       if (serviceConfigs.configs.length > 0) {
-        await tx.veterinarianService.createMany({
+        await tx.professionalService.createMany({
           data: serviceConfigs.configs.map((config) => ({
             ...config,
-            veterinarianId: vetId,
+            professionalId: vetId,
           })),
         });
       }
@@ -242,10 +247,10 @@ export async function updateVetAction(
 
     revalidateVets();
 
-    return { status: "success", message: "Veterinario actualizado correctamente" };
+    return { status: "success", message: "Profesional actualizado correctamente" };
   } catch (error) {
     console.error(error);
-    return { status: "error", message: "No fue posible actualizar el veterinario", values };
+    return { status: "error", message: "No fue posible actualizar el profesional", values };
   }
 }
 
@@ -256,30 +261,30 @@ export async function deleteVetAction(vetId: string): Promise<VetActionState> {
     return { status: "error", message: auth.error };
   }
 
-  const vet = await prisma.veterinarian.findUnique({
+  const vet = await prisma.professional.findUnique({
     where: { id: vetId },
     select: { id: true, _count: { select: { reservations: true } } },
   });
 
   if (!vet) {
-    return { status: "error", message: "Veterinario no encontrado" };
+    return { status: "error", message: "Profesional no encontrado" };
   }
 
   if (vet._count.reservations > 0) {
     return {
       status: "error",
-      message: "No se puede eliminar un veterinario con reservas asociadas. Puedes desactivarlo.",
+      message: "No se puede eliminar un profesional con reservas asociadas. Puedes desactivarlo.",
     };
   }
 
   try {
-    await prisma.veterinarian.delete({ where: { id: vetId } });
+    await prisma.professional.delete({ where: { id: vetId } });
 
     revalidateVets();
 
-    return { status: "success", message: "Veterinario eliminado correctamente" };
+    return { status: "success", message: "Profesional eliminado correctamente" };
   } catch (error) {
     console.error(error);
-    return { status: "error", message: "No fue posible eliminar el veterinario" };
+    return { status: "error", message: "No fue posible eliminar el profesional" };
   }
 }

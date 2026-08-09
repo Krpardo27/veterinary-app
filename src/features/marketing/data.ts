@@ -30,7 +30,7 @@ export const services: ServiceItem[] = [
 
 export const scheduleItems = [
   "Lunes a viernes: 8:00 - 20:00",
-  "Sábados: 9:00 - 14:00",
+  "Sábados: 09:30 - 16:30",
   "Urgencias: atención prioritaria",
 ];
 

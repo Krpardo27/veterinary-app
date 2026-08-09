@@ -29,7 +29,7 @@ export default function FormSelectServices({
 }: Props) {
   const getInitialEnabled = (id: string) => {
     if (submittedValues) return submittedValues[id]?.isActive ?? false;
-    return assignments.find((a) => a.serviceId === id)?.isActive ?? true;
+    return assignments.find((a) => a.serviceId === id)?.isActive ?? false;
   };
 
   const [enabled, setEnabled] = useState<Record<string, boolean>>(() =>

@@ -4,10 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { ReservationSchema } from "../schemas/reservation.schema";
 import {
-  findAvailableVeterinarian,
+  findAvailableProfessional,
   getActiveService,
   getDayRange,
-  getDurationForVeterinarian,
+  getDurationForProfessional,
   hasReservationConflict,
   isInsideBusinessWindow,
   isValidReservationStart,
@@ -34,11 +34,14 @@ export async function createReservationAction(
   }
   const {
     serviceId,
-    veterinarianId,
+    professionalId,
     customerId,
     customerName,
     customerPhone,
     customerEmail,
+    petName,
+    petSpecies,
+    petBreed,
     startAt,
     notes,
   } = result.data;
@@ -78,31 +81,31 @@ export async function createReservationAction(
       const lockKey = `reservation:${getBusinessDateInput(start)}`;
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey})::bigint)`;
 
-      let resolvedVeterinarianId = veterinarianId || null;
+      let resolvedProfessionalId = professionalId || null;
       let resolvedDurationMin: number | null = null;
 
-      if (resolvedVeterinarianId) {
-        resolvedDurationMin = await getDurationForVeterinarian(tx, service, resolvedVeterinarianId);
+      if (resolvedProfessionalId) {
+        resolvedDurationMin = await getDurationForProfessional(tx, service, resolvedProfessionalId);
 
         if (!resolvedDurationMin) {
           return {
-            errors: [{ message: "El veterinario seleccionado no atiende este servicio." }],
+            errors: [{ message: "El profesional seleccionado no atiende este servicio." }],
           };
         }
       } else {
-        const availableVeterinarian = await findAvailableVeterinarian(tx, {
+        const availableProfessional = await findAvailableProfessional(tx, {
           service,
           start,
         });
 
-        if (!availableVeterinarian) {
+        if (!availableProfessional) {
           return {
-            errors: [{ message: "No hay veterinarios disponibles para ese horario." }],
+            errors: [{ message: "No hay profesionales disponibles para ese horario." }],
           };
         }
 
-        resolvedVeterinarianId = availableVeterinarian.veterinarianId;
-        resolvedDurationMin = availableVeterinarian.durationMin;
+        resolvedProfessionalId = availableProfessional.professionalId;
+        resolvedDurationMin = availableProfessional.durationMin;
       }
 
       const end = new Date(start.getTime() + resolvedDurationMin * 60 * 1000);
@@ -114,7 +117,7 @@ export async function createReservationAction(
       }
 
       const conflict = await hasReservationConflict(tx, {
-        veterinarianId: resolvedVeterinarianId,
+        professionalId: resolvedProfessionalId,
         start,
         end,
       });
@@ -168,14 +171,25 @@ export async function createReservationAction(
         };
       }
 
+      const pet = await tx.pet.create({
+        data: {
+          customerId: resolvedCustomerId,
+          name: petName,
+          species: petSpecies,
+          breed: petBreed || null,
+        },
+        select: { id: true },
+      });
+
       const createdReservation = await tx.reservation.create({
         data: {
           customerId: resolvedCustomerId,
           serviceId: service.id,
-          veterinarianId: resolvedVeterinarianId,
+          professionalId: resolvedProfessionalId,
           serviceName: service.name,
           servicePrice: service.price,
           durationMin: resolvedDurationMin,
+          petId: pet.id,
           startAt: start,
           endAt: end,
           notes: notes || null,

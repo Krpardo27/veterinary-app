@@ -5,6 +5,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { FaArrowLeft, FaArrowRight, FaPaw, FaShieldAlt, FaStethoscope } from "react-icons/fa";
+import Link from "next/link";
 
 const slides = [
   {
@@ -66,9 +67,9 @@ export default function Hero() {
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <a href="#contacto" className="rounded-full bg-[#2a6a5d] px-5 py-3 font-semibold text-white transition hover:bg-[#1f5248]">
+          <Link href="/reservar" className="rounded-full bg-[#2a6a5d] px-5 py-3 font-semibold text-white transition hover:bg-[#1f5248]">
             Reservar cita
-          </a>
+          </Link>
           <a href="#servicios" className="rounded-full border border-[#2a6a5d]/20 bg-white px-5 py-3 font-semibold text-[#2a6a5d] transition hover:border-[#2a6a5d]">
             Ver servicios
           </a>

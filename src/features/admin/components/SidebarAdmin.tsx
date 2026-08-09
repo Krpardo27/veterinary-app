@@ -22,7 +22,7 @@ export default function SidebarAdmin({
       <div>
         <div className="mb-5 border-b border-zinc-200 pb-4">
           <h2 className="text-lg font-bold tracking-tight text-[#0F172A]">
-            VetCare Admin
+            Administrador
           </h2>
 
           <p className="mt-1 text-xs font-medium uppercase tracking-[0.28em] text-[#64748B]">

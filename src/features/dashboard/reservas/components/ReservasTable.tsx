@@ -1,6 +1,7 @@
 import type { ReservationStatus } from "@/generated/prisma/enums";
 import { ReservationTableItem } from "./reservation.types";
 import ReservationMobileCard from "./ReservationMobileCard";
+import ReservationStatusButtons from "./ReservationStatusButtons";
 
 
 const STATUS_LABELS: Record<ReservationStatus, string> = {
@@ -43,9 +44,10 @@ export default function ReservasTable({ reservations }: ReservasTableProps) {
                 <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Fecha</th>
                 <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Cliente</th>
                 <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Servicio</th>
-                <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Veterinario</th>
+                <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Profesional</th>
                 <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Precio</th>
                 <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Estado</th>
+                <th className="px-5 py-3 text-right font-semibold text-zinc-700 whitespace-nowrap">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
@@ -65,7 +67,7 @@ export default function ReservasTable({ reservations }: ReservasTableProps) {
                   </td>
                   <td className="px-5 py-3 text-zinc-700">{r.serviceName}</td>
                   <td className="px-5 py-3 text-zinc-700">
-                    {r.veterinarian?.name ?? <span className="text-zinc-400">—</span>}
+                    {r.professional?.name ?? <span className="text-zinc-400">—</span>}
                   </td>
                   <td className="px-5 py-3 font-medium text-zinc-900">
                     ${r.servicePrice.toLocaleString("es-CL")}
@@ -74,6 +76,11 @@ export default function ReservasTable({ reservations }: ReservasTableProps) {
                     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[r.status]}`}>
                       {STATUS_LABELS[r.status]}
                     </span>
+                  </td>
+                  <td className="px-5 py-3">
+                    <div className="flex justify-end">
+                      <ReservationStatusButtons reservationId={r.id} status={r.status} />
+                    </div>
                   </td>
                 </tr>
               ))}
