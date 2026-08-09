@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { requireAdminAction } from "@/lib/auth-server";
-import { PetSchema, type PetFieldErrors } from "../schemas/pet.schema";
+import { PetSchema, type PetFieldErrors, type PetInput } from "../schemas/pet.schema";
 
 export type CreatePetState = {
   status: "idle" | "success" | "error";
