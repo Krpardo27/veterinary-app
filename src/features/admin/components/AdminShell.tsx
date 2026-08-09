@@ -31,20 +31,20 @@ export default function AdminShell({
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A]">
+    <div className="min-h-dvh bg-[#F8FAFC] text-[#0F172A]">
       <SidebarAdmin
         userName={userName}
         expanded={sidebarExpanded}
         onToggle={() => setSidebarExpanded((expanded) => !expanded)}
       />
       <main
-        className={`min-h-screen transition-[padding] duration-200 ease-out ${
+        className={`min-h-dvh transition-[padding] duration-200 ease-out ${
           sidebarExpanded ? "lg:pl-60" : "lg:pl-20"
         }`}
       >
         <section
           id="admin-content"
-          className="container mx-auto min-h-screen bg-[#F8FAFC] p-4 pb-24 md:p-8 md:pb-24 lg:pb-8"
+          className="container mx-auto min-h-dvh bg-[#F8FAFC] p-4 pb-28 md:p-8 md:pb-24 lg:pb-8"
         >
           <header className="mb-8 flex flex-col gap-4 border-b border-[#E2E8F0] pb-6 md:flex-row md:items-center md:justify-between">
             <div>
