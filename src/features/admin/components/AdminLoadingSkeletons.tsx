@@ -107,7 +107,7 @@ export function AdminServicesPageSkeleton() {
     <div className="space-y-6">
       <AdminHeadingSkeleton titleWidth="w-40" subtitleWidth="w-72" action="button" />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={index}

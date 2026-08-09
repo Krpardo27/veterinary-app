@@ -1,5 +1,6 @@
 import type { ReservationStatus } from "@/generated/prisma/enums";
 import type { ReservationTableItem } from "./reservation.types";
+import ReservationStatusButtons from "./ReservationStatusButtons";
 
 const STATUS_LABELS: Record<ReservationStatus, string> = {
   PENDING:   "Pendiente",
@@ -32,7 +33,7 @@ export default function ReservationMobileCard({ reservation }: { reservation: Re
 
       <div className="space-y-1 text-sm text-zinc-700">
         <p><span className="text-zinc-400">Servicio: </span>{reservation.serviceName}</p>
-        <p><span className="text-zinc-400">Veterinario: </span>{reservation.veterinarian?.name ?? "—"}</p>
+        <p><span className="text-zinc-400">Profesional: </span>{reservation.professional?.name ?? "—"}</p>
         <p>
           <span className="text-zinc-400">Fecha: </span>
           {new Date(reservation.startAt).toLocaleString("es-CL", {
@@ -42,6 +43,8 @@ export default function ReservationMobileCard({ reservation }: { reservation: Re
         </p>
         <p className="font-semibold text-zinc-900">${reservation.servicePrice.toLocaleString("es-CL")}</p>
       </div>
+
+      <ReservationStatusButtons reservationId={reservation.id} status={reservation.status} />
     </div>
   );
 }

@@ -54,11 +54,11 @@ export default function AddVetForm({
 
   const handleSubmit = async (formData: FormData) => {
     const result = await Swal.fire({
-      title: "Crear veterinario",
-      text: "Se creará un nuevo veterinario en el equipo.",
+      title: "Crear profesional",
+      text: "Se creará un nuevo profesional en el equipo.",
       icon: "question",
       showCancelButton: true,
-      confirmButtonText: "Crear veterinario",
+      confirmButtonText: "Crear profesional",
       cancelButtonText: "Volver",
       confirmButtonColor: "#0F766E",
       cancelButtonColor: "#6b7280",

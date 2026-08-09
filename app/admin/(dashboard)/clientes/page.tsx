@@ -40,16 +40,17 @@ export default async function ClientsPage({
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
   const query = q?.trim() || "";
 
-  const where: Prisma.CustomerWhereInput = query
-    ? {
+  const where: Prisma.CustomerWhereInput = {
+    isActive: true,
+    ...(query && {
         OR: [
           { name: { contains: query, mode: "insensitive" } },
           { phone: { contains: query, mode: "insensitive" } },
           { email: { contains: query, mode: "insensitive" } },
           { notes: { contains: query, mode: "insensitive" } },
         ],
-      }
-    : {};
+      }),
+  };
 
   const totalItems = await prisma.customer.count({ where });
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);

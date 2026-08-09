@@ -1,7 +1,6 @@
+import Link from "next/link";
 import { FiPhone, FiMail, FiCalendar } from "react-icons/fi";
 import type { ClientTableCustomer } from "./client.types";
-import { CancelReservationButton } from "./CancelReservationButton";
-import DeleteCustomerButton from "./DeleteCustomerButton";
 
 interface ClientMobileCardProps {
   customer: ClientTableCustomer;
@@ -73,16 +72,12 @@ export default function ClientMobileCard({ customer }: ClientMobileCardProps) {
       )}
 
       <div className="space-y-2 border-t border-[#E2E8F0] pt-3">
-        {nextReservation ? (
-          <div className="flex justify-between w-full">
-            <CancelReservationButton reservationId={nextReservation.id} />
-          </div>
-        ) : (
-          <DeleteCustomerButton
-            customerId={customer.id}
-            customerName={customer.name}
-          />
-        )}
+        <Link
+          href={`/admin/clientes/${customer.id}`}
+          className="inline-flex h-9 items-center justify-center border border-[#B9D9CF] px-3 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5]"
+        >
+          Ver ficha
+        </Link>
       </div>
     </div>
   );

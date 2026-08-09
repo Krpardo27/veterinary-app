@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
-  findAvailableVeterinarian,
+  findAvailableProfessional,
   isInsideBusinessWindow,
   isValidReservationStart,
 } from "./availability";
 import { parseBusinessDateTimeInput } from "@/shared/utils/businessTime";
 
-type FindAvailableVeterinarianDb = {
-  veterinarian: {
+type FindAvailableProfessionalDb = {
+  professional: {
     findMany: ReturnType<typeof vi.fn>;
   };
   reservation: {
@@ -67,10 +67,10 @@ describe("availability", () => {
     });
   });
 
-  describe("findAvailableVeterinarian", () => {
-    it("resuelve veterinario disponible evitando conflictos en memoria", async () => {
-      const db: FindAvailableVeterinarianDb = {
-        veterinarian: {
+  describe("findAvailableProfessional", () => {
+    it("resuelve profesional disponible evitando conflictos en memoria", async () => {
+      const db: FindAvailableProfessionalDb = {
+        professional: {
           findMany: vi.fn().mockResolvedValue([
             {
               id: "b1",
@@ -87,7 +87,7 @@ describe("availability", () => {
         reservation: {
           findMany: vi.fn().mockResolvedValue([
             {
-              veterinarianId: "b1",
+              professionalId: "b1",
               startAt: parseBusinessDateTimeInput("2026-07-10T10:00:00"),
               endAt: parseBusinessDateTimeInput("2026-07-10T10:30:00"),
             },
@@ -103,9 +103,9 @@ describe("availability", () => {
         durationMin: 30,
       };
 
-      const available = await findAvailableVeterinarian(db as never, { service, start });
+      const available = await findAvailableProfessional(db as never, { service, start });
 
-      expect(available?.veterinarianId).toBe("b2");
+      expect(available?.professionalId).toBe("b2");
       expect(db.reservation.findMany).toHaveBeenCalledTimes(1);
     });
   });

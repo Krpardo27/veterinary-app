@@ -9,7 +9,7 @@ const ALLOWED_TARGET_STATUSES: ReservationStatus[] = ["COMPLETED", "NO_SHOW"];
 
 export async function updateReservationStatusAction(
   reservationId: string,
-  targetStatus: ReservationStatus
+  targetStatus: ReservationStatus,
 ) {
   const auth = await requireAdminAction();
 
@@ -24,16 +24,15 @@ export async function updateReservationStatusAction(
 
     const reservation = await prisma.reservation.findFirst({
       where: { id: reservationId },
+      select: { status: true },
     });
 
     if (!reservation) {
       return { error: "Reserva no encontrada" };
     }
 
-    if (!["PENDING", "CONFIRMED"].includes(reservation.status)) {
-      return {
-        error: "Solo reservas pendientes o confirmadas pueden cambiar de estado",
-      };
+    if (reservation.status !== "PENDING" && reservation.status !== "CONFIRMED") {
+      return { error: "Solo reservas pendientes o confirmadas pueden cambiar de estado" };
     }
 
     const updatedReservation = await prisma.reservation.updateMany({

@@ -45,7 +45,7 @@ export const ADMIN_ROUTES = [
   },
   {
     href: "/admin/veterinarios",
-    label: "Veterinarios",
+    label: "Profesionales",
     icon: FiUserCheck,
   },
   {

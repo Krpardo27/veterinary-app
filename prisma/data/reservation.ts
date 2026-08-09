@@ -2,20 +2,29 @@ import {
   ReservationStatus,
   type Customer,
   type Service,
-  type Veterinarian,
+  type Professional,
 } from "../../src/generated/prisma/client";
+import { GROOMING_SERVICE_SLUGS } from "./veterinarian-services";
 
 export function buildReservations(
   customers: Customer[],
-  veterinarians: Veterinarian[],
+  professionals: Professional[],
   services: Service[],
 ) {
   return customers
     .filter((_, i) => i % 3 !== 0)
     .map((customer) => {
       const service = services[Math.floor(Math.random() * services.length)];
-      const veterinarian =
-        veterinarians[Math.floor(Math.random() * veterinarians.length)];
+      const isGroomingService = GROOMING_SERVICE_SLUGS.includes(service.slug);
+      const eligibleProfessionals = professionals.filter((professional) =>
+        isGroomingService
+          ? professional.role === "GROOMING"
+          : professional.role === "VETERINARY",
+      );
+      const professional =
+        eligibleProfessionals[
+          Math.floor(Math.random() * eligibleProfessionals.length)
+        ];
 
       const start = new Date();
       start.setDate(start.getDate() + Math.floor(Math.random() * 20));
@@ -26,7 +35,7 @@ export function buildReservations(
 
       return {
         customerId: customer.id,
-        veterinarianId: veterinarian.id,
+        professionalId: professional.id,
         serviceId: service.id,
         serviceName: service.name,
         servicePrice: service.price,

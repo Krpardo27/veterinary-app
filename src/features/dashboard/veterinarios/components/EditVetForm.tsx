@@ -4,13 +4,13 @@ import { type ReactNode, useActionState, useEffect, useTransition } from "react"
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
-import type { VeterinarianService, Veterinarian, Service } from "@/generated/prisma/client";
+import type { ProfessionalService, Professional, Service } from "@/generated/prisma/client";
 import { VetFormContext } from "./VetFormContext";
 import { deleteVetAction, updateVetAction, type VetActionState } from "../actions/veterinarios-actions";
 
 type EditVetFormProps = {
-  vet: Veterinarian & {
-    services?: Pick<VeterinarianService, "serviceId" | "durationMin" | "isActive">[];
+  vet: Professional & {
+    services?: Pick<ProfessionalService, "serviceId" | "durationMin" | "isActive">[];
   };
   services: Pick<Service, "id" | "name" | "durationMin">[];
   successRedirectHref?: string;
@@ -42,7 +42,7 @@ export default function EditVetForm({ vet, services, successRedirectHref, childr
   const handleSubmit = async (formData: FormData) => {
     const result = await Swal.fire({
       title: "Guardar cambios",
-      text: "Se actualizar\u00e1n los datos de este veterinario.",
+      text: "Se actualizarán los datos de este profesional.",
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Guardar cambios",
@@ -58,11 +58,11 @@ export default function EditVetForm({ vet, services, successRedirectHref, childr
 
   const handleDelete = async () => {
     const result = await Swal.fire({
-      title: "Eliminar veterinario",
-      text: `Esta acci\u00f3n eliminar\u00e1 a ${vet.name} del equipo.`,
+      title: "Eliminar profesional",
+      text: `Esta acción eliminará a ${vet.name} del equipo.`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Eliminar veterinario",
+      confirmButtonText: "Eliminar profesional",
       cancelButtonText: "Volver",
       confirmButtonColor: "#dc2626",
       cancelButtonColor: "#6b7280",

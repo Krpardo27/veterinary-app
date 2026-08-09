@@ -8,5 +8,5 @@ export type ReservationTableItem = {
   startAt: Date;
   status: ReservationStatus;
   customer: { name: string; phone: string };
-  veterinarian: { name: string } | null;
+  professional: { name: string } | null;
 };

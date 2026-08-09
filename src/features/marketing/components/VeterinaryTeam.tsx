@@ -12,8 +12,8 @@ const PLACEHOLDER_IMAGES = [
 ];
 
 async function getVeterinarians() {
-  return prisma.veterinarian.findMany({
-    where: { isActive: true },
+  return prisma.professional.findMany({
+    where: { isActive: true, role: "VETERINARY" },
     orderBy: { name: "asc" },
     include: {
       services: {
@@ -109,7 +109,7 @@ export default async function VeterinaryTeam() {
                     )}
                   </div>
 
-                  {(vet.phone || vet.email) && (
+                  {/* {(vet.phone || vet.email) && (
                     <div className="mt-auto flex flex-col gap-2 border-t border-[#E2E8E5] pt-4">
                       {vet.phone && (
                         <a
@@ -134,7 +134,7 @@ export default async function VeterinaryTeam() {
                         </a>
                       )}
                     </div>
-                  )}
+                  )} */}
                 </div>
               </article>
             );

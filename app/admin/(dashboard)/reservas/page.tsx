@@ -4,8 +4,8 @@ import AdminSectionPage from "@/features/admin/components/AdminSectionPage";
 import AdminSearch from "@/features/admin/components/AdminSearch";
 import Pagination from "@/features/admin/components/Pagination";
 import { ReservationStatus } from "@/generated/prisma/enums";
-import ReservasTable from "@/features/dashboard/reservas/ReservasTable";
-import ReservationFilters from "@/features/dashboard/reservas/ReservationFilters";
+import ReservasTable from "@/features/dashboard/reservas/components/ReservasTable";
+import ReservationFilters from "@/features/dashboard/reservas/components/ReservationFilters";
 
 const ITEMS_PER_PAGE = 15;
 
@@ -15,14 +15,6 @@ const STATUS_LABELS: Record<ReservationStatus, string> = {
   COMPLETED: "Completada",
   CANCELLED: "Cancelada",
   NO_SHOW: "No asistió",
-};
-
-const STATUS_STYLES: Record<ReservationStatus, string> = {
-  PENDING:   "bg-amber-50  border-amber-200  text-amber-700",
-  CONFIRMED: "bg-emerald-50 border-emerald-200 text-emerald-700",
-  COMPLETED: "bg-zinc-100  border-zinc-200   text-zinc-600",
-  CANCELLED: "bg-red-50    border-red-200    text-red-600",
-  NO_SHOW:   "bg-orange-50 border-orange-200 text-orange-700",
 };
 
 export default async function ReservasPage({
@@ -54,7 +46,7 @@ export default async function ReservasPage({
       OR: [
         { serviceName: { contains: query, mode: "insensitive" as const } },
         { customer: { name: { contains: query, mode: "insensitive" as const } } },
-        { veterinarian: { name: { contains: query, mode: "insensitive" as const } } },
+        { professional: { name: { contains: query, mode: "insensitive" as const } } },
       ],
     }),
   };
@@ -63,7 +55,7 @@ export default async function ReservasPage({
     prisma.reservation.count({ where }),
     prisma.reservation.findMany({
       where,
-      orderBy: { startAt: "desc" },
+      orderBy: { createdAt: "desc" },
       skip,
       take: ITEMS_PER_PAGE,
       select: {
@@ -74,7 +66,7 @@ export default async function ReservasPage({
         startAt: true,
         status: true,
         customer: { select: { name: true, phone: true } },
-        veterinarian: { select: { name: true } },
+        professional: { select: { name: true } },
       },
     }),
     prisma.reservation.groupBy({ by: ["status"], _count: { _all: true } }),
@@ -126,7 +118,7 @@ export default async function ReservasPage({
 
         {/* Search + status pills */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <AdminSearch initialQuery={query} placeholder="Buscar por cliente, servicio o veterinario" />
+          <AdminSearch initialQuery={query} placeholder="Buscar por cliente, servicio o profesional" />
 
           <div className="flex flex-wrap gap-2">
             {[undefined, ...Object.values(ReservationStatus)].map((s) => {

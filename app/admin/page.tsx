@@ -44,7 +44,7 @@ export default async function AdminPage() {
     customersCount,
     reservationsTodayCount,
     servicesActiveCount,
-    veterinariansActiveCount,
+    professionalsActiveCount,
     todaysRevenue,
     pendingReservationsCount,
     upcomingReservations,
@@ -61,7 +61,7 @@ export default async function AdminPage() {
       },
     }),
     prisma.service.count({ where: { isActive: true } }),
-    prisma.veterinarian.count({ where: { isActive: true } }),
+    prisma.professional.count({ where: { isActive: true } }),
     prisma.reservation.aggregate({
       where: {
         startAt: {
@@ -81,7 +81,7 @@ export default async function AdminPage() {
       include: {
         customer: true,
         service: true,
-        veterinarian: true,
+        professional: true,
       },
       orderBy: { startAt: "asc" },
       take: 5,
@@ -119,8 +119,8 @@ export default async function AdminPage() {
       href: "/admin/servicios",
     },
     {
-      label: "Veterinarios activos",
-      value: veterinariansActiveCount,
+      label: "Profesionales activos",
+      value: professionalsActiveCount,
       icon: FiUserCheck,
       href: "/admin/agenda",
     },

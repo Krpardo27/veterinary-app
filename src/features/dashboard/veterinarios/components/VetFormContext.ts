@@ -1,12 +1,12 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import type { VeterinarianService, Veterinarian, Service } from "@/generated/prisma/client";
+import type { ProfessionalService, Professional, Service } from "@/generated/prisma/client";
 import type { VetActionState } from "../actions/veterinarios-actions";
 
 export type VetFormContextValue = {
-  vet?: Veterinarian & {
-    services?: Pick<VeterinarianService, "serviceId" | "durationMin" | "isActive">[];
+  vet?: Professional & {
+    services?: Pick<ProfessionalService, "serviceId" | "durationMin" | "isActive">[];
   };
   services: Pick<Service, "id" | "name" | "durationMin">[];
   state: VetActionState;
