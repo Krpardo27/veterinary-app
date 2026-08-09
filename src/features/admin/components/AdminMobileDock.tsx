@@ -39,33 +39,38 @@ export default function AdminMobileDock() {
   );
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
       {moreOpen && (
         <button
           type="button"
           aria-label="Cerrar opciones"
           onClick={() => setMoreOpen(false)}
-          className="fixed inset-0 -z-10 bg-[#1D3A35]/20 backdrop-blur-[2px]"
+          className="fixed inset-0 -z-10 bg-[#102C27]/20 backdrop-blur-sm"
         />
       )}
 
       {moreOpen && (
-        <div className="mx-auto mb-2 max-w-xl border border-[#B9D9CF] bg-white shadow-xl">
-          <div className="flex items-center justify-between border-b border-[#E7EFEB] px-4 py-3">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#0F766E]">
+        <section
+          id="admin-more-options"
+          aria-label="Más opciones de administración"
+          className="mx-auto mb-3 max-w-xl overflow-hidden border-y border-[#D8E6E0] bg-[#FFFEFC]/95 shadow-[0_-14px_40px_rgba(21,57,50,0.16)] backdrop-blur-2xl"
+        >
+          <div className="mx-auto mt-2 h-1 w-9 rounded-full bg-[#B6C9C1]" />
+          <div className="flex items-center justify-between px-5 pb-3 pt-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#52736A]">
               Más opciones
             </p>
             <button
               type="button"
               onClick={() => setMoreOpen(false)}
               aria-label="Cerrar opciones"
-              className="flex size-8 items-center justify-center text-[#52736A] transition-colors hover:bg-[#F0F8F5] hover:text-[#1D554A]"
+              className="flex size-11 items-center justify-center rounded-full bg-[#EAF3EF] text-[#315D53] transition-colors active:scale-95"
             >
-              <FiX className="size-4" />
+              <FiX className="size-5" />
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 p-3">
+          <div className="grid grid-cols-3 gap-1 px-3 pb-4">
             {secondaryRoutes.map((route) => {
               const active = isAdminRouteActive(pathname, route.href);
               const Icon = route.icon;
@@ -78,26 +83,29 @@ export default function AdminMobileDock() {
                   {...(route.external
                     ? { target: "_blank", rel: "noopener noreferrer" }
                     : {})}
-                  className={`flex items-center gap-3 border px-3 py-3 text-sm font-semibold transition-colors ${
+                  className={`flex min-h-22 flex-col items-center justify-center gap-2 rounded-2xl px-2 py-3 text-center text-[11px] font-semibold transition-colors active:scale-[0.97] ${
                     active
-                      ? "border-[#2A6A5D] bg-[#EAF4F1] text-[#0F766E]"
-                      : "border-[#DCE8E2] text-[#1D3A35] hover:bg-[#F0F8F5]"
+                      ? "bg-[#DDF2EB] text-[#0A6B5D]"
+                      : "text-[#294B43] hover:bg-[#F2F7F4]"
                   }`}
                 >
-                  <Icon className="size-4 shrink-0 text-[#0F766E]" />
-                  <span className="truncate">{MOBILE_LABELS[route.href] ?? route.label}</span>
+                  <Icon className="size-5 shrink-0" />
+                  <span className="max-w-full truncate">{MOBILE_LABELS[route.href] ?? route.label}</span>
                 </Link>
               );
             })}
           </div>
 
-          <div className="border-t border-[#E7EFEB] px-3 pb-3">
+          <div className="border-t border-[#E3ECE8] px-4 pb-3 pt-2">
             <LogoutButton />
           </div>
-        </div>
+        </section>
       )}
 
-      <nav className="mx-auto grid max-w-xl grid-cols-5 border border-[#B9D9CF] bg-white p-1.5 shadow-[0_-8px_28px_rgba(29,58,53,0.14)]">
+      <nav
+        aria-label="Navegación principal de administración"
+        className="grid grid-cols-5 border-t border-[#D8E6E0] bg-[#FFFEFC]/90 px-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-6px_24px_rgba(21,57,50,0.09)] backdrop-blur-2xl"
+      >
         {primaryRoutes.map((route) => {
           const active = isAdminRouteActive(pathname, route.href);
           const Icon = route.icon;
@@ -106,15 +114,17 @@ export default function AdminMobileDock() {
             <Link
               key={route.href}
               href={route.href}
-              className={`relative flex min-h-14 flex-col items-center justify-center gap-1 px-0.5 py-1 text-[10px] font-semibold transition-colors ${
-                active ? "text-[#0F766E]" : "text-[#6F817A]"
+              onClick={() => setMoreOpen(false)}
+              aria-current={active ? "page" : undefined}
+              className={`relative flex min-h-12 flex-col items-center justify-center gap-1 px-1 py-1 text-[10px] font-semibold transition-colors active:scale-95 ${
+                active ? "text-[#0A6B5D]" : "text-[#6C8279]"
               }`}
             >
-              <Icon className="size-4 shrink-0" />
+              <Icon className={`size-5 shrink-0 ${active ? "stroke-[2.5]" : ""}`} />
               <span className="max-w-full truncate leading-none">
                 {MOBILE_LABELS[route.href] ?? route.label}
               </span>
-              {active && <span className="absolute inset-x-3 bottom-0 h-0.5 bg-[#2A6A5D]" />}
+              {active && <span className="absolute bottom-0 h-1 w-1 rounded-full bg-[#0A6B5D]" />}
             </Link>
           );
         })}
@@ -123,13 +133,14 @@ export default function AdminMobileDock() {
           type="button"
           onClick={() => setMoreOpen((current) => !current)}
           aria-expanded={moreOpen}
-          className={`relative flex min-h-14 flex-col items-center justify-center gap-1 px-0.5 py-1 text-[10px] font-semibold transition-colors ${
-            moreOpen || secondaryRouteActive ? "text-[#0F766E]" : "text-[#6F817A]"
+          aria-controls="admin-more-options"
+          className={`relative flex min-h-12 flex-col items-center justify-center gap-1 px-1 py-1 text-[10px] font-semibold transition-colors active:scale-95 ${
+            moreOpen || secondaryRouteActive ? "text-[#0A6B5D]" : "text-[#6C8279]"
           }`}
         >
-          <FiGrid className="size-4 shrink-0" />
+          <FiGrid className="size-5 shrink-0" />
           <span>Más</span>
-          {(moreOpen || secondaryRouteActive) && <span className="absolute inset-x-3 bottom-0 h-0.5 bg-[#2A6A5D]" />}
+          {(moreOpen || secondaryRouteActive) && <span className="absolute bottom-0 h-1 w-1 rounded-full bg-[#0A6B5D]" />}
         </button>
       </nav>
     </div>
