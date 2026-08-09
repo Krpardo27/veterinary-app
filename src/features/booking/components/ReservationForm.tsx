@@ -26,6 +26,8 @@ type Props = {
     serviceIds: string[];
   }>;
   defaultServiceId?: string;
+  variant?: "public" | "admin";
+  onSuccess?: () => void;
 };
 
 const inputClassName =
@@ -35,6 +37,8 @@ export default function ReservationForm({
   services,
   professionals,
   defaultServiceId,
+  variant = "public",
+  onSuccess,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -75,6 +79,8 @@ export default function ReservationForm({
 
   const syncServiceUrl = useCallback(
     (nextServiceId: string) => {
+      if (variant === "admin") return;
+
       const nextService = services.find((service) => service.id === nextServiceId);
       const params = new URLSearchParams(searchParams.toString());
 
@@ -91,7 +97,7 @@ export default function ReservationForm({
         scroll: false,
       });
     },
-    [pathname, router, searchParams, services],
+    [pathname, router, searchParams, services, variant],
   );
 
   useEffect(() => {
@@ -114,6 +120,12 @@ export default function ReservationForm({
 
     if (result.errors) {
       setServerError(result.errors[0]?.message ?? "Error desconocido");
+      return;
+    }
+
+    if (variant === "admin") {
+      onSuccess?.();
+      router.refresh();
       return;
     }
 

@@ -1,11 +1,13 @@
 "use client";
 
 import AdminRoutes from "@/features/admin/components/AdminRoutes";
+import LogoutButton from "@/features/auth/components/LogoutButton";
+import { FiMenu, FiSettings } from "react-icons/fi";
 
 type SidebarAdminProps = {
   userName?: string | null;
-  userEmail?: string | null;
-  roleLabel?: string;
+  expanded: boolean;
+  onToggle: () => void;
 };
 
 function getInitial(name?: string | null) {
@@ -14,47 +16,51 @@ function getInitial(name?: string | null) {
 
 export default function SidebarAdmin({
   userName,
-  userEmail,
-  roleLabel = "Administrador",
+  expanded,
+  onToggle,
 }: SidebarAdminProps) {
   return (
-    <aside className="hidden self-start rounded-3xl bg-[#FFFFFF] p-5 drop-shadow-2xl lg:sticky lg:top-4 lg:flex lg:flex-col lg:justify-between">
-      <div>
-        <div className="mb-5 border-b border-zinc-200 pb-4">
-          <h2 className="text-lg font-bold tracking-tight text-[#0F172A]">
-            Administrador
-          </h2>
+    <aside className={`fixed inset-y-0 left-0 z-50 hidden flex-col border-r border-[#E2E8F0] bg-white py-5 transition-[width] duration-200 ease-out lg:flex ${
+      expanded ? "w-60 px-3" : "w-20 items-center"
+    }`}>
+      <div className={`flex w-full flex-1 flex-col ${expanded ? "items-stretch" : "items-center"}`}>
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label="Menú"
+          aria-expanded={expanded}
+          className={`relative flex h-[42px] items-center rounded-xl text-[#0F766E] ${
+            expanded ? "w-full justify-start gap-3 px-3" : "size-[42px] justify-center"
+          }`}
+        >
+          <FiMenu className="size-5" />
+          <span className={expanded ? "text-sm font-semibold" : "sr-only"}>Panel clínico</span>
+        </button>
 
-          <p className="mt-1 text-xs font-medium uppercase tracking-[0.28em] text-[#64748B]">
-            Panel clínico
-          </p>
-        </div>
-
-        <nav className="space-y-1">
-          <AdminRoutes />
+        <nav className={`mt-10 ${expanded ? "w-full" : ""}`}>
+          <AdminRoutes expanded={expanded} />
         </nav>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0F766E] text-sm font-bold text-white">
-            {getInitial(userName)}
-          </div>
-
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-[#0F172A]">
-              {userName || "Administrador"}
-            </p>
-            <p className="truncate text-xs text-[#64748B]" title={userEmail ?? ""}>
-              {userEmail || "Sin correo"}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-3">
-          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-[#0F766E]">
-            {roleLabel}
-          </span>
+      <div className={`flex flex-col gap-4 ${expanded ? "items-stretch" : "items-center"}`}>
+        <span
+          aria-label="Configuración próximamente"
+          className={`relative flex h-[42px] rounded-xl text-[#94A3B8] ${
+            expanded ? "w-full items-center gap-3 px-3" : "size-[42px] items-center justify-center"
+          }`}
+        >
+          <FiSettings className="size-5" />
+          <span className={expanded ? "text-sm font-medium" : "sr-only"}>Configuración</span>
+        </span>
+        <LogoutButton variant="rail" expanded={expanded} />
+        <div
+          aria-label={userName || "Administrador"}
+          className={`relative flex rounded-xl bg-[#0F766E] text-sm font-bold text-white ${
+            expanded ? "h-11 w-full items-center gap-3 px-3" : "size-10 items-center justify-center rounded-full"
+          }`}
+        >
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/15">{getInitial(userName)}</span>
+          <span className={expanded ? "truncate text-sm font-semibold" : "sr-only"}>{userName || "Administrador"}</span>
         </div>
       </div>
     </aside>

@@ -7,7 +7,8 @@ import { FiLogOut } from "react-icons/fi";
 
 interface LogoutButtonProps {
   callbackURL?: string;
-  variant?: "sidebar" | "dock";
+  variant?: "sidebar" | "dock" | "rail";
+  expanded?: boolean;
 }
 
 const LOGOUT_REDIRECT_DELAY_MS = 700;
@@ -15,6 +16,7 @@ const LOGOUT_REDIRECT_DELAY_MS = 700;
 export default function LogoutButton({
   callbackURL = "/auth/login",
   variant = "sidebar",
+  expanded = false,
 }: LogoutButtonProps) {
   const [loading, setLoading] = useState(false);
 
@@ -45,6 +47,26 @@ export default function LogoutButton({
       description="Estamos saliendo del panel de administración."
     />
   ) : null;
+
+  if (variant === "rail") {
+    return (
+      <>
+        {loader}
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loading}
+          aria-label="Cerrar sesión"
+          className={`relative flex h-[42px] rounded-xl text-[#94A3B8] transition-colors hover:bg-[#F8FAFC] hover:text-[#0F766E] disabled:pointer-events-none disabled:opacity-50 ${
+            expanded ? "w-full items-center gap-3 px-3" : "size-[42px] items-center justify-center"
+          }`}
+        >
+          <FiLogOut className="size-5" />
+          <span className={expanded ? "text-sm font-medium" : "sr-only"}>Cerrar sesión</span>
+        </button>
+      </>
+    );
+  }
 
   if (variant === "dock") {
     return (
