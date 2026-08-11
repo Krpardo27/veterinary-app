@@ -75,6 +75,7 @@ export default async function ReservasPage({
     prisma.reservation.count({ where }),
     prisma.reservation.findMany({
       where,
+      distinct: ["id"],
       orderBy: dateRange ? { startAt: "asc" } : { createdAt: "desc" },
       skip,
       take: ITEMS_PER_PAGE,
