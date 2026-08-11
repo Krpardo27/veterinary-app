@@ -3,6 +3,7 @@ import Hero from "./Hero";
 import Link from "next/link";
 import { FaHeart, FaStethoscope, FaClock } from "react-icons/fa";
 import VeterinaryTeam from "./VeterinaryTeam";
+import { COLORS } from "@/shared/constants/theme";
 
 const services = [
   {
@@ -32,10 +33,10 @@ export default function PublicLanding() {
 
       <section id="servicios" className="mx-auto max-w-7xl px-6 pb-16 lg:px-8">
         <div className="mb-8 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#e08b4f]">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em]" style={{ color: COLORS.accent }}>
             Servicios
           </p>
-          <h2 className="mt-3 text-3xl font-semibold text-[#17322c]">
+          <h2 className="mt-3 text-3xl font-semibold" style={{ color: COLORS.dark }}>
             Una clínica pensada para fortalecer el vínculo con tu mascota.
           </h2>
         </div>
@@ -47,15 +48,20 @@ export default function PublicLanding() {
             return (
               <article
                 key={index}
-                className="rounded-[1.5rem] border border-[#dce8e2] bg-white/80 p-6 shadow-sm"
+                className="rounded-[1.5rem] border p-6"
+                style={{
+                  borderColor: COLORS.border,
+                  backgroundColor: "rgba(255, 255, 255, 0.5)",
+                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
+                }}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#eaf4ee] text-[#2a6a5d]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ backgroundColor: COLORS.secondary_bg, color: COLORS.secondary }}>
                   <Icon className="text-xl" />
                 </div>
-                <h3 className="mt-5 text-xl font-semibold text-[#17322c]">
+                <h3 className="mt-5 text-xl font-semibold" style={{ color: COLORS.dark }}>
                   {service.title}
                 </h3>
-                <p className="mt-3 text-base leading-7 text-[#5c6f68]">
+                <p className="mt-3 text-base leading-7" style={{ color: COLORS.text }}>
                   {service.description}
                 </p>
               </article>
@@ -66,7 +72,8 @@ export default function PublicLanding() {
         <div className="mt-10 text-center">
           <Link
             href="/servicios"
-            className="inline-flex h-11 items-center gap-2 rounded-full bg-[#0F766E] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#0d6b63]"
+            className="inline-flex h-11 items-center gap-2 rounded-full px-6 text-sm font-semibold text-white transition-colors hover:opacity-90"
+            style={{ backgroundColor: COLORS.primary }}
           >
             Ver todos los servicios
           </Link>
