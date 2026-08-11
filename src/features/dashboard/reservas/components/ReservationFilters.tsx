@@ -34,7 +34,7 @@ export default function ReservationFilters({
 
   const [localDate, setLocalDate] = useState(date);
   const [localServiceId, setLocalServiceId] = useState(serviceId);
-  const [localShowCancelled, setLocalShowCancelled] = useState(showCancelled);
+  const [localShowCancelled, setLocalShowCancelled] = useState(showCancelled ?? false);
 
   function applyFilters(nextDate = localDate, nextServiceId = localServiceId, nextShowCancelled = localShowCancelled) {
     router.replace(buildUrl(searchParams, nextDate, nextServiceId, nextShowCancelled), { scroll: false });
