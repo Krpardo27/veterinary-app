@@ -1,3 +1,9 @@
+import { SLOT_INTERVAL_MINUTES } from "@/features/booking/services/availability";
+import ReservationStatusButtons from "@/features/dashboard/reservas/components/ReservationStatusButtons";
+import {
+  RESERVATION_STATUS_LABELS,
+  RESERVATION_STATUS_STYLES,
+} from "@/features/dashboard/reservas/components/reservationStatus";
 import { formatTwentyFourHourTime } from "@/utils/dateFormatters";
 import type {
   AgendaProfessional,
@@ -16,7 +22,12 @@ const SLOT_HEIGHT = 56;
 function ReservationCard({ reservation }: { reservation: AgendaReservation }) {
   return (
     <div className="h-full overflow-hidden border-l-4 border-[#0F766E] bg-[#EAF4F1] px-2 py-1.5 text-xs text-[#1D3A35] shadow-sm">
-      <p className="truncate font-semibold">{reservation.serviceName}</p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="truncate font-semibold">{reservation.serviceName}</p>
+        <span className={`shrink-0 border px-1.5 py-0.5 text-[10px] font-semibold leading-none ${RESERVATION_STATUS_STYLES[reservation.status]}`}>
+          {RESERVATION_STATUS_LABELS[reservation.status]}
+        </span>
+      </div>
       <p className="truncate text-[#52736A]">
         <span className="font-medium text-[#1D3A35]">{reservation.customer.name}</span>
         {reservation.pet && ` · ${reservation.pet.name}`}
@@ -74,8 +85,16 @@ export default function AgendaTimeGrid({
                     <div key={reservation.id} className="grid grid-cols-[4.5rem_1fr] gap-3 px-3 py-3">
                       <p className="text-sm font-semibold text-[#0F766E]">{formatTwentyFourHourTime(reservation.startAt)}</p>
                       <div className="border-l-2 border-[#2A6A5D] bg-[#EAF4F1] px-3 py-2 text-sm">
-                        <p className="font-semibold text-[#1D3A35]">{reservation.serviceName}</p>
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <p className="font-semibold text-[#1D3A35]">{reservation.serviceName}</p>
+                          <span className={`border px-2 py-0.5 text-xs font-semibold ${RESERVATION_STATUS_STYLES[reservation.status]}`}>
+                            {RESERVATION_STATUS_LABELS[reservation.status]}
+                          </span>
+                        </div>
                         <p className="mt-0.5 text-xs text-[#52736A]">{reservation.pet?.name ?? reservation.customer.name} · {reservation.customer.name}</p>
+                        <div className="mt-3">
+                          <ReservationStatusButtons reservationId={reservation.id} status={reservation.status} />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -118,8 +137,8 @@ export default function AgendaTimeGrid({
                 {columnReservations.map((reservation) => {
                   const offsetMinutes = Math.max(0, (reservation.startAt.getTime() - dayStart.getTime()) / 60_000);
                   const durationMinutes = Math.max(30, (reservation.endAt.getTime() - reservation.startAt.getTime()) / 60_000);
-                  const top = (offsetMinutes / 30) * SLOT_HEIGHT + 4;
-                  const height = Math.max(SLOT_HEIGHT - 8, (durationMinutes / 30) * SLOT_HEIGHT - 8);
+                  const top = (offsetMinutes / SLOT_INTERVAL_MINUTES) * SLOT_HEIGHT + 4;
+                  const height = Math.max(SLOT_HEIGHT - 8, (durationMinutes / SLOT_INTERVAL_MINUTES) * SLOT_HEIGHT - 8);
 
                   return (
                     <div key={reservation.id} className="absolute inset-x-1 z-10" style={{ top, height }}>

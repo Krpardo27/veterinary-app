@@ -4,6 +4,10 @@ import GoBackButton from "@/features/admin/components/GoBackButton";
 import EditPetButton from "@/features/pets/components/EditPetButton";
 import PetHealthForms from "@/features/pets/components/PetHealthForms";
 import PetHealthHistory from "@/features/pets/components/PetHealthHistory";
+import {
+  RESERVATION_STATUS_LABELS,
+  RESERVATION_STATUS_STYLES,
+} from "@/features/dashboard/reservas/components/reservationStatus";
 import { prisma } from "@/lib/prisma";
 import { formatAppointmentDateTime, formatShortDate } from "@/utils/dateFormatters";
 
@@ -22,14 +26,6 @@ const SEX_LABELS = {
   MALE: "Macho",
   FEMALE: "Hembra",
   UNKNOWN: "Sin registrar",
-} as const;
-
-const STATUS_LABELS = {
-  PENDING: "Pendiente",
-  CONFIRMED: "Confirmada",
-  COMPLETED: "Completada",
-  CANCELLED: "Cancelada",
-  NO_SHOW: "No asistió",
 } as const;
 
 export default async function PetDetailsPage({ params }: Props) {
@@ -134,7 +130,7 @@ export default async function PetDetailsPage({ params }: Props) {
         <h2 className="mt-1 text-xl font-bold text-[#1D3A35]">Reservas</h2>
         {pet.reservations.length === 0 ? <p className="mt-4 text-sm text-[#6F817A]">Aún no hay reservas asociadas a esta mascota.</p> : (
           <div className="mt-5 divide-y divide-[#E7EFEB] border-y border-[#E7EFEB]">
-            {pet.reservations.map((reservation) => <div key={reservation.id} className="grid gap-1 py-4 text-sm sm:grid-cols-[1.2fr_1fr_1fr_auto] sm:items-center sm:gap-4"><p className="font-semibold text-[#1D3A35]">{reservation.serviceName}</p><p className="text-[#5C6F68]">{reservation.professional?.name ?? "Por asignar"}</p><p className="text-[#5C6F68]">{formatAppointmentDateTime(reservation.startAt)}</p><span className="text-xs font-semibold text-[#0F766E]">{STATUS_LABELS[reservation.status]}</span></div>)}
+            {pet.reservations.map((reservation) => <div key={reservation.id} className="grid gap-1 py-4 text-sm sm:grid-cols-[1.2fr_1fr_1fr_auto] sm:items-center sm:gap-4"><p className="font-semibold text-[#1D3A35]">{reservation.serviceName}</p><p className="text-[#5C6F68]">{reservation.professional?.name ?? "Por asignar"}</p><p className="text-[#5C6F68]">{formatAppointmentDateTime(reservation.startAt)}</p><span className={`w-fit border px-2.5 py-1 text-xs font-semibold ${RESERVATION_STATUS_STYLES[reservation.status]}`}>{RESERVATION_STATUS_LABELS[reservation.status]}</span></div>)}
           </div>
         )}
       </section>

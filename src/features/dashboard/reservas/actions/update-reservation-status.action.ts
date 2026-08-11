@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ReservationStatus } from "@/generated/prisma/enums";
+import { ACTIVE_RESERVATION_STATUSES } from "@/features/booking/services/availability";
 import { requireAdminAction } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
@@ -31,7 +32,7 @@ export async function updateReservationStatusAction(
       return { error: "Reserva no encontrada" };
     }
 
-    if (reservation.status !== "PENDING" && reservation.status !== "CONFIRMED") {
+    if (!ACTIVE_RESERVATION_STATUSES.includes(reservation.status)) {
       return { error: "Solo reservas pendientes o confirmadas pueden cambiar de estado" };
     }
 

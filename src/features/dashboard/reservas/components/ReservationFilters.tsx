@@ -9,11 +9,13 @@ type ReservationFiltersProps = {
   services: Array<{ id: string; name: string }>;
 };
 
-function buildUrl(date: string, serviceId: string, query: string | null) {
-  const params = new URLSearchParams();
-  if (query) params.set("q", query);
+function buildUrl(currentParams: URLSearchParams, date: string, serviceId: string) {
+  const params = new URLSearchParams(currentParams.toString());
+  params.delete("page");
   if (date) params.set("date", date);
+  else params.delete("date");
   if (serviceId) params.set("serviceId", serviceId);
+  else params.delete("serviceId");
   const search = params.toString();
   return search ? `/admin/reservas?${search}` : "/admin/reservas";
 }
@@ -25,29 +27,24 @@ export default function ReservationFilters({
 }: ReservationFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const query = searchParams.get("q");
 
   const [localDate, setLocalDate] = useState(date);
   const [localServiceId, setLocalServiceId] = useState(serviceId);
 
   function applyFilters(nextDate = localDate, nextServiceId = localServiceId) {
-    router.replace(buildUrl(nextDate, nextServiceId, query));
+    router.replace(buildUrl(searchParams, nextDate, nextServiceId), { scroll: false });
   }
 
   function handleClear() {
     setLocalDate("");
     setLocalServiceId("");
-    router.replace(
-      query
-        ? `/admin/reservas?q=${encodeURIComponent(query)}`
-        : "/admin/reservas",
-    );
+    router.replace(buildUrl(searchParams, "", ""), { scroll: false });
   }
 
   return (
     <form
       action={() => applyFilters()}
-      className="flex flex-wrap items-end gap-3"
+      className="flex flex-wrap items-end gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm"
     >
       <label className="flex flex-col gap-1.5 text-xs font-medium text-zinc-700">
         Fecha

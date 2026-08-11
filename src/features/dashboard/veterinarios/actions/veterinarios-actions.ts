@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdminAction } from "@/lib/auth-server";
+import {
+  getRequiredProfessionalRole,
+  type ProfessionalRole,
+} from "@/features/booking/serviceRoles";
 import { VetSchema, type VetFieldErrors } from "../schemas/vet.schema";
 
 export type VetActionState = {
@@ -80,22 +84,24 @@ type VetServiceConfig = {
 
 function parseVetServiceConfigs(
   formData: FormData,
-  services: Array<{ id: string }>,
+  services: Array<{ id: string; slug: string }>,
+  role: ProfessionalRole,
 ): { configs: VetServiceConfig[]; error: string | null } {
   const configs: VetServiceConfig[] = [];
 
   for (const service of services) {
+    const supportsRole = getRequiredProfessionalRole(service.slug) === role;
     const rawDuration = formData.get(`serviceDuration:${service.id}`)?.toString().trim() ?? "";
-    const isActive = formData.get(`serviceEnabled:${service.id}`) === "on";
+    const isActive = supportsRole && formData.get(`serviceEnabled:${service.id}`) === "on";
     let durationMin: number | null = null;
 
-    if (rawDuration) {
+    if (supportsRole && rawDuration) {
       const parsedDuration = Number(rawDuration);
 
       if (!Number.isInteger(parsedDuration) || parsedDuration < 5 || parsedDuration > 480) {
         return {
           configs: [],
-          error: "Las duraciónes por servicio deben ser numeros entre 5 y 480 minutos",
+          error: "Las duraciones por servicio deben ser números entre 5 y 480 minutos",
         };
       }
 
@@ -109,13 +115,14 @@ function parseVetServiceConfigs(
 }
 
 async function getServiceConfigsFromForm(formData: FormData) {
+  const role = formData.get("role") === "GROOMING" ? "GROOMING" : "VETERINARY";
   const services = await prisma.service.findMany({
     where: { isActive: true },
-    select: { id: true },
+    select: { id: true, slug: true },
     orderBy: { name: "asc" },
   });
 
-  return parseVetServiceConfigs(formData, services);
+  return parseVetServiceConfigs(formData, services, role);
 }
 
 function revalidateVets() {
@@ -233,16 +240,28 @@ export async function updateVetAction(
         },
       });
 
-      await tx.professionalService.deleteMany({ where: { professionalId: vetId } });
+      const existingAssignments = await tx.professionalService.findMany({
+        where: { professionalId: vetId },
+        select: { serviceId: true },
+      });
+      const existingServiceIds = new Set(
+        existingAssignments.map((assignment) => assignment.serviceId),
+      );
 
-      if (serviceConfigs.configs.length > 0) {
-        await tx.professionalService.createMany({
-          data: serviceConfigs.configs.map((config) => ({
-            ...config,
-            professionalId: vetId,
-          })),
-        });
-      }
+      await Promise.all(
+        serviceConfigs.configs.map((config) => {
+          if (existingServiceIds.has(config.serviceId)) {
+            return tx.professionalService.updateMany({
+              where: { professionalId: vetId, serviceId: config.serviceId },
+              data: { durationMin: config.durationMin, isActive: config.isActive },
+            });
+          }
+
+          return tx.professionalService.create({
+            data: { ...config, professionalId: vetId },
+          });
+        }),
+      );
     });
 
     revalidateVets();
@@ -251,6 +270,28 @@ export async function updateVetAction(
   } catch (error) {
     console.error(error);
     return { status: "error", message: "No fue posible actualizar el profesional", values };
+  }
+}
+
+export async function deactivateVetAction(vetId: string): Promise<VetActionState> {
+  const auth = await requireAdminAction();
+
+  if (auth.error) {
+    return { status: "error", message: auth.error };
+  }
+
+  try {
+    await prisma.professional.update({
+      where: { id: vetId },
+      data: { isActive: false },
+    });
+
+    revalidateVets();
+
+    return { status: "success", message: "Profesional desactivado correctamente" };
+  } catch (error) {
+    console.error(error);
+    return { status: "error", message: "No fue posible desactivar el profesional" };
   }
 }
 

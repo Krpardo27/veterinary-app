@@ -5,7 +5,7 @@ import { VetCard, VetsEmptyState, VetsPageHeader } from "@/features/dashboard/ve
 export default async function VeterinariosPage() {
   const [professionals, services] = await Promise.all([
     prisma.professional.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
       select: {
         id: true,
         name: true,
@@ -14,18 +14,21 @@ export default async function VeterinariosPage() {
         email: true,
         role: true,
         isActive: true,
+        _count: { select: { reservations: true } },
         services: {
           where: { isActive: true },
-          select: { service: { select: { id: true, name: true } } },
+          select: { durationMin: true, service: { select: { id: true, name: true, durationMin: true } } },
         },
       },
     }),
     prisma.service.findMany({
       where: { isActive: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, durationMin: true },
+      select: { id: true, name: true, slug: true, durationMin: true },
     }),
   ]);
+  const activeCount = professionals.filter((professional) => professional.isActive).length;
+  const inactiveCount = professionals.length - activeCount;
 
   return (
     <AdminSectionPage
@@ -35,12 +38,17 @@ export default async function VeterinariosPage() {
       badge="Equipo"
     >
       <div className="space-y-6">
-        <VetsPageHeader services={services} total={professionals.length} />
+        <VetsPageHeader
+          services={services}
+          total={professionals.length}
+          activeCount={activeCount}
+          inactiveCount={inactiveCount}
+        />
 
         {professionals.length === 0 ? (
           <VetsEmptyState />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {professionals.map((vet) => (
               <VetCard key={vet.id} vet={vet} />
             ))}

@@ -78,6 +78,40 @@ export async function deleteServiceAction(
   }
 }
 
+export async function deactivateServiceAction(
+  serviceId: string,
+): Promise<ServiceActionState> {
+  const auth = await requireAdminAction();
+
+  if (auth.error) {
+    return { status: "error", message: auth.error };
+  }
+
+  const service = await prisma.service.findFirst({
+    where: { id: serviceId },
+    select: { id: true, category: { select: { slug: true } } },
+  });
+
+  if (!service) {
+    return { status: "error", message: "Servicio no encontrado" };
+  }
+
+  try {
+    await prisma.service.update({
+      where: { id: serviceId },
+      data: { isActive: false },
+    });
+
+    revalidateServices();
+    revalidatePath(`/servicios/${service.category.slug}`);
+
+    return { status: "success", message: "Servicio desactivado correctamente" };
+  } catch (error) {
+    console.error(error);
+    return { status: "error", message: "No fue posible desactivar el servicio" };
+  }
+}
+
 export async function createServiceAction(
   _previousState: ServiceActionState,
   formData: FormData,

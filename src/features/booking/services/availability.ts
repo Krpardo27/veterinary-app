@@ -18,7 +18,7 @@ export type BusinessHours = {
   closeMinute: number;
 };
 
-const ACTIVE_RESERVATION_STATUSES = [
+export const ACTIVE_RESERVATION_STATUSES: ReservationStatus[] = [
   ReservationStatus.PENDING,
   ReservationStatus.CONFIRMED,
 ];

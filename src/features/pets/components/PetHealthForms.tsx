@@ -3,10 +3,10 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { FiActivity } from "react-icons/fi";
 import { FaSyringe } from "react-icons/fa";
-import Swal from "sweetalert2";
 import { toast } from "sonner";
 
 import FormErrors from "@/features/admin/components/FormErrors";
+import { confirmSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 import {
   createWeightRecordAction,
 } from "../actions/weight-record.actions";
@@ -63,14 +63,16 @@ export default function PetHealthForms({ petId }: Props) {
   }, [vaccineState.message, vaccineState.status]);
 
   const handleWeightSubmit = async (formData: FormData) => {
-    const result = await Swal.fire({
+    const result = await confirmSwal({
       title: "Registrar peso",
-      text: "Se guardará este control de peso en el historial.",
+      html: swalSummaryHtml([
+        { label: "Peso", value: formData.get("weight") ? `${formData.get("weight")} kg` : null },
+        { label: "Fecha", value: formData.get("measuredAt")?.toString() },
+        { label: "Notas", value: formData.get("notes")?.toString() },
+      ]),
       icon: "question",
-      showCancelButton: true,
       confirmButtonText: "Guardar peso",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: "#0F766E",
     });
 
     if (result.isConfirmed) {
@@ -79,14 +81,17 @@ export default function PetHealthForms({ petId }: Props) {
   };
 
   const handleVaccineSubmit = async (formData: FormData) => {
-    const result = await Swal.fire({
+    const result = await confirmSwal({
       title: "Registrar vacuna",
-      text: "Se guardará esta vacuna en el historial de salud.",
+      html: swalSummaryHtml([
+        { label: "Vacuna", value: formData.get("vaccineName")?.toString() },
+        { label: "Aplicación", value: formData.get("appliedAt")?.toString() },
+        { label: "Próxima dosis", value: formData.get("nextDueAt")?.toString() },
+        { label: "Notas", value: formData.get("notes")?.toString() },
+      ]),
       icon: "question",
-      showCancelButton: true,
       confirmButtonText: "Guardar vacuna",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: "#0F766E",
     });
 
     if (result.isConfirmed) {

@@ -3,66 +3,23 @@ import AgendaHeader from "@/features/dashboard/agenda/components/AgendaHeader";
 import AgendaReservationList from "@/features/dashboard/agenda/components/AgendaReservationList";
 import AgendaStats from "@/features/dashboard/agenda/components/AgendaStats";
 import AgendaTimeGrid from "@/features/dashboard/agenda/components/AgendaTimeGrid";
+import {
+  addDays,
+  buildDailySlots,
+  isValidDateInput,
+} from "@/features/dashboard/agenda/components/agenda.utils";
 import type {
   AgendaReservation,
   AgendaProfessional,
-  AgendaSlot,
 } from "@/features/dashboard/agenda/components/agenda.types";
 import {
-  buildSlotStart,
+  ACTIVE_RESERVATION_STATUSES,
   getDayRange,
-  resolveBusinessHours,
-  SLOT_INTERVAL_MINUTES,
 } from "@/features/booking/services/availability";
 import { prisma } from "@/lib/prisma";
 import { getBusinessDateOnly } from "@/shared/utils/businessTime";
 
-const ACTIVE_STATUSES = [
-  ReservationStatus.PENDING,
-  ReservationStatus.CONFIRMED,
-];
-
-function addDays(dateInput: string, days: number) {
-  const date = new Date(`${dateInput}T12:00:00`);
-  date.setDate(date.getDate() + days);
-  return getBusinessDateOnly(date);
-}
-
-function isValidDateInput(value: string | undefined): value is string {
-  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-
-  return !Number.isNaN(new Date(`${value}T12:00:00`).getTime());
-}
-
-function buildDailySlots(dateInput: string): AgendaSlot[] | null {
-  const dayOfWeek = new Date(`${dateInput}T12:00:00`).getDay();
-
-  if (dayOfWeek === 0) return null;
-
-  const businessHours = dayOfWeek === 6
-    ? { openHour: 9, openMinute: 30, closeHour: 16, closeMinute: 30 }
-    : resolveBusinessHours();
-  const totalMinutes =
-    businessHours.closeHour * 60 +
-    businessHours.closeMinute -
-    (businessHours.openHour * 60 + businessHours.openMinute);
-
-  return Array.from(
-    { length: totalMinutes / SLOT_INTERVAL_MINUTES },
-    (_, index) => {
-      const start = buildSlotStart(
-        dateInput,
-        index * SLOT_INTERVAL_MINUTES,
-        businessHours,
-      )!;
-
-      return {
-        start,
-        end: new Date(start.getTime() + SLOT_INTERVAL_MINUTES * 60 * 1000),
-      };
-    },
-  );
-}
+const UPCOMING_RESERVATIONS_LIMIT = 100;
 
 export default async function AgendaPage({
   searchParams,
@@ -86,10 +43,11 @@ export default async function AgendaPage({
   ] = await Promise.all([
     prisma.reservation.findMany({
       where: {
-        status: { in: ACTIVE_STATUSES },
+        status: { in: ACTIVE_RESERVATION_STATUSES },
         startAt: { gte: fromDate, lte: toDate },
       },
       orderBy: { startAt: "asc" },
+      ...(isUpcomingView && { take: UPCOMING_RESERVATIONS_LIMIT }),
       select: {
         id: true,
         serviceName: true,
@@ -132,6 +90,8 @@ export default async function AgendaPage({
         reservationsCount={reservations.length}
         pendingCount={pendingCount}
         estimatedRevenue={estimatedRevenue}
+        reservationsLabel={isUpcomingView ? "Reservas próximas" : "Reservas del día"}
+        revenueLabel={isUpcomingView ? "Ingreso estimado 14 días" : "Ingreso estimado"}
       />
       {isUpcomingView ? (
         <AgendaReservationList reservations={reservations} />

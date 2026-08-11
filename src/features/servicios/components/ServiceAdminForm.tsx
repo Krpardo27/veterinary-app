@@ -2,22 +2,23 @@
 
 import { useActionState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { FiCheckCircle, FiEdit3, FiPlus, FiSave, FiTrash2 } from "react-icons/fi";
-import Swal from "sweetalert2";
+import { FiCheckCircle, FiEdit3, FiPlus, FiSave, FiSlash, FiTrash2 } from "react-icons/fi";
 import { toast } from "sonner";
 import type { Category, Service } from "@/generated/prisma/client";
 import {
   createServiceAction,
+  deactivateServiceAction,
   deleteServiceAction,
   updateServiceAction,
 } from "../actions/service-actions";
 import type { ServiceActionState } from "../actions/service-actions";
 import FormErrors from "@/features/dashboard/veterinarios/components/FormErrors";
 import FormSelectCategory from "@/features/dashboard/veterinarios/components/FormSelectCategory";
+import { confirmSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 
 type ServiceAdminFormProps = {
   categories: Pick<Category, "id" | "name">[];
-  service?: Service;
+  service?: Service & { _count?: { reservations: number } };
   successRedirectHref?: string;
   onSuccess?: () => void;
 };
@@ -73,6 +74,7 @@ export default function ServiceAdminForm({
     : createServiceAction;
   const [state, formAction] = useActionState(action, initialServiceActionState);
   const errors = state.fieldErrors;
+  const hasReservations = (service?._count?.reservations ?? 0) > 0;
 
   const handleSubmit = async (formData: FormData) => {
     if (service && !serviceHasChanges(service, formData)) {
@@ -80,19 +82,20 @@ export default function ServiceAdminForm({
       return;
     }
 
-    const result = await Swal.fire({
+    const result = await confirmSwal({
       title: editing ? "Guardar cambios" : "Crear servicio",
-      text: editing
-        ? "Se actualizaran los datos de este servicio."
-        : "Se creara un nuevo servicio en el catalogo.",
+      html: swalSummaryHtml(
+        [
+          { label: "Servicio", value: formData.get("name")?.toString() },
+          { label: "Precio", value: formData.get("price") ? `$${Number(formData.get("price")).toLocaleString("es-CL")}` : null },
+          { label: "Duración", value: formData.get("durationMin") ? `${formData.get("durationMin")} min` : null },
+          { label: "Estado", value: formData.get("isActive") === "on" ? "Activo" : "Inactivo" },
+        ],
+        formData.get("featured") === "on" ? { label: "Destacado", value: "Sí" } : undefined,
+      ),
       icon: "question",
-      showCancelButton: true,
       confirmButtonText: editing ? "Guardar cambios" : "Crear servicio",
-      cancelButtonText: "Volver",
       confirmButtonColor: "#C8A96E",
-      cancelButtonColor: "#3f3f46",
-      background: "#18181b",
-      color: "#f4f4f5",
     });
 
     if (!result.isConfirmed) {
@@ -109,17 +112,15 @@ export default function ServiceAdminForm({
       return;
     }
 
-    const result = await Swal.fire({
+    const result = await confirmSwal({
       title: "Eliminar servicio",
-      text: `Esta accion eliminara ${service.name} del catalogo.`,
+      html: swalSummaryHtml([
+        { label: "Servicio", value: service.name },
+        { label: "Acción", value: "Se eliminará del catálogo" },
+      ]),
       icon: "warning",
-      showCancelButton: true,
       confirmButtonText: "Eliminar servicio",
-      cancelButtonText: "Volver",
       confirmButtonColor: "#dc2626",
-      cancelButtonColor: "#3f3f46",
-      background: "#18181b",
-      color: "#f4f4f5",
     });
 
     if (!result.isConfirmed) {
@@ -128,6 +129,40 @@ export default function ServiceAdminForm({
 
     startTransition(async () => {
       const response = await deleteServiceAction(service.id);
+
+      if (response.status === "success") {
+        toast.success(response.message);
+        router.push(successRedirectHref ?? "/admin/servicios");
+        return;
+      }
+
+      toast.error(response.message);
+    });
+  };
+
+  const handleDeactivate = async () => {
+    if (!service) {
+      return;
+    }
+
+    const result = await confirmSwal({
+      title: "Desactivar servicio",
+      html: swalSummaryHtml([
+        { label: "Servicio", value: service.name },
+        { label: "Efecto", value: "No estará disponible para nuevas reservas" },
+        { label: "Historial", value: "Se conservará sin cambios" },
+      ]),
+      icon: "warning",
+      confirmButtonText: "Desactivar",
+      confirmButtonColor: "#dc2626",
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    startTransition(async () => {
+      const response = await deactivateServiceAction(service.id);
 
       if (response.status === "success") {
         toast.success(response.message);
@@ -296,7 +331,19 @@ export default function ServiceAdminForm({
           </div>
 
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:justify-end">
-            {service && (
+            {service?.isActive && (
+              <button
+                type="button"
+                onClick={handleDeactivate}
+                disabled={isPending}
+                className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-orange-200 px-4 text-xs font-bold uppercase tracking-wide text-orange-600 transition-colors hover:border-orange-300 hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              >
+                <FiSlash className="h-4 w-4" />
+                Desactivar
+              </button>
+            )}
+
+            {service && !hasReservations && (
               <button
                 type="button"
                 onClick={handleDelete}

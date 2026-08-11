@@ -1,34 +1,31 @@
-import type { ReservationStatus } from "@/generated/prisma/enums";
 import { ReservationTableItem } from "./reservation.types";
 import ReservationMobileCard from "./ReservationMobileCard";
 import ReservationStatusButtons from "./ReservationStatusButtons";
-
-
-const STATUS_LABELS: Record<ReservationStatus, string> = {
-  PENDING:   "Pendiente",
-  CONFIRMED: "Confirmada",
-  COMPLETED: "Completada",
-  CANCELLED: "Cancelada",
-  NO_SHOW:   "No asistió",
-};
-
-const STATUS_STYLES: Record<ReservationStatus, string> = {
-  PENDING:   "bg-amber-50  border-amber-200  text-amber-700",
-  CONFIRMED: "bg-emerald-50 border-emerald-200 text-emerald-700",
-  COMPLETED: "bg-zinc-100  border-zinc-200   text-zinc-600",
-  CANCELLED: "bg-red-50    border-red-200    text-red-600",
-  NO_SHOW:   "bg-orange-50 border-orange-200 text-orange-700",
-};
+import { formatAppointmentDateTime } from "@/utils/dateFormatters";
+import {
+  RESERVATION_STATUS_LABELS,
+  RESERVATION_STATUS_STYLES,
+} from "./reservationStatus";
 
 interface ReservasTableProps {
   reservations: ReservationTableItem[];
+  emptyMessage?: string;
 }
 
-export default function ReservasTable({ reservations }: ReservasTableProps) {
+const currencyFormatter = new Intl.NumberFormat("es-CL", {
+  style: "currency",
+  currency: "CLP",
+  maximumFractionDigits: 0,
+});
+
+export default function ReservasTable({
+  reservations,
+  emptyMessage = "No hay reservas que coincidan.",
+}: ReservasTableProps) {
   if (reservations.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-12 text-center">
-        <p className="text-sm text-zinc-400">No hay reservas que coincidan.</p>
+        <p className="text-sm text-zinc-400">{emptyMessage}</p>
       </div>
     );
   }
@@ -36,50 +33,57 @@ export default function ReservasTable({ reservations }: ReservasTableProps) {
   return (
     <>
       {/* Desktop */}
-      <div className="hidden md:block overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      <div className="hidden overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm md:block">
+        <div className="flex items-center justify-between gap-4 border-b border-zinc-100 px-5 py-4">
+          <div>
+            <h2 className="text-sm font-semibold text-zinc-900">Resultados</h2>
+            <p className="mt-1 text-xs text-zinc-500">Reservas ordenadas para el contexto actual.</p>
+          </div>
+          <span className="rounded-full border border-[#0F766E]/20 bg-[#0F766E]/10 px-3 py-1 text-xs font-semibold text-[#0F766E]">
+            {reservations.length} en esta página
+          </span>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-zinc-100 bg-zinc-50">
               <tr>
-                <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Fecha</th>
-                <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Cliente</th>
-                <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Servicio</th>
-                <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Profesional</th>
-                <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Precio</th>
-                <th className="px-5 py-3 text-left font-semibold text-zinc-700 whitespace-nowrap">Estado</th>
-                <th className="px-5 py-3 text-right font-semibold text-zinc-700 whitespace-nowrap">Acciones</th>
+                <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-zinc-500">Fecha</th>
+                <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-zinc-500">Cliente</th>
+                <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-zinc-500">Servicio</th>
+                <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-zinc-500">Profesional</th>
+                <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-zinc-500">Precio</th>
+                <th className="whitespace-nowrap px-5 py-3 text-left text-xs font-bold uppercase tracking-wide text-zinc-500">Estado</th>
+                <th className="whitespace-nowrap px-5 py-3 text-right text-xs font-bold uppercase tracking-wide text-zinc-500">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {reservations.map((r) => (
                 <tr key={r.id} className="hover:bg-zinc-50 transition-colors">
                   <td className="px-5 py-3 text-zinc-900">
-                    <p className="font-medium">
-                      {new Date(r.startAt).toLocaleDateString("es-CL", { day: "2-digit", month: "short", year: "2-digit" })}
-                    </p>
-                    <p className="text-xs text-zinc-500">
-                      {new Date(r.startAt).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}
-                    </p>
+                    <p className="font-medium">{formatAppointmentDateTime(r.startAt)}</p>
                   </td>
                   <td className="px-5 py-3">
                     <p className="font-medium text-zinc-900">{r.customer.name}</p>
                     <p className="text-xs text-zinc-500">{r.customer.phone}</p>
                   </td>
-                  <td className="px-5 py-3 text-zinc-700">{r.serviceName}</td>
+                  <td className="px-5 py-3 text-zinc-700">
+                    <p className="font-medium text-zinc-900">{r.serviceName}</p>
+                    <p className="text-xs text-zinc-500">{r.durationMin} min</p>
+                  </td>
                   <td className="px-5 py-3 text-zinc-700">
                     {r.professional?.name ?? <span className="text-zinc-400">—</span>}
                   </td>
                   <td className="px-5 py-3 font-medium text-zinc-900">
-                    ${r.servicePrice.toLocaleString("es-CL")}
+                    {currencyFormatter.format(r.servicePrice)}
                   </td>
                   <td className="px-5 py-3">
-                    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[r.status]}`}>
-                      {STATUS_LABELS[r.status]}
+                    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${RESERVATION_STATUS_STYLES[r.status]}`}>
+                      {RESERVATION_STATUS_LABELS[r.status]}
                     </span>
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex justify-end">
-                      <ReservationStatusButtons reservationId={r.id} status={r.status} />
+                      <ReservationStatusButtons reservationId={r.id} status={r.status} variant="compact" />
                     </div>
                   </td>
                 </tr>

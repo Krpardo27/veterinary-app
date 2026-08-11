@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { FiPhone, FiMail, FiCalendar } from "react-icons/fi";
+import { FiArrowRight, FiCalendar, FiMail, FiPhone } from "react-icons/fi";
+import {
+  RESERVATION_STATUS_LABELS,
+  RESERVATION_STATUS_STYLES,
+} from "@/features/dashboard/reservas/components/reservationStatus";
 import type { ClientTableCustomer } from "./client.types";
 
 interface ClientMobileCardProps {
@@ -20,9 +24,9 @@ export default function ClientMobileCard({ customer }: ClientMobileCardProps) {
             Registrado: {customer.createdAtLabel}
           </p>
         </div>
-        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-[#D1FAE5] px-2 py-1 text-xs font-medium text-[#0F766E]">
+        <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-1 text-xs font-semibold ${customer.activeReservationsCount > 0 ? "border-emerald-200 bg-[#D1FAE5] text-[#0F766E]" : "border-zinc-200 bg-zinc-50 text-zinc-500"}`}>
           <FiCalendar className="h-3 w-3 shrink-0" />
-          <span className="font-semibold">{customer.reservations.length}</span>
+          <span className="font-semibold">{customer.activeReservationsCount}</span>
         </span>
       </div>
 
@@ -53,7 +57,7 @@ export default function ClientMobileCard({ customer }: ClientMobileCardProps) {
         <div className="space-y-2 border-t border-[#E2E8F0] pt-3">
           <div>
             <p className="mb-1 text-xs uppercase tracking-wide text-[#64748B]">
-              Proxima cita
+              Próxima cita
             </p>
             <div className="space-y-1">
               <p className="text-sm font-medium text-[#0F172A]">
@@ -62,6 +66,9 @@ export default function ClientMobileCard({ customer }: ClientMobileCardProps) {
               <p className="text-xs text-[#64748B]">
                 {nextReservation.startAtLabel}
               </p>
+              <span className={`inline-flex w-fit rounded-full border px-2.5 py-0.5 text-xs font-semibold ${RESERVATION_STATUS_STYLES[nextReservation.status]}`}>
+                {RESERVATION_STATUS_LABELS[nextReservation.status]}
+              </span>
             </div>
           </div>
         </div>
@@ -74,9 +81,10 @@ export default function ClientMobileCard({ customer }: ClientMobileCardProps) {
       <div className="space-y-2 border-t border-[#E2E8F0] pt-3">
         <Link
           href={`/admin/clientes/${customer.id}`}
-          className="inline-flex h-9 items-center justify-center border border-[#B9D9CF] px-3 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5]"
+          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#B9D9CF] px-3 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5]"
         >
           Ver ficha
+          <FiArrowRight className="size-3.5" />
         </Link>
       </div>
     </div>

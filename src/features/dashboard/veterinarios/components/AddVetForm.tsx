@@ -8,16 +8,16 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
 import type { Service } from "@/generated/prisma/client";
 import { VetFormContext } from "./VetFormContext";
 import {
   createVetAction,
   type VetActionState,
 } from "../actions/veterinarios-actions";
+import { confirmSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 
 type AddVetFormProps = {
-  services: Pick<Service, "id" | "name" | "durationMin">[];
+  services: Pick<Service, "id" | "name" | "slug" | "durationMin">[];
   successRedirectHref?: string;
   onSuccess?: () => void;
   children: ReactNode;
@@ -53,17 +53,15 @@ export default function AddVetForm({
   }, [onSuccess, router, state.message, state.status, successRedirectHref]);
 
   const handleSubmit = async (formData: FormData) => {
-    const result = await Swal.fire({
+    const result = await confirmSwal({
       title: "Crear profesional",
-      text: "Se creará un nuevo profesional en el equipo.",
+      html: swalSummaryHtml([
+        { label: "Nombre", value: formData.get("name")?.toString() },
+        { label: "Rol", value: formData.get("role") === "GROOMING" ? "Peluquería y baño" : "Veterinario/a" },
+        { label: "Estado", value: formData.get("isActive") === "on" ? "Activo" : "Inactivo" },
+      ]),
       icon: "question",
-      showCancelButton: true,
       confirmButtonText: "Crear profesional",
-      cancelButtonText: "Volver",
-      confirmButtonColor: "#0F766E",
-      cancelButtonColor: "#6b7280",
-      background: "#ffffff",
-      color: "#0f172a",
     });
     if (!result.isConfirmed) return;
     startTransition(() => {

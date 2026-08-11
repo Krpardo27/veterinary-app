@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiCalendar, FiPlus, FiX } from "react-icons/fi";
 import { toast } from "sonner";
 
@@ -23,6 +23,27 @@ export default function GlobalReservationButton({
   professionals,
 }: GlobalReservationButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   const handleSuccess = () => {
     setIsOpen(false);
@@ -34,17 +55,18 @@ export default function GlobalReservationButton({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 right-4 z-40 inline-flex h-12 items-center gap-2 rounded-xl bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[#115E59] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2 lg:bottom-6 lg:right-6"
+        className="fixed bottom-24 cursor-pointer right-4 z-40 inline-flex h-12 items-center gap-2 rounded-xl bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[#115E59] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2 lg:bottom-6 lg:right-6"
       >
         <FiPlus className="size-5" />
         Nueva reserva
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[60]">
+        <div className="fixed inset-0 z-60">
           <button
             type="button"
             aria-label="Cerrar creación de reserva"
+            aria-hidden="true"
             onClick={() => setIsOpen(false)}
             className="absolute inset-0 bg-[#0F172A]/30"
           />
@@ -65,6 +87,7 @@ export default function GlobalReservationButton({
               </div>
               <button
                 type="button"
+                ref={closeButtonRef}
                 aria-label="Cerrar"
                 onClick={() => setIsOpen(false)}
                 className="flex size-10 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#F8FAFC] hover:text-[#0F766E]"

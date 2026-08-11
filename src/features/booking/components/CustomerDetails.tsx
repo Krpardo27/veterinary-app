@@ -6,11 +6,18 @@ import { toast } from "sonner";
 
 import type { ReservationFormData } from "../schemas/reservation.schema";
 import FormErrors from "@/features/admin/components/FormErrors";
+import type { PetSpecies } from "@/generated/prisma/enums";
 
 type Customer = {
   id: string;
   name: string;
   phone: string;
+  pets: Array<{
+    id: string;
+    name: string;
+    species: PetSpecies;
+    breed: string | null;
+  }>;
 };
 
 type LookupState = {
@@ -89,15 +96,22 @@ const inputClassName =
 
 export default function CustomerDetails({
   form,
+  enableLookup = true,
+  onCustomerSelected,
 }: {
   form: UseFormReturn<ReservationFormData>;
+  enableLookup?: boolean;
+  onCustomerSelected?: (customer: Customer | null) => void;
 }) {
   const {
     register,
     setValue,
     formState: { errors },
   } = form;
-  const [lookup, dispatch] = useReducer(lookupReducer, initialLookupState);
+  const [lookup, dispatch] = useReducer(lookupReducer, {
+    ...initialLookupState,
+    mode: enableLookup ? "search" : "new",
+  });
   const latestSearchPhone = useRef(lookup.searchPhone);
   const latestNewPhone = useRef(lookup.newPhone);
 
@@ -106,6 +120,23 @@ export default function CustomerDetails({
     setValue("customerName", "");
     setValue("customerPhone", "");
     setValue("customerEmail", "");
+    setValue("petId", undefined);
+    onCustomerSelected?.(null);
+  };
+
+  const selectExistingCustomer = (customer: Customer) => {
+    latestSearchPhone.current = customer.phone;
+    latestNewPhone.current = initialLookupState.newPhone;
+    setValue("customerMode", "search");
+    setValue("customerId", customer.id);
+    setValue("customerName", customer.name);
+    setValue("customerPhone", customer.phone);
+    setValue("customerEmail", "");
+    setValue("petId", undefined);
+    dispatch({ type: "modeChanged", mode: "search" });
+    dispatch({ type: "searchPhoneChanged", phone: customer.phone });
+    dispatch({ type: "searchFound", customer });
+    onCustomerSelected?.(customer);
   };
 
   const resetCustomerMode = (mode: LookupState["mode"]) => {
@@ -117,11 +148,15 @@ export default function CustomerDetails({
   };
 
   const findCustomer = async (phone: string) => {
-    const response = await fetch("/api/customers/search", {
+    const response = await fetch("/api/clientes/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ phone }),
     });
+
+    if (!response.ok) {
+      throw new Error("Customer search failed");
+    }
 
     return response.json() as Promise<{ customer?: Customer }>;
   };
@@ -147,6 +182,8 @@ export default function CustomerDetails({
         setValue("customerId", data.customer.id);
         setValue("customerName", data.customer.name);
         setValue("customerPhone", data.customer.phone);
+        setValue("petId", undefined);
+        onCustomerSelected?.(data.customer);
         toast.success(`Cliente encontrado: ${data.customer.name}`);
       } else {
         dispatch({ type: "searchNotFound" });
@@ -178,7 +215,6 @@ export default function CustomerDetails({
 
       if (data.customer) {
         dispatch({ type: "newPhoneDuplicateFound", customer: data.customer });
-        setValue("customerId", data.customer.id);
         toast.warning("Número ya registrado", {
           duration: 5000,
           style: {
@@ -212,7 +248,7 @@ export default function CustomerDetails({
       <div className="space-y-4">
         <input type="hidden" {...register("customerMode")} />
 
-        <div className="grid grid-cols-2 border border-[#DCE8E2] bg-[#F7FAF9] p-1">
+        {enableLookup && <div className="grid grid-cols-2 border border-[#DCE8E2] bg-[#F7FAF9] p-1">
           {(["search", "new"] as const).map((mode) => (
             <button
               key={mode}
@@ -224,10 +260,10 @@ export default function CustomerDetails({
                   : "text-[#6F817A] hover:text-[#1D3A35]"
               }`}
             >
-              {mode === "search" ? "Cliente existente" : "Cliente nuevo"}
+              {mode === "search" ? "Buscar cliente" : "Nuevo cliente"}
             </button>
           ))}
-        </div>
+        </div>}
 
         {lookup.mode === "search" ? (
           <div className="space-y-3">
@@ -296,7 +332,9 @@ export default function CustomerDetails({
                   latestNewPhone.current = phone;
                   dispatch({ type: "newPhoneChanged", phone });
                   setValue("customerPhone", phone, { shouldValidate: true });
-                  handleNewPhoneSearch(phone);
+                  if (enableLookup) {
+                    handleNewPhoneSearch(phone);
+                  }
                 }}
                 onKeyDown={onlyPhoneDigits}
                 className={inputClassName}
@@ -305,6 +343,13 @@ export default function CustomerDetails({
               {lookup.existingInNew && (
                 <div className="mt-2 border border-[#B9D9CF] bg-[#F0F8F5] px-4 py-3">
                   <p className="text-xs font-semibold text-[#0F766E]">Número ya registrado</p>
+                  <button
+                    type="button"
+                    onClick={() => selectExistingCustomer(lookup.existingInNew!)}
+                    className="mt-2 text-xs font-semibold text-[#0F766E] underline underline-offset-2"
+                  >
+                    Usar cliente existente
+                  </button>
                 </div>
               )}
 
