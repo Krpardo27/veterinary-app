@@ -6,16 +6,19 @@ import { useState } from "react";
 type ReservationFiltersProps = {
   date: string;
   serviceId: string;
+  showCancelled: boolean;
   services: Array<{ id: string; name: string }>;
 };
 
-function buildUrl(currentParams: URLSearchParams, date: string, serviceId: string) {
+function buildUrl(currentParams: URLSearchParams, date: string, serviceId: string, showCancelled: boolean) {
   const params = new URLSearchParams(currentParams.toString());
   params.delete("page");
   if (date) params.set("date", date);
   else params.delete("date");
   if (serviceId) params.set("serviceId", serviceId);
   else params.delete("serviceId");
+  if (showCancelled) params.set("showCancelled", "true");
+  else params.delete("showCancelled");
   const search = params.toString();
   return search ? `/admin/reservas?${search}` : "/admin/reservas";
 }
@@ -23,6 +26,7 @@ function buildUrl(currentParams: URLSearchParams, date: string, serviceId: strin
 export default function ReservationFilters({
   date,
   serviceId,
+  showCancelled,
   services,
 }: ReservationFiltersProps) {
   const router = useRouter();
@@ -30,15 +34,17 @@ export default function ReservationFilters({
 
   const [localDate, setLocalDate] = useState(date);
   const [localServiceId, setLocalServiceId] = useState(serviceId);
+  const [localShowCancelled, setLocalShowCancelled] = useState(showCancelled);
 
-  function applyFilters(nextDate = localDate, nextServiceId = localServiceId) {
-    router.replace(buildUrl(searchParams, nextDate, nextServiceId), { scroll: false });
+  function applyFilters(nextDate = localDate, nextServiceId = localServiceId, nextShowCancelled = localShowCancelled) {
+    router.replace(buildUrl(searchParams, nextDate, nextServiceId, nextShowCancelled), { scroll: false });
   }
 
   function handleClear() {
     setLocalDate("");
     setLocalServiceId("");
-    router.replace(buildUrl(searchParams, "", ""), { scroll: false });
+    setLocalShowCancelled(false);
+    router.replace(buildUrl(searchParams, "", "", false), { scroll: false });
   }
 
   return (
@@ -54,7 +60,7 @@ export default function ReservationFilters({
           value={localDate}
           onChange={(e) => {
             setLocalDate(e.target.value);
-            applyFilters(e.target.value, localServiceId);
+            applyFilters(e.target.value, localServiceId, localShowCancelled);
           }}
           className="h-10 rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E]/20"
         />
@@ -67,7 +73,7 @@ export default function ReservationFilters({
           value={localServiceId}
           onChange={(e) => {
             setLocalServiceId(e.target.value);
-            applyFilters(localDate, e.target.value);
+            applyFilters(localDate, e.target.value, localShowCancelled);
           }}
           className="h-10 rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E]/20"
         >
@@ -80,7 +86,20 @@ export default function ReservationFilters({
         </select>
       </label>
 
-      {(localDate || localServiceId) && (
+      <label className="flex items-center gap-2 text-xs font-medium text-zinc-700">
+        <input
+          type="checkbox"
+          checked={localShowCancelled}
+          onChange={(e) => {
+            setLocalShowCancelled(e.target.checked);
+            applyFilters(localDate, localServiceId, e.target.checked);
+          }}
+          className="h-4 w-4 rounded border-zinc-300 text-[#0F766E] focus:ring-[#0F766E]/20"
+        />
+        Mostrar canceladas
+      </label>
+
+      {(localDate || localServiceId || localShowCancelled) && (
         <button
           type="button"
           onClick={handleClear}

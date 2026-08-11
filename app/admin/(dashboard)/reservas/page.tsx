@@ -25,12 +25,14 @@ function buildReservationsUrl(params: {
   status?: ReservationStatus;
   date?: string;
   serviceId?: string;
+  showCancelled?: boolean;
 }) {
   const searchParams = new URLSearchParams();
   if (params.q) searchParams.set("q", params.q);
   if (params.status) searchParams.set("status", params.status);
   if (params.date) searchParams.set("date", params.date);
   if (params.serviceId) searchParams.set("serviceId", params.serviceId);
+  if (params.showCancelled) searchParams.set("showCancelled", "true");
   const search = searchParams.toString();
   return search ? `/admin/reservas?${search}` : "/admin/reservas";
 }
@@ -38,9 +40,9 @@ function buildReservationsUrl(params: {
 export default async function ReservasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string; status?: string; date?: string; serviceId?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; status?: string; date?: string; serviceId?: string; showCancelled?: string }>;
 }) {
-  const { page, q, status, date, serviceId } = await searchParams;
+  const { page, q, status, date, serviceId, showCancelled } = await searchParams;
   const pageNumber = Number(page);
   const currentPage = Number.isInteger(pageNumber) && pageNumber > 0 ? pageNumber : 1;
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -52,9 +54,11 @@ export default async function ReservasPage({
   const statusFilter = Object.values(ReservationStatus).includes(status as ReservationStatus)
     ? (status as ReservationStatus)
     : undefined;
+  const showCancelledFilter = showCancelled === "true";
 
   const where: Prisma.ReservationWhereInput = {
     ...(statusFilter && { status: statusFilter }),
+    ...(!statusFilter && !showCancelledFilter && { status: { not: "CANCELLED" } }),
     ...(serviceIdFilter && { serviceId: serviceIdFilter }),
     ...(dateRange && {
       startAt: {
@@ -106,6 +110,7 @@ export default async function ReservasPage({
     if (statusFilter) params.set("status", statusFilter);
     if (dateFilter) params.set("date", dateFilter);
     if (serviceIdFilter) params.set("serviceId", serviceIdFilter);
+    if (showCancelledFilter) params.set("showCancelled", "true");
     redirect(`/admin/reservas?${params.toString()}`);
   }
 
@@ -166,6 +171,7 @@ export default async function ReservasPage({
                 status: s,
                 date: dateFilter,
                 serviceId: serviceIdFilter,
+                showCancelled: showCancelledFilter,
               });
               return (
                 <Link key={s ?? "all"} href={href} aria-current={isActive ? "page" : undefined}
@@ -185,6 +191,7 @@ export default async function ReservasPage({
         <ReservationFilters
           date={dateFilter}
           serviceId={serviceIdFilter}
+          showCancelled={showCancelledFilter}
           services={services}
         />
 
