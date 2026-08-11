@@ -20,14 +20,14 @@ export default function VetHero() {
       </div>
 
       <div className="relative space-y-6">
-        <p className="text-xs font-bold uppercase tracking-[0.35em] text-[#f4c96d]">
+        <p className="text-xs font-bold uppercase tracking-[0.35em]" style={{ color: "#86efac" }}>
           Portal clínico
         </p>
         <div className="space-y-3">
           <h1 className="max-w-md text-4xl font-bold leading-tight tracking-tight  xl:text-5xl">
             La ficha de cada paciente, siempre al día.
           </h1>
-          <p className="max-w-sm text-sm leading-relaxed text-[#B9CFC7]">
+          <p className="max-w-sm text-sm leading-relaxed" style={{ color: "#A7C4BB" }}>
             Agenda, historiales y equipo en un solo panel, pensado para el
             ritmo real de la consulta.
           </p>

@@ -95,7 +95,10 @@ export default function LogoutButton({
         type="button"
         onClick={handleLogout}
           disabled={loading}
-          className="relative mt-3 cursor-pointer rounded-lg py-2 pl-4 pr-3 text-left text-sm text-zinc-600 transition-colors bg-[#D1FAE5] hover:bg-[#C6F6D5] hover:text-[#0F766E] disabled:pointer-events-none disabled:opacity-50"
+          className="relative mt-3 cursor-pointer rounded-lg py-2 pl-4 pr-3 text-left text-sm transition-colors disabled:pointer-events-none disabled:opacity-50"
+          style={{ backgroundColor: "#EAF4F1", color: "#2a6a5d" }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#D4EDE7"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#EAF4F1"; }}
       >
         <span className="flex items-center gap-3">
           <FiLogOut className="h-4 w-4" />
