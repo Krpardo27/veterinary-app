@@ -4,6 +4,7 @@ import { signOut } from "@/lib/auth-client";
 import LoaderScreen from "@/shared/ui/LoaderScreen";
 import { useState } from "react";
 import { FiLogOut } from "react-icons/fi";
+import { COLORS } from "@/shared/constants/theme";
 
 interface LogoutButtonProps {
   callbackURL?: string;
@@ -44,7 +45,7 @@ export default function LogoutButton({
       mode="overlay"
       badgeText="Sesión"
       title="Cerrando sesión"
-      description="Estamos saliendo del panel de administración."
+      description="Hasta pronto. Tu sesión ha sido cerrada con seguridad."
     />
   ) : null;
 
@@ -57,9 +58,18 @@ export default function LogoutButton({
           onClick={handleLogout}
           disabled={loading}
           aria-label="Cerrar sesión"
-          className={`relative flex h-[42px] rounded-xl text-[#94A3B8] transition-colors hover:bg-[#F8FAFC] hover:text-[#0F766E] disabled:pointer-events-none disabled:opacity-50 ${
+          className={`relative flex h-[42px] rounded-xl transition-colors disabled:pointer-events-none disabled:opacity-50 ${
             expanded ? "w-full items-center gap-3 px-3" : "size-[42px] items-center justify-center"
           }`}
+          style={{ color: COLORS.text_muted }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = COLORS.primary_bg;
+            e.currentTarget.style.color = COLORS.primary;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.color = COLORS.text_muted;
+          }}
         >
           <FiLogOut className="size-5" />
           <span className={expanded ? "text-sm font-medium" : "sr-only"}>Cerrar sesión</span>
@@ -78,11 +88,17 @@ export default function LogoutButton({
           disabled={loading}
           aria-label="Cerrar sesión"
           title="Cerrar sesión"
-          className="group relative flex min-h-14 w-full flex-col items-center justify-center gap-1 rounded-2xl px-0.5 py-1 text-[9px] font-medium text-red-400 transition-colors hover:text-red-300 disabled:pointer-events-none disabled:opacity-50 min-[390px]:text-[10px]"
+          className="group relative flex min-h-14 w-full flex-col items-center justify-center gap-1 rounded-2xl px-0.5 py-1 text-[9px] font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 min-[390px]:text-[10px]"
+          style={{ color: COLORS.text_muted }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = COLORS.primary; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = COLORS.text_muted; }}
         >
           <FiLogOut className="h-4 w-4 shrink-0" />
           <span className="leading-none">Salir</span>
-          <span className="absolute inset-x-1/2 bottom-1 h-0.5 rounded-full bg-red-400/80 opacity-0 transition-all duration-300 ease-out group-hover:inset-x-4 group-hover:opacity-100" />
+          <span
+            className="absolute inset-x-1/2 bottom-1 h-0.5 rounded-full opacity-0 transition-all duration-300 ease-out group-hover:inset-x-4 group-hover:opacity-100"
+            style={{ backgroundColor: COLORS.primary }}
+          />
         </button>
       </>
     );
@@ -94,16 +110,14 @@ export default function LogoutButton({
       <button
         type="button"
         onClick={handleLogout}
-          disabled={loading}
-          className="relative mt-3 cursor-pointer rounded-lg py-2 pl-4 pr-3 text-left text-sm transition-colors disabled:pointer-events-none disabled:opacity-50"
-          style={{ backgroundColor: "#EAF4F1", color: "#2a6a5d" }}
-          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#D4EDE7"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#EAF4F1"; }}
+        disabled={loading}
+        className="relative mt-3 flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50"
+        style={{ backgroundColor: COLORS.primary_bg, color: COLORS.secondary }}
+        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#D4EDE7"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = COLORS.primary_bg; }}
       >
-        <span className="flex items-center gap-3">
-          <FiLogOut className="h-4 w-4" />
-          Cerrar sesión
-        </span>
+        <FiLogOut className="h-4 w-4 shrink-0" />
+        Cerrar sesión
       </button>
     </>
   );
