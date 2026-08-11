@@ -1,24 +1,32 @@
+"use client";
+
 import Link from "next/link";
-import { FaPaw } from "react-icons/fa";
+import { usePathname } from "next/navigation";
 
 const links = [
-  { href: "#servicios", label: "Servicios" },
-  { href: "#equipo", label: "Equipo" },
-  { href: "#contacto", label: "Contacto" },
+  { anchor: "servicios", label: "Servicios" },
+  { anchor: "equipo", label: "Equipo" },
+  { anchor: "contacto", label: "Contacto" },
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
   return (
     <nav className="hidden items-center gap-7 text-sm font-medium text-[#4d5e58] md:flex">
-      {links.map((link) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          className="transition hover:text-[#2a6a5d]"
-        >
-          {link.label}
-        </Link>
-      ))}
+      {links.map(({ anchor, label }) => {
+        const href = isHome ? `#${anchor}` : `/#${anchor}`;
+        return (
+          <Link
+            key={anchor}
+            href={href}
+            className="transition hover:text-[#2a6a5d]"
+          >
+            {label}
+          </Link>
+        );
+      })}
       <Link
         href="/reservar"
         className="rounded-full bg-[#e08b4f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#c9742f]"
