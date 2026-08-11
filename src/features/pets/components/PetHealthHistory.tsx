@@ -2,10 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { FiEdit3, FiTrash2 } from "react-icons/fi";
-import Swal from "sweetalert2";
 import { toast } from "sonner";
 
 import FormErrors from "@/features/admin/components/FormErrors";
+import { confirmSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 import {
   deleteWeightRecordAction,
   updateWeightRecordAction,
@@ -64,11 +64,13 @@ function WeightRecordRow({
   const [state, setState] = useState(initialState);
 
   const handleDelete = async () => {
-    const result = await Swal.fire({
+    const result = await confirmSwal({
       title: "Eliminar control de peso",
-      text: `Se eliminará el registro de ${record.weight} kg.`,
+      html: swalSummaryHtml([
+        { label: "Peso", value: `${record.weight} kg` },
+        { label: "Fecha", value: shortDate(record.measuredAt) },
+      ]),
       icon: "warning",
-      showCancelButton: true,
       confirmButtonText: "Eliminar",
       cancelButtonText: "Cancelar",
       confirmButtonColor: "#dc2626",
@@ -95,14 +97,16 @@ function WeightRecordRow({
       return;
     }
 
-    const result = await Swal.fire({
+    const result = await confirmSwal({
       title: "Guardar cambios",
-      text: "Se actualizará este control de peso.",
+      html: swalSummaryHtml([
+        { label: "Peso", value: weight ? `${weight} kg` : null },
+        { label: "Fecha", value: measuredAt },
+        { label: "Notas", value: notes },
+      ]),
       icon: "question",
-      showCancelButton: true,
       confirmButtonText: "Guardar",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: "#0F766E",
     });
     if (!result.isConfirmed) return;
 
@@ -227,11 +231,13 @@ function VaccinationRecordRow({
   const [state, setState] = useState(initialState);
 
   const handleDelete = async () => {
-    const result = await Swal.fire({
+    const result = await confirmSwal({
       title: "Eliminar vacuna",
-      text: `Se eliminará ${record.vaccineName}.`,
+      html: swalSummaryHtml([
+        { label: "Vacuna", value: record.vaccineName },
+        { label: "Aplicación", value: shortDate(record.appliedAt) },
+      ]),
       icon: "warning",
-      showCancelButton: true,
       confirmButtonText: "Eliminar",
       cancelButtonText: "Cancelar",
       confirmButtonColor: "#dc2626",
@@ -261,14 +267,17 @@ function VaccinationRecordRow({
       return;
     }
 
-    const result = await Swal.fire({
+    const result = await confirmSwal({
       title: "Guardar cambios",
-      text: "Se actualizará este registro de vacuna.",
+      html: swalSummaryHtml([
+        { label: "Vacuna", value: vaccineName },
+        { label: "Aplicación", value: appliedAt },
+        { label: "Próxima dosis", value: nextDueAt },
+        { label: "Notas", value: notes },
+      ]),
       icon: "question",
-      showCancelButton: true,
       confirmButtonText: "Guardar",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: "#0F766E",
     });
     if (!result.isConfirmed) return;
 

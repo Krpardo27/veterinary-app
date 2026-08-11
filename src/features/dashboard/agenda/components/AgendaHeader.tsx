@@ -12,6 +12,10 @@ type Props = {
   dateError?: string;
 };
 
+function navLinkClass(isActive: boolean) {
+  return `border px-3 py-2 text-xs font-semibold transition-colors ${isActive ? "border-[#2A6A5D] bg-[#2A6A5D] text-white" : "border-[#B9D9CF] text-[#1D554A] hover:bg-[#F0F8F5]"}`;
+}
+
 export default function AgendaHeader({
   activeDate,
   today,
@@ -20,6 +24,9 @@ export default function AgendaHeader({
   selectedDate,
   dateError,
 }: Props) {
+  const isTodayActive = !isUpcomingView && activeDate === today;
+  const isTomorrowActive = !isUpcomingView && activeDate === tomorrow;
+
   return (
     <>
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -36,13 +43,13 @@ export default function AgendaHeader({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Link href={`/admin/agenda?date=${today}`} className={`border px-3 py-2 text-xs font-semibold transition-colors ${!isUpcomingView && activeDate === today ? "border-[#2A6A5D] bg-[#2A6A5D] text-white" : "border-[#B9D9CF] text-[#1D554A] hover:bg-[#F0F8F5]"}`}>
+          <Link href={`/admin/agenda?date=${today}`} aria-current={isTodayActive ? "page" : undefined} className={navLinkClass(isTodayActive)}>
             Hoy
           </Link>
-          <Link href={`/admin/agenda?date=${tomorrow}`} className="border border-[#B9D9CF] px-3 py-2 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5]">
+          <Link href={`/admin/agenda?date=${tomorrow}`} aria-current={isTomorrowActive ? "page" : undefined} className={navLinkClass(isTomorrowActive)}>
             Mañana
           </Link>
-          <Link href="/admin/agenda?view=upcoming" className={`border px-3 py-2 text-xs font-semibold transition-colors ${isUpcomingView ? "border-[#2A6A5D] bg-[#2A6A5D] text-white" : "border-[#B9D9CF] text-[#1D554A] hover:bg-[#F0F8F5]"}`}>
+          <Link href="/admin/agenda?view=upcoming" aria-current={isUpcomingView ? "page" : undefined} className={navLinkClass(isUpcomingView)}>
             Próximas
           </Link>
         </div>

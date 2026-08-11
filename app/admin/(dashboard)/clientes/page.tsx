@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
+import type { ReservationStatus } from "@/generated/prisma/enums";
 import { redirect } from "next/navigation";
 import ClientsTable from "@/features/dashboard/clients/components/ClientsTable";
 import Pagination from "@/features/admin/components/Pagination";
+import { ACTIVE_RESERVATION_STATUSES } from "@/features/booking/services/availability";
 import {
   formatAppointmentDateTime,
   formatShortDate,
@@ -24,8 +26,9 @@ type CustomerWithReservations = {
     id: string;
     serviceName: string;
     startAt: Date;
-    status: string;
+    status: ReservationStatus;
   }>;
+  _count: { reservations: number };
 };
 
 export default async function ClientsPage({
@@ -65,12 +68,19 @@ export default async function ClientsPage({
     redirect(`/admin/clientes?${params.toString()}`);
   }
 
-  const customers = (await prisma.customer.findMany({
+  const customers: CustomerWithReservations[] = await prisma.customer.findMany({
     where,
-    include: {
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      email: true,
+      notes: true,
+      isActive: true,
+      createdAt: true,
       reservations: {
         where: {
-          status: { in: ["PENDING", "CONFIRMED"] },
+          status: { in: ACTIVE_RESERVATION_STATUSES },
         },
         orderBy: { startAt: "asc" },
         take: 1,
@@ -81,11 +91,18 @@ export default async function ClientsPage({
           status: true,
         },
       },
+      _count: {
+        select: {
+          reservations: {
+            where: { status: { in: ACTIVE_RESERVATION_STATUSES } },
+          },
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
     skip,
     take: ITEMS_PER_PAGE,
-  })) as CustomerWithReservations[];
+  });
 
   const customersForTable = customers.map((customer) => ({
     id: customer.id,
@@ -95,6 +112,7 @@ export default async function ClientsPage({
     notes: customer.notes,
     isActive: customer.isActive,
     createdAtLabel: formatShortDate(customer.createdAt),
+    activeReservationsCount: customer._count.reservations,
     reservations: customer.reservations.map((reservation) => ({
       id: reservation.id,
       serviceName: reservation.serviceName,
@@ -115,7 +133,10 @@ export default async function ClientsPage({
         placeholder="Buscar por nombre, teléfono, email o notas"
       />
 
-      <ClientsTable customers={customersForTable} />
+      <ClientsTable
+        customers={customersForTable}
+        emptyMessage={query ? "No hay clientes que coincidan con la búsqueda." : undefined}
+      />
 
       <Pagination
         currentPage={currentPage}

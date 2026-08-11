@@ -33,14 +33,16 @@ export const ReservationSchema = z
       })
       .optional(),
 
+    petId: z.string().optional(),
+
     petName: z
       .string()
       .trim()
-      .min(1, { message: "El nombre de la mascota es obligatorio" })
-      .max(80, { message: "El nombre no puede superar los 80 caracteres" }),
-    petSpecies: z.enum(["DOG", "CAT"], {
+      .max(80, { message: "El nombre no puede superar los 80 caracteres" })
+      .optional(),
+    petSpecies: z.enum(["DOG", "CAT", "BIRD", "OTHER"], {
       message: "Selecciona la especie de la mascota",
-    }),
+    }).optional(),
     petBreed: z
       .string()
       .trim()
@@ -95,6 +97,14 @@ export const ReservationSchema = z
           message: "El teléfono es obligatorio",
         });
       }
+    }
+
+    if (!data.petId && !data.petName?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["petName"],
+        message: "Selecciona una mascota o registra una nueva",
+      });
     }
   });
 

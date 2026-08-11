@@ -74,6 +74,7 @@ export default function AdminRoutes({ expanded = false }: { expanded?: boolean }
             href={route.href}
             {...(route.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             aria-label={route.label}
+            aria-current={active && !route.external ? "page" : undefined}
             className={`relative flex h-[42px] items-center rounded-xl transition-colors ${
               expanded ? "w-full justify-start gap-3 px-3" : "size-[42px] justify-center"
             } ${

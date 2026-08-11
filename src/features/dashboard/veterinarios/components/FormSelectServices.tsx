@@ -3,10 +3,15 @@
 import { useState } from "react";
 import { FiSearch, FiCheck } from "react-icons/fi";
 import clsx from "clsx";
+import {
+  getRequiredProfessionalRole,
+  type ProfessionalRole,
+} from "@/features/booking/serviceRoles";
 
 type Service = {
   id: string;
   name: string;
+  slug: string;
   durationMin: number;
 };
 
@@ -20,13 +25,22 @@ type Props = {
   services: Service[];
   assignments?: ServiceAssignment[];
   submittedValues?: Record<string, { isActive: boolean; durationMin: string }>;
+  selectedRole: ProfessionalRole;
 };
 
 export default function FormSelectServices({
   services,
   assignments = [],
   submittedValues,
+  selectedRole,
 }: Props) {
+  const getInitialDuration = (id: string) => {
+    if (submittedValues) return submittedValues[id]?.durationMin ?? "";
+
+    const assignment = assignments.find((a) => a.serviceId === id);
+    return assignment?.durationMin ? String(assignment.durationMin) : "";
+  };
+
   const getInitialEnabled = (id: string) => {
     if (submittedValues) return submittedValues[id]?.isActive ?? false;
     return assignments.find((a) => a.serviceId === id)?.isActive ?? false;
@@ -35,14 +49,21 @@ export default function FormSelectServices({
   const [enabled, setEnabled] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(services.map((s) => [s.id, getInitialEnabled(s.id)])),
   );
+  const [durations, setDurations] = useState<Record<string, string>>(() =>
+    Object.fromEntries(services.map((s) => [s.id, getInitialDuration(s.id)])),
+  );
 
   const [query, setQuery] = useState("");
 
-  const filtered = services.filter((s) =>
+  const roleServices = services.filter(
+    (service) => getRequiredProfessionalRole(service.slug) === selectedRole,
+  );
+  const filtered = roleServices.filter((s) =>
     s.name.toLowerCase().includes(query.toLowerCase()),
   );
 
-  const selectedCount = Object.values(enabled).filter(Boolean).length;
+  const selectedCount = roleServices.filter((service) => enabled[service.id]).length;
+  const roleLabel = selectedRole === "VETERINARY" ? "veterinaria" : "peluquería y baño";
 
   return (
     <div className="space-y-3">
@@ -60,8 +81,19 @@ export default function FormSelectServices({
 
       {/* Counter */}
       <p className="text-xs text-zinc-400">
-        {selectedCount} de {services.length} servicios seleccionados
+        {selectedCount} de {roleServices.length} servicios de {roleLabel} seleccionados
       </p>
+
+      {roleServices
+        .filter((service) => enabled[service.id])
+        .map((service) => (
+          <div key={service.id}>
+            <input type="hidden" name={`serviceEnabled:${service.id}`} value="on" />
+            {durations[service.id] && (
+              <input type="hidden" name={`serviceDuration:${service.id}`} value={durations[service.id]} />
+            )}
+          </div>
+        ))}
 
       {/* Service list */}
       <div className="max-h-72 overflow-y-auto rounded-xl border border-zinc-200 bg-white divide-y divide-zinc-100">
@@ -99,10 +131,26 @@ export default function FormSelectServices({
                 <span className="shrink-0 text-xs text-zinc-400">base {service.durationMin} min</span>
               </div>
 
-              {/* Hidden input for FormData */}
-              {isEnabled && (
-                <input type="hidden" name={`serviceEnabled:${service.id}`} value="on" />
-              )}
+              <div className={clsx("grid gap-1 pl-8 sm:grid-cols-[1fr_auto] sm:items-center", !isEnabled && "opacity-50")}>
+                <label htmlFor={`serviceDuration:${service.id}`} className="text-xs font-medium text-zinc-500">
+                  Duración personalizada
+                </label>
+                <input
+                  id={`serviceDuration:${service.id}`}
+                  type="number"
+                  min={5}
+                  max={480}
+                  step={5}
+                  value={durations[service.id] ?? ""}
+                  onChange={(event) => {
+                    const value = event.currentTarget.value;
+                    setDurations((prev) => ({ ...prev, [service.id]: value }));
+                  }}
+                  disabled={!isEnabled}
+                  placeholder={`${service.durationMin} min`}
+                  className="h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E]/20 disabled:cursor-not-allowed disabled:bg-zinc-50 sm:w-32"
+                />
+              </div>
             </div>
           );
         })}

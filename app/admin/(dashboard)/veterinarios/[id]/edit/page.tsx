@@ -17,6 +17,7 @@ export default async function EditVetPage({ params }: EditVetPageProps) {
   const vet = await prisma.professional.findUnique({
     where: { id },
     include: {
+      _count: { select: { reservations: true } },
       services: {
         select: { serviceId: true, durationMin: true, isActive: true },
       },
@@ -28,7 +29,7 @@ export default async function EditVetPage({ params }: EditVetPageProps) {
   const services = await prisma.service.findMany({
     where: { isActive: true },
     orderBy: { name: "asc" },
-    select: { id: true, name: true, durationMin: true },
+    select: { id: true, name: true, slug: true, durationMin: true },
   });
 
   return (

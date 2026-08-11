@@ -1,11 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ReservationStatus } from "@/generated/prisma/enums";
+import { ACTIVE_RESERVATION_STATUSES } from "@/features/booking/services/availability";
 import { requireAdminAction } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
-
-const ACTIVE_RESERVATION_STATUSES: ReservationStatus[] = ["PENDING", "CONFIRMED"];
 
 export async function archiveCustomerAction(customerId: string) {
   const auth = await requireAdminAction();

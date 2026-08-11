@@ -1,22 +1,16 @@
-import type { ReservationStatus } from "@/generated/prisma/enums";
 import type { ReservationTableItem } from "./reservation.types";
 import ReservationStatusButtons from "./ReservationStatusButtons";
+import { formatAppointmentDateTime } from "@/utils/dateFormatters";
+import {
+  RESERVATION_STATUS_LABELS,
+  RESERVATION_STATUS_STYLES,
+} from "./reservationStatus";
 
-const STATUS_LABELS: Record<ReservationStatus, string> = {
-  PENDING:   "Pendiente",
-  CONFIRMED: "Confirmada",
-  COMPLETED: "Completada",
-  CANCELLED: "Cancelada",
-  NO_SHOW:   "No asistió",
-};
-
-const STATUS_STYLES: Record<ReservationStatus, string> = {
-  PENDING:   "bg-amber-50  border-amber-200  text-amber-700",
-  CONFIRMED: "bg-emerald-50 border-emerald-200 text-emerald-700",
-  COMPLETED: "bg-zinc-100  border-zinc-200   text-zinc-600",
-  CANCELLED: "bg-red-50    border-red-200    text-red-600",
-  NO_SHOW:   "bg-orange-50 border-orange-200 text-orange-700",
-};
+const currencyFormatter = new Intl.NumberFormat("es-CL", {
+  style: "currency",
+  currency: "CLP",
+  maximumFractionDigits: 0,
+});
 
 export default function ReservationMobileCard({ reservation }: { reservation: ReservationTableItem }) {
   return (
@@ -26,25 +20,23 @@ export default function ReservationMobileCard({ reservation }: { reservation: Re
           <p className="font-semibold text-zinc-900">{reservation.customer.name}</p>
           <p className="text-xs text-zinc-500">{reservation.customer.phone}</p>
         </div>
-        <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[reservation.status]}`}>
-          {STATUS_LABELS[reservation.status]}
+        <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${RESERVATION_STATUS_STYLES[reservation.status]}`}>
+          {RESERVATION_STATUS_LABELS[reservation.status]}
         </span>
       </div>
 
       <div className="space-y-1 text-sm text-zinc-700">
         <p><span className="text-zinc-400">Servicio: </span>{reservation.serviceName}</p>
+        <p><span className="text-zinc-400">Duración: </span>{reservation.durationMin} min</p>
         <p><span className="text-zinc-400">Profesional: </span>{reservation.professional?.name ?? "—"}</p>
         <p>
           <span className="text-zinc-400">Fecha: </span>
-          {new Date(reservation.startAt).toLocaleString("es-CL", {
-            day: "2-digit", month: "short", year: "2-digit",
-            hour: "2-digit", minute: "2-digit",
-          })}
+          {formatAppointmentDateTime(reservation.startAt)}
         </p>
-        <p className="font-semibold text-zinc-900">${reservation.servicePrice.toLocaleString("es-CL")}</p>
+        <p className="font-semibold text-zinc-900">{currencyFormatter.format(reservation.servicePrice)}</p>
       </div>
 
-      <ReservationStatusButtons reservationId={reservation.id} status={reservation.status} />
+      <ReservationStatusButtons reservationId={reservation.id} status={reservation.status} variant="compact" />
     </div>
   );
 }

@@ -39,6 +39,7 @@ export async function createReservationAction(
     customerName,
     customerPhone,
     customerEmail,
+    petId,
     petName,
     petSpecies,
     petBreed,
@@ -171,15 +172,32 @@ export async function createReservationAction(
         };
       }
 
-      const pet = await tx.pet.create({
-        data: {
-          customerId: resolvedCustomerId,
-          name: petName,
-          species: petSpecies,
-          breed: petBreed || null,
-        },
-        select: { id: true },
-      });
+      let resolvedPetId = petId || null;
+
+      if (resolvedPetId) {
+        const existingPet = await tx.pet.findFirst({
+          where: { id: resolvedPetId, customerId: resolvedCustomerId, isActive: true },
+          select: { id: true },
+        });
+
+        if (!existingPet) {
+          return {
+            errors: [{ message: "La mascota seleccionada no pertenece al cliente." }],
+          };
+        }
+      } else {
+        const pet = await tx.pet.create({
+          data: {
+            customerId: resolvedCustomerId,
+            name: petName!,
+            species: petSpecies ?? "DOG",
+            breed: petBreed || null,
+          },
+          select: { id: true },
+        });
+
+        resolvedPetId = pet.id;
+      }
 
       const createdReservation = await tx.reservation.create({
         data: {
@@ -189,7 +207,7 @@ export async function createReservationAction(
           serviceName: service.name,
           servicePrice: service.price,
           durationMin: resolvedDurationMin,
-          petId: pet.id,
+          petId: resolvedPetId,
           startAt: start,
           endAt: end,
           notes: notes || null,

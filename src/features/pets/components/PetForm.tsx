@@ -1,9 +1,9 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import Swal from "sweetalert2";
 
 import FormErrors from "@/features/admin/components/FormErrors";
+import { feedbackSwal } from "@/shared/utils/sweetAlert";
 import {
   getBreedsForSpecies,
   MIXED_BREED,
@@ -66,24 +66,24 @@ export default function PetForm({ customerId, onSuccess, pet }: Props) {
 
     if (state.status === "success") {
       if (state.unchanged) {
-        void Swal.fire({
+        void feedbackSwal({
           title: "Sin cambios",
-          text: state.message,
+          message: state.message,
           icon: "info",
           confirmButtonColor: "#0F766E",
         }).then(() => onSuccess?.());
       } else {
-        void Swal.fire({
+        void feedbackSwal({
           title: "Mascota guardada",
-          text: state.message,
+          message: state.message,
           icon: "success",
           confirmButtonColor: "#0F766E",
         }).then(() => onSuccess?.());
       }
     } else if (state.status === "error") {
-      void Swal.fire({
+      void feedbackSwal({
         title: "No fue posible guardar",
-        text: state.message,
+        message: state.message,
         icon: "error",
         confirmButtonColor: "#0F766E",
       });

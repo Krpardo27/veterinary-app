@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { FaArrowLeft, FaArrowRight, FaPaw, FaShieldAlt, FaStethoscope } from "react-icons/fa";
 import Link from "next/link";
+import { COLORS } from "@/shared/constants/theme";
 
 const slides = [
   {
@@ -61,7 +62,12 @@ export default function Hero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
-          className="mb-4 w-fit rounded-full border border-[#b9d6c6] bg-[#eaf4ee] px-3 py-1 text-sm font-semibold text-[#2f6f64]"
+          className="mb-4 w-fit rounded-full border px-3 py-1 text-sm font-semibold"
+          style={{
+            borderColor: COLORS.primary,
+            backgroundColor: COLORS.primary_bg,
+            color: COLORS.secondary,
+          }}
         >
           Veterinaria moderna y cercana
         </motion.span>
@@ -69,7 +75,8 @@ export default function Hero() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.08, ease: "easeOut" }}
-          className="max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-[#17322c] sm:text-5xl"
+          className="max-w-2xl text-4xl font-semibold leading-tight tracking-tight sm:text-5xl"
+          style={{ color: COLORS.dark }}
         >
           Tu mascota merece una atención con alma, ciencia y mucho cuidado.
         </motion.h1>
@@ -77,7 +84,8 @@ export default function Hero() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.16, ease: "easeOut" }}
-          className="mt-5 max-w-xl text-lg leading-8 text-[#5c6f68]"
+          className="mt-5 max-w-xl text-lg leading-8"
+          style={{ color: COLORS.text }}
         >
           En Luma Vet cuidamos de cada etapa de la vida de tu compañero con medicina preventiva, hospitalización y un trato humano.
         </motion.p>
@@ -88,10 +96,21 @@ export default function Hero() {
           transition={{ duration: 0.55, delay: 0.24, ease: "easeOut" }}
           className="mt-8 flex flex-wrap gap-3"
         >
-          <Link href="/reservar" className="rounded-full bg-[#2a6a5d] px-5 py-3 font-semibold text-white transition hover:bg-[#1f5248]">
+          <Link
+            href="/reservar"
+            className="rounded-full px-5 py-3 font-semibold text-white transition hover:opacity-90"
+            style={{ backgroundColor: COLORS.secondary }}
+          >
             Reservar cita
           </Link>
-          <a href="#servicios" className="rounded-full border border-[#2a6a5d]/20 bg-white px-5 py-3 font-semibold text-[#2a6a5d] transition hover:border-[#2a6a5d]">
+          <a
+            href="#servicios"
+            className="rounded-full border px-5 py-3 font-semibold transition"
+            style={{
+              borderColor: `${COLORS.secondary}33`,
+              color: COLORS.secondary,
+            }}
+          >
             Ver servicios
           </a>
         </motion.div>
@@ -100,14 +119,19 @@ export default function Hero() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.32, ease: "easeOut" }}
-          className="mt-8 flex flex-wrap gap-4 text-sm text-[#5c6f68]"
+          className="mt-8 flex flex-wrap gap-4 text-sm"
+          style={{ color: COLORS.text }}
         >
-          <div className="rounded-2xl border border-[#dce8e2] bg-white/80 px-4 py-3 shadow-sm">
-            <p className="font-semibold text-[#2a6a5d]">+8 años</p>
+          <div className="rounded-2xl border px-4 py-3 shadow-sm" style={{ borderColor: COLORS.border, backgroundColor: "rgba(255, 255, 255, 0.8)" }}>
+            <p className="font-semibold" style={{ color: COLORS.secondary }}>
+              +8 años
+            </p>
             <p>cuidando mascotas</p>
           </div>
-          <div className="rounded-2xl border border-[#dce8e2] bg-white/80 px-4 py-3 shadow-sm">
-            <p className="font-semibold text-[#2a6a5d]">Atención integral</p>
+          <div className="rounded-2xl border px-4 py-3 shadow-sm" style={{ borderColor: COLORS.border, backgroundColor: "rgba(255, 255, 255, 0.8)" }}>
+            <p className="font-semibold" style={{ color: COLORS.secondary }}>
+              Atención integral
+            </p>
             <p>prevención, diagnóstico y seguimiento</p>
           </div>
         </motion.div>
@@ -117,9 +141,14 @@ export default function Hero() {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.65, delay: 0.2, ease: "easeOut" }}
-        className="rounded-[2rem] border border-[#dce8e2] bg-[#fcfbf7] shadow-[0_20px_60px_-20px_rgba(42,106,93,0.22)]"
+        className="rounded-[2rem] border shadow-[0_20px_60px_-20px]"
+        style={{
+          borderColor: COLORS.border,
+          backgroundColor: "#fcfbf7",
+          boxShadow: `0 20px 60px -20px ${COLORS.secondary}38`,
+        }}
       >
-        <div className="overflow-hidden rounded-[1.5rem] bg-[#f3f6f1]">
+        <div className="overflow-hidden rounded-[1.5rem]" style={{ backgroundColor: COLORS.primary_bg }}>
           <div className="embla" ref={emblaRef}>
             <div className="embla__container flex">
               {slides.map((slide, index) => {
@@ -141,14 +170,24 @@ export default function Hero() {
 
                     {/* Card content */}
                     <div className="bg-white p-6">
-                      <span className="inline-flex rounded-full bg-[#eaf4ee] px-3 py-1 text-sm font-semibold text-[#2a6a5d]">
+                      <span
+                        className="inline-flex rounded-full px-3 py-1 text-sm font-semibold"
+                        style={{
+                          backgroundColor: COLORS.secondary_bg,
+                          color: COLORS.secondary,
+                        }}
+                      >
                         {slide.badge}
                       </span>
-                      <div className="mt-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#fef0e3] text-[#e08b4f]">
-                        <Icon className="text-lg" />
+                      <div className="mt-4 flex h-10 w-10 items-center justify-center rounded-full text-lg" style={{ backgroundColor: "#fef0e3", color: COLORS.accent }}>
+                        <Icon />
                       </div>
-                      <h2 className="mt-4 text-xl font-semibold text-[#17322c]">{slide.title}</h2>
-                      <p className="mt-2 text-sm leading-6 text-[#5c6f68]">{slide.description}</p>
+                      <h2 className="mt-4 text-xl font-semibold" style={{ color: COLORS.dark }}>
+                        {slide.title}
+                      </h2>
+                      <p className="mt-2 text-sm leading-6" style={{ color: COLORS.text }}>
+                        {slide.description}
+                      </p>
                     </div>
                   </div>
                 );
@@ -156,27 +195,46 @@ export default function Hero() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-[#dce8e2] bg-white px-6 py-3">
+          <div className="flex items-center justify-between border-t px-6 py-3" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bg_white }}>
             <div className="flex gap-2">
               {slides.map((_, index) => (
                 <button
                   key={index}
                   type="button"
                   onClick={() => emblaApi?.scrollTo(index)}
-                  className={`h-2 w-2 rounded-full transition-all cursor-pointer ${
-                    index === selectedIndex
-                      ? "bg-[#2a6a5d] w-5"
-                      : "bg-[#9dc7b3] hover:bg-[#2a6a5d]/50"
+                  className={`h-2 rounded-full transition-all cursor-pointer ${
+                    index === selectedIndex ? "w-5" : "w-2 hover:opacity-70"
                   }`}
                   aria-label={`Ir al slide ${index + 1}`}
+                  style={{
+                    backgroundColor: index === selectedIndex ? COLORS.secondary : "#9dc7b3",
+                  }}
                 />
               ))}
             </div>
             <div className="flex gap-2">
-              <button type="button" onClick={scrollPrev} className="rounded-full border border-[#dce8e2] bg-white p-2 text-[#2a6a5d] transition hover:bg-[#f3f6f1]">
+              <button
+                type="button"
+                onClick={scrollPrev}
+                className="rounded-full border p-2 transition"
+                style={{
+                  borderColor: COLORS.border,
+                  backgroundColor: COLORS.bg_white,
+                  color: COLORS.secondary,
+                }}
+              >
                 <FaArrowLeft />
               </button>
-              <button type="button" onClick={scrollNext} className="rounded-full border border-[#dce8e2] bg-white p-2 text-[#2a6a5d] transition hover:bg-[#f3f6f1]">
+              <button
+                type="button"
+                onClick={scrollNext}
+                className="rounded-full border p-2 transition"
+                style={{
+                  borderColor: COLORS.border,
+                  backgroundColor: COLORS.bg_white,
+                  color: COLORS.secondary,
+                }}
+              >
                 <FaArrowRight />
               </button>
             </div>

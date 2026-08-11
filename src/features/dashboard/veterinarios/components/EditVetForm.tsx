@@ -3,16 +3,17 @@
 import { type ReactNode, useActionState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
 import type { ProfessionalService, Professional, Service } from "@/generated/prisma/client";
 import { VetFormContext } from "./VetFormContext";
-import { deleteVetAction, updateVetAction, type VetActionState } from "../actions/veterinarios-actions";
+import { deactivateVetAction, deleteVetAction, updateVetAction, type VetActionState } from "../actions/veterinarios-actions";
+import { confirmSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 
 type EditVetFormProps = {
   vet: Professional & {
     services?: Pick<ProfessionalService, "serviceId" | "durationMin" | "isActive">[];
+    _count?: { reservations: number };
   };
-  services: Pick<Service, "id" | "name" | "durationMin">[];
+  services: Pick<Service, "id" | "name" | "slug" | "durationMin">[];
   successRedirectHref?: string;
   children: ReactNode;
 };
@@ -40,34 +41,31 @@ export default function EditVetForm({ vet, services, successRedirectHref, childr
   }, [router, state.message, state.status, successRedirectHref]);
 
   const handleSubmit = async (formData: FormData) => {
-    const result = await Swal.fire({
+    const result = await confirmSwal({
       title: "Guardar cambios",
-      text: "Se actualizarán los datos de este profesional.",
+      html: swalSummaryHtml([
+        { label: "Profesional", value: vet.name },
+        { label: "Nuevo nombre", value: formData.get("name")?.toString() },
+        { label: "Rol", value: formData.get("role") === "GROOMING" ? "Peluquería y baño" : "Veterinario/a" },
+        { label: "Estado", value: formData.get("isActive") === "on" ? "Activo" : "Inactivo" },
+      ]),
       icon: "question",
-      showCancelButton: true,
       confirmButtonText: "Guardar cambios",
-      cancelButtonText: "Volver",
-      confirmButtonColor: "#0F766E",
-      cancelButtonColor: "#6b7280",
-      background: "#ffffff",
-      color: "#0f172a",
     });
     if (!result.isConfirmed) return;
     startTransition(() => { formAction(formData); });
   };
 
   const handleDelete = async () => {
-    const result = await Swal.fire({
+    const result = await confirmSwal({
       title: "Eliminar profesional",
-      text: `Esta acción eliminará a ${vet.name} del equipo.`,
+      html: swalSummaryHtml([
+        { label: "Profesional", value: vet.name },
+        { label: "Acción", value: "Se eliminará del equipo" },
+      ]),
       icon: "warning",
-      showCancelButton: true,
       confirmButtonText: "Eliminar profesional",
-      cancelButtonText: "Volver",
       confirmButtonColor: "#dc2626",
-      cancelButtonColor: "#6b7280",
-      background: "#ffffff",
-      color: "#0f172a",
     });
     if (!result.isConfirmed) return;
     startTransition(async () => {
@@ -81,8 +79,32 @@ export default function EditVetForm({ vet, services, successRedirectHref, childr
     });
   };
 
+  const handleDeactivate = async () => {
+    const result = await confirmSwal({
+      title: "Desactivar profesional",
+      html: swalSummaryHtml([
+        { label: "Profesional", value: vet.name },
+        { label: "Efecto", value: "No estará disponible para nuevas reservas" },
+        { label: "Historial", value: "Se conservará sin cambios" },
+      ]),
+      icon: "warning",
+      confirmButtonText: "Desactivar",
+      confirmButtonColor: "#dc2626",
+    });
+    if (!result.isConfirmed) return;
+    startTransition(async () => {
+      const response = await deactivateVetAction(vet.id);
+      if (response.status === "success") {
+        toast.success(response.message);
+        router.push(successRedirectHref ?? "/admin/veterinarios");
+      } else {
+        toast.error(response.message);
+      }
+    });
+  };
+
   return (
-    <VetFormContext.Provider value={{ vet, services, state, isPending, formKey, onSubmit: handleSubmit, onDelete: handleDelete }}>
+    <VetFormContext.Provider value={{ vet, services, state, isPending, formKey, onSubmit: handleSubmit, onDeactivate: handleDeactivate, onDelete: handleDelete }}>
       {children}
     </VetFormContext.Provider>
   );

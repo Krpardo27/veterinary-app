@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { ACTIVE_RESERVATION_STATUSES } from "@/features/booking/services/availability";
 import { requireAdminAction } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
@@ -21,7 +22,7 @@ export async function cancelReservationAction(reservationId: string) {
       return { error: "Reserva no encontrada" };
     }
 
-    if (reservation.status !== "PENDING" && reservation.status !== "CONFIRMED") {
+    if (!ACTIVE_RESERVATION_STATUSES.includes(reservation.status)) {
       return { error: "Solo se pueden cancelar reservas pendientes o confirmadas" };
     }
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { FiCheckCircle, FiEdit3, FiPlus, FiSave, FiTrash2 } from "react-icons/fi";
+import { useState } from "react";
+import { FiCheckCircle, FiEdit3, FiPlus, FiSave, FiSlash, FiTrash2 } from "react-icons/fi";
 import Form from "./Form";
 import FormErrors from "./FormErrors";
 import FormInput from "./FormInput";
@@ -9,10 +10,12 @@ import FormSelectServices from "./FormSelectServices";
 import { useVetForm } from "./VetFormContext";
 
 export default function VetAdminForm() {
-  const { vet, services, state, isPending, formKey, onSubmit, onDelete } = useVetForm();
+  const { vet, services, state, isPending, formKey, onSubmit, onDeactivate, onDelete } = useVetForm();
   const editing = Boolean(vet);
+  const hasReservations = (vet?._count?.reservations ?? 0) > 0;
   const errors = state.fieldErrors;
   const values = state.values;
+  const [selectedRole, setSelectedRole] = useState(values?.role ?? vet?.role ?? "VETERINARY");
 
   function formatPhone(value: string): string {
     const digits = value.replace(/\D/g, "");
@@ -85,7 +88,8 @@ export default function VetAdminForm() {
             <select
               id="role"
               name="role"
-              defaultValue={values?.role ?? vet?.role ?? "VETERINARY"}
+              value={selectedRole}
+              onChange={(event) => setSelectedRole(event.currentTarget.value as typeof selectedRole)}
               className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-3 text-sm text-zinc-900 outline-none transition-colors focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E]/20"
             >
               <option value="VETERINARY">Veterinario/a</option>
@@ -109,10 +113,11 @@ export default function VetAdminForm() {
         </div>
 
         <FormSelectServices
-              services={services}
-              assignments={vet?.services}
-              submittedValues={values?.services}
-            />
+          services={services}
+          assignments={vet?.services}
+          submittedValues={values?.services}
+          selectedRole={selectedRole}
+        />
 
         <div className="flex flex-col gap-3 border-t border-zinc-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-3">
@@ -128,7 +133,14 @@ export default function VetAdminForm() {
             )}
           </div>
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:justify-end">
-            {vet && onDelete && (
+            {vet?.isActive && onDeactivate && (
+              <button type="button" onClick={onDeactivate} disabled={isPending}
+                className="inline-flex h-11 cursor-pointer w-full items-center justify-center gap-2 rounded-xl border border-orange-200 px-4 text-xs font-bold uppercase tracking-wide text-orange-600 transition-colors hover:border-orange-300 hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
+                <FiSlash className="h-4 w-4" />
+                Desactivar
+              </button>
+            )}
+            {vet && onDelete && !hasReservations && (
               <button type="button" onClick={onDelete} disabled={isPending}
                 className="inline-flex h-11 cursor-pointer w-full items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-xs font-bold uppercase tracking-wide text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
                 <FiTrash2 className="h-4 w-4" />

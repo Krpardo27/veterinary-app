@@ -4,20 +4,16 @@ import GoBackButton from "@/features/admin/components/GoBackButton";
 import ArchiveCustomerButton from "@/features/dashboard/clients/components/ArchiveCustomerButton";
 import AddPetButton from "@/features/pets/components/AddPetButton";
 import PetCard from "@/features/pets/components/PetCard";
+import {
+  RESERVATION_STATUS_LABELS,
+  RESERVATION_STATUS_STYLES,
+} from "@/features/dashboard/reservas/components/reservationStatus";
 import { prisma } from "@/lib/prisma";
 import { formatAppointmentDateTime, formatShortDate } from "@/utils/dateFormatters";
 
 type Props = {
   params: Promise<{ id: string }>;
 };
-
-const STATUS_LABELS = {
-  PENDING: "Pendiente",
-  CONFIRMED: "Confirmada",
-  COMPLETED: "Completada",
-  CANCELLED: "Cancelada",
-  NO_SHOW: "No asistió",
-} as const;
 
 export default async function ClientDetails({ params }: Props) {
   const { id } = await params;
@@ -29,6 +25,7 @@ export default async function ClientDetails({ params }: Props) {
       phone: true,
       email: true,
       notes: true,
+      isActive: true,
       createdAt: true,
       pets: {
         where: { isActive: true },
@@ -77,10 +74,15 @@ export default async function ClientDetails({ params }: Props) {
                 </a>
               )}
             </div>
+            {!customer.isActive && (
+              <span className="mt-3 inline-flex w-fit rounded-full border border-zinc-200 bg-zinc-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-600">
+                Cliente dado de baja
+              </span>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <AddPetButton customerId={customer.id} customerName={customer.name} />
-            <ArchiveCustomerButton customerId={customer.id} customerName={customer.name} />
+            {customer.isActive && <ArchiveCustomerButton customerId={customer.id} customerName={customer.name} />}
           </div>
         </div>
       </header>
@@ -132,8 +134,8 @@ export default async function ClientDetails({ params }: Props) {
                 <p className="font-semibold text-[#1D3A35]">{reservation.serviceName}</p>
                 <p className="text-[#5C6F68]">{reservation.pet?.name ?? "Sin mascota"}</p>
                 <p className="text-[#5C6F68]">{formatAppointmentDateTime(reservation.startAt)}</p>
-                <span className="text-xs font-semibold text-[#0F766E]">
-                  {STATUS_LABELS[reservation.status]}
+                <span className={`w-fit border px-2.5 py-1 text-xs font-semibold ${RESERVATION_STATUS_STYLES[reservation.status]}`}>
+                  {RESERVATION_STATUS_LABELS[reservation.status]}
                 </span>
               </div>
             ))}

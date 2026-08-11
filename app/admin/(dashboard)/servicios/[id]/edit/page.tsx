@@ -16,6 +16,7 @@ export default async function EditServicePage({ params }: EditServicePageProps) 
 
   const service = await prisma.service.findUnique({
     where: { id },
+    include: { _count: { select: { reservations: true } } },
   });
 
   if (!service) {

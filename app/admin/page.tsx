@@ -1,9 +1,16 @@
-﻿import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import Link from "next/link";
-import { auth } from "@/lib/auth";
+﻿import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ReservationStatus } from "@/generated/prisma/enums";
+import {
+  ACTIVE_RESERVATION_STATUSES,
+  getDayRange,
+} from "@/features/booking/services/availability";
+import {
+  RESERVATION_STATUS_LABELS,
+  RESERVATION_STATUS_STYLES,
+} from "@/features/dashboard/reservas/components/reservationStatus";
+import { getBusinessDateOnly } from "@/shared/utils/businessTime";
+import { formatAppointmentDateTime } from "@/utils/dateFormatters";
 import {
   FiArrowRight,
   FiCalendar,
@@ -20,25 +27,9 @@ const currencyFormatter = new Intl.NumberFormat("es-CL", {
   maximumFractionDigits: 0,
 });
 
-const dateFormatter = new Intl.DateTimeFormat("es-CL", {
-  day: "2-digit",
-  month: "short",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
 export default async function AdminPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/auth/login?callbackURL=/admin");
-  }
-
   const now = new Date();
-  const today = new Date(now.toDateString());
-  const tomorrow = new Date(today.getTime() + 86_400_000);
+  const todayRange = getDayRange(getBusinessDateOnly());
 
   const [
     customersCount,
@@ -54,10 +45,10 @@ export default async function AdminPage() {
     prisma.reservation.count({
       where: {
         startAt: {
-          gte: today,
-          lt: tomorrow,
+          gte: todayRange.dayStart,
+          lte: todayRange.dayEnd,
         },
-        status: { in: [ReservationStatus.PENDING, ReservationStatus.CONFIRMED] },
+        status: { in: ACTIVE_RESERVATION_STATUSES },
       },
     }),
     prisma.service.count({ where: { isActive: true } }),
@@ -65,10 +56,10 @@ export default async function AdminPage() {
     prisma.reservation.aggregate({
       where: {
         startAt: {
-          gte: today,
-          lt: tomorrow,
+          gte: todayRange.dayStart,
+          lte: todayRange.dayEnd,
         },
-        status: { in: [ReservationStatus.PENDING, ReservationStatus.CONFIRMED] },
+        status: { in: ACTIVE_RESERVATION_STATUSES },
       },
       _sum: { servicePrice: true },
     }),
@@ -76,12 +67,15 @@ export default async function AdminPage() {
     prisma.reservation.findMany({
       where: {
         startAt: { gte: now },
-        status: { in: [ReservationStatus.PENDING, ReservationStatus.CONFIRMED] },
+        status: { in: ACTIVE_RESERVATION_STATUSES },
       },
-      include: {
-        customer: true,
-        service: true,
-        professional: true,
+      select: {
+        id: true,
+        serviceName: true,
+        startAt: true,
+        status: true,
+        customer: { select: { name: true } },
+        service: { select: { name: true } },
       },
       orderBy: { startAt: "asc" },
       take: 5,
@@ -94,7 +88,6 @@ export default async function AdminPage() {
         id: true,
         name: true,
         phone: true,
-        createdAt: true,
       },
     }),
   ]);
@@ -122,7 +115,7 @@ export default async function AdminPage() {
       label: "Profesionales activos",
       value: professionalsActiveCount,
       icon: FiUserCheck,
-      href: "/admin/agenda",
+      href: "/admin/veterinarios",
     },
     {
       label: "Reservas pendientes",
@@ -144,7 +137,7 @@ export default async function AdminPage() {
         <div>
           <h2 className="text-3xl font-bold text-[#0F172A]">Dashboard veterinario</h2>
           <p className="mt-2 text-[#64748B]">
-            Bienvenido, {session.user.name ?? "administrador"}
+            Resumen operativo del centro veterinario.
           </p>
         </div>
 
@@ -202,11 +195,11 @@ export default async function AdminPage() {
                       {reservation.service?.name ?? reservation.serviceName}
                     </p>
                     <p className="mt-1 text-sm text-[#64748B]">
-                      {reservation.customer.name} • {dateFormatter.format(reservation.startAt)}
+                      {reservation.customer.name} • {formatAppointmentDateTime(reservation.startAt)}
                     </p>
                   </div>
-                  <span className="rounded-full bg-[#D1FAE5] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#0F766E]">
-                    {reservation.status}
+                  <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${RESERVATION_STATUS_STYLES[reservation.status]}`}>
+                    {RESERVATION_STATUS_LABELS[reservation.status]}
                   </span>
                 </li>
               ))}

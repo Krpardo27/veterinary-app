@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { signInWithGoogle } from "@/lib/auth-client";
 import { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
@@ -14,9 +15,21 @@ interface GoogleSignInButtonProps {
 
 const VARIANT_STYLES: Record<NonNullable<GoogleSignInButtonProps["variant"]>, string> = {
   primary:
-    "border border-zinc-200 bg-white px-6 py-3 text-zinc-950 hover:bg-zinc-100 active:scale-95",
+    "border bg-white px-6 py-3 active:scale-95 hover:opacity-90",
   secondary:
-    "border border-zinc-700 bg-zinc-900 px-6 py-3 text-white hover:bg-zinc-800 hover:border-zinc-600 active:scale-95",
+    "border px-6 py-3 text-white active:scale-95 hover:opacity-90",
+};
+
+const VARIANT_INLINE_STYLES: Record<NonNullable<GoogleSignInButtonProps["variant"]>, React.CSSProperties> = {
+  primary: {
+    borderColor: "#DCE8E2",
+    color: "#1D3A35",
+  },
+  secondary: {
+    backgroundColor: "#2a6a5d",
+    borderColor: "#2a6a5d",
+    color: "#ffffff",
+  },
 };
 
 const BASE_STYLES =
@@ -57,6 +70,7 @@ export default function GoogleSignInButton({
         onClick={handleGoogleSignIn}
         disabled={loading}
         className={`w-full ${BASE_STYLES} ${VARIANT_STYLES[variant]} ${className}`}
+        style={VARIANT_INLINE_STYLES[variant]}
       >
         {loading ? (
           <>

@@ -24,18 +24,18 @@ export const ServiceSchema = z.object({
     .or(z.literal("")),
 
   price: z.coerce
-    .number({ message: "Ingresa un precio valido" })
-    .int({ message: "El precio debe ser un numero entero" })
-    .min(1000, { message: "El precio minimo es $1.000" })
-    .max(500000, { message: "El precio maximo es $500.000" }),
+    .number({ message: "Ingresa un precio válido" })
+    .int({ message: "El precio debe ser un número entero" })
+    .min(1000, { message: "El precio mínimo es $1.000" })
+    .max(500000, { message: "El precio máximo es $500.000" }),
 
   durationMin: z.coerce
-    .number({ message: "Ingresa una duración valida" })
-    .int({ message: "La duración debe ser un numero entero" })
-    .min(5, { message: "La duración minima es 5 minutos" })
-    .max(300, { message: "La duración maxima es 300 minutos" }),
+    .number({ message: "Ingresa una duración válida" })
+    .int({ message: "La duración debe ser un número entero" })
+    .min(5, { message: "La duración mínima es 5 minutos" })
+    .max(300, { message: "La duración máxima es 300 minutos" }),
 
-  categoryId: z.string().min(1, { message: "Selecciona una categoria" }),
+  categoryId: z.string().min(1, { message: "Selecciona una categoría" }),
 
   featured: z.boolean(),
   isActive: z.boolean(),

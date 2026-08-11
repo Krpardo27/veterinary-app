@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { FiArchive } from "react-icons/fi";
-import Swal from "sweetalert2";
 import { archiveCustomerAction } from "@/features/dashboard/clients/actions/archive-customer.action";
+import { confirmSwal, feedbackSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 
 export default function ArchiveCustomerButton({
   customerId,
@@ -17,16 +17,16 @@ export default function ArchiveCustomerButton({
   const [isPending, startTransition] = useTransition();
 
   async function handleArchive() {
-    const confirm = await Swal.fire({
+    const confirm = await confirmSwal({
       title: "Dar de baja cliente",
-      text: `${customerName} dejará de aparecer en los clientes activos, pero su historial se conservará.`,
+      html: swalSummaryHtml([
+        { label: "Cliente", value: customerName },
+        { label: "Efecto", value: "Dejará de aparecer en clientes activos" },
+        { label: "Historial", value: "Se conservará sin cambios" },
+      ]),
       icon: "warning",
-      showCancelButton: true,
       confirmButtonText: "Sí, dar de baja",
-      cancelButtonText: "Volver",
       confirmButtonColor: "#b45309",
-      background: "#111111",
-      color: "#f4f4f5",
     });
 
     if (!confirm.isConfirmed) return;
@@ -35,26 +35,21 @@ export default function ArchiveCustomerButton({
       const result = await archiveCustomerAction(customerId);
 
       if (result.error) {
-        await Swal.fire({
+        await feedbackSwal({
           title: "No se pudo dar de baja",
-          text: result.error,
+          message: result.error,
           icon: "error",
-          confirmButtonText: "Entendido",
           confirmButtonColor: "#dc2626",
-          background: "#111111",
-          color: "#f4f4f5",
         });
         return;
       }
 
-      await Swal.fire({
+      await feedbackSwal({
         title: "Cliente dado de baja",
-        text: "El historial del cliente se mantuvo sin cambios.",
+        message: "El historial del cliente se mantuvo sin cambios.",
         icon: "success",
         confirmButtonText: "Perfecto",
         confirmButtonColor: "#16a34a",
-        background: "#111111",
-        color: "#f4f4f5",
       });
 
       router.push("/admin/clientes");

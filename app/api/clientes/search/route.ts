@@ -73,7 +73,16 @@ async function searchCustomer(req: NextRequest) {
 
   const customer = await prisma.customer.findFirst({
     where: { phone },
-    select: { id: true, name: true, phone: true },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      pets: {
+        where: { isActive: true },
+        orderBy: { name: "asc" },
+        select: { id: true, name: true, species: true, breed: true },
+      },
+    },
   });
 
   return NextResponse.json(

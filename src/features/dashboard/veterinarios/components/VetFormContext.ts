@@ -7,12 +7,14 @@ import type { VetActionState } from "../actions/veterinarios-actions";
 export type VetFormContextValue = {
   vet?: Professional & {
     services?: Pick<ProfessionalService, "serviceId" | "durationMin" | "isActive">[];
+    _count?: { reservations: number };
   };
-  services: Pick<Service, "id" | "name" | "durationMin">[];
+  services: Pick<Service, "id" | "name" | "slug" | "durationMin">[];
   state: VetActionState;
   isPending: boolean;
   formKey?: string;
   onSubmit: (formData: FormData) => void;
+  onDeactivate?: () => void;
   onDelete?: () => void;
 };
 
