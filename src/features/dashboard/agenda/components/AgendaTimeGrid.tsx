@@ -21,7 +21,7 @@ const SLOT_HEIGHT = 56;
 
 function ReservationCard({ reservation }: { reservation: AgendaReservation }) {
   return (
-    <div className="h-full overflow-hidden border-l-4 border-[#0F766E] bg-[#EAF4F1] px-2 py-1.5 text-xs text-[#1D3A35] shadow-sm">
+    <div className="overflow-hidden border-l-4 border-[#0F766E] bg-[#EAF4F1] px-2 py-1.5 text-xs text-[#1D3A35] shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <p className="truncate font-semibold">{reservation.serviceName}</p>
         <span className={`shrink-0 border px-1.5 py-0.5 text-[10px] font-semibold leading-none ${RESERVATION_STATUS_STYLES[reservation.status]}`}>
