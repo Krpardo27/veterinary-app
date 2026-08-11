@@ -74,20 +74,14 @@ export default function Footer() {
               <a
                 href="https://instagram.com"
                 aria-label="Síguenos en Instagram"
-                className="flex h-9 w-9 items-center justify-center rounded-full border bg-white transition-colors"
-                style={{ borderColor: COLORS.border, color: COLORS.dark }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = COLORS.primary; e.currentTarget.style.borderColor = `${COLORS.primary}66`; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = COLORS.dark; e.currentTarget.style.borderColor = COLORS.border; }}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#DCE8E2] bg-white text-[#1D3A35] transition-colors hover:border-[#0F766E]/40 hover:text-[#0F766E]"
               >
                 <FiInstagram className="h-4 w-4" />
               </a>
               <a
                 href="https://facebook.com"
                 aria-label="Síguenos en Facebook"
-                className="flex h-9 w-9 items-center justify-center rounded-full border bg-white transition-colors"
-                style={{ borderColor: COLORS.border, color: COLORS.dark }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = COLORS.primary; e.currentTarget.style.borderColor = `${COLORS.primary}66`; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = COLORS.dark; e.currentTarget.style.borderColor = COLORS.border; }}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#DCE8E2] bg-white text-[#1D3A35] transition-colors hover:border-[#0F766E]/40 hover:text-[#0F766E]"
               >
                 <FiFacebook className="h-4 w-4" />
               </a>
