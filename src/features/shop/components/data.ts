@@ -47,8 +47,8 @@ export const servicesCopy = {
 };
 
 export const siteInfo = {
-  name: "Luma Vet",
+  name: "Veterinaria El Abrazo",
   address: "Av. Central 123",
-  email: "contacto@lumavet.com",
+  email: "contacto@elabrazo.cl",
   phone: "+34 600 123 456",
 };

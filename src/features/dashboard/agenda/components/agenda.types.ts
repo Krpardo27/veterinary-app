@@ -1,4 +1,4 @@
-import type { ReservationStatus } from "@/generated/prisma/enums";
+import type { ProfessionalRole, ReservationStatus } from "@/generated/prisma/enums";
 
 export type AgendaReservation = {
   id: string;
@@ -15,6 +15,7 @@ export type AgendaReservation = {
 export type AgendaProfessional = {
   id: string;
   name: string;
+  role: ProfessionalRole;
 };
 
 export type AgendaSlot = {

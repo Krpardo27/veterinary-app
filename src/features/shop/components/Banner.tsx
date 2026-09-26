@@ -8,12 +8,12 @@ export default function Banner() {
       <div className="absolute inset-0">
         <Image
           src="/shop/banner.png"
-          alt="Tienda veterinaria Luma Vet"
+          alt="Tienda veterinaria Veterinaria El Abrazo"
           fill
           className="object-contain"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#17322c]/80 via-[#17322c]/50 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-r from-[#17322c]/80 via-[#17322c]/50 to-transparent" />
       </div>
 
       {/* Content */}

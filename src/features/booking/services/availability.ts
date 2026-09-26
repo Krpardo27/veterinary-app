@@ -34,6 +34,7 @@ type ServiceSnapshot = {
   name: string;
   price: number;
   durationMin: number;
+  category?: { slug: string } | null;
 };
 
 type ProfessionalCandidate = {
@@ -110,6 +111,18 @@ export function resolveBusinessHours(input?: {
   }
 
   return { openHour: openHour!, closeHour: closeHour!, openMinute, closeMinute };
+}
+
+export function getBusinessHoursForDate(date: string) {
+  const dayOfWeek = new Date(`${date}T12:00:00`).getDay();
+
+  if (dayOfWeek === 0) return null;
+
+  if (dayOfWeek === 6) {
+    return resolveBusinessHours({ openHour: "09:30", closeHour: "16:30" });
+  }
+
+  return resolveBusinessHours();
 }
 
 export function buildSlotStart(
@@ -201,7 +214,14 @@ function getCandidateDurationForProfessional(service: ServiceSnapshot, professio
 export async function getActiveService(db: AvailabilityClient, serviceId: string) {
   return db.service.findFirst({
     where: { id: serviceId, isActive: true },
-    select: { id: true, slug: true, name: true, price: true, durationMin: true },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      price: true,
+      durationMin: true,
+      category: { select: { slug: true } },
+    },
   });
 }
 
@@ -214,7 +234,7 @@ export async function getDurationForProfessional(
     where: {
       id: professionalId,
       isActive: true,
-      role: getRequiredProfessionalRole(service.slug),
+      role: getRequiredProfessionalRole(service.slug, service.category?.slug),
     },
     select: {
       id: true,
@@ -262,7 +282,7 @@ export async function findAvailableProfessional(
   const professionals = await db.professional.findMany({
     where: {
       isActive: true,
-      role: getRequiredProfessionalRole(params.service.slug),
+      role: getRequiredProfessionalRole(params.service.slug, params.service.category?.slug),
     },
     orderBy: { name: "asc" },
     select: {
@@ -343,7 +363,7 @@ export async function getAvailabilityCandidates(
   const professionals = await db.professional.findMany({
     where: {
       isActive: true,
-      role: getRequiredProfessionalRole(service.slug),
+      role: getRequiredProfessionalRole(service.slug, service.category?.slug),
     },
     orderBy: { name: "asc" },
     select: {

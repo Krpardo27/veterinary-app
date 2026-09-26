@@ -12,6 +12,10 @@ const currencyFormatter = new Intl.NumberFormat("es-CL", {
   maximumFractionDigits: 0,
 });
 
+function hasStatusActions(status: ReservationTableItem["status"]) {
+  return status === "PENDING" || status === "CONFIRMED";
+}
+
 export default function ReservationMobileCard({ reservation }: { reservation: ReservationTableItem }) {
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm space-y-3">
@@ -36,7 +40,11 @@ export default function ReservationMobileCard({ reservation }: { reservation: Re
         <p className="font-semibold text-zinc-900">{currencyFormatter.format(reservation.servicePrice)}</p>
       </div>
 
-      <ReservationStatusButtons reservationId={reservation.id} status={reservation.status} variant="compact" />
+      {hasStatusActions(reservation.status) ? (
+        <ReservationStatusButtons reservationId={reservation.id} status={reservation.status} variant="compact" />
+      ) : (
+        <p className="border-t border-zinc-100 pt-3 text-xs text-zinc-400">Sin acciones disponibles</p>
+      )}
     </div>
   );
 }

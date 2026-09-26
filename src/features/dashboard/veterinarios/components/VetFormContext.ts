@@ -9,7 +9,7 @@ export type VetFormContextValue = {
     services?: Pick<ProfessionalService, "serviceId" | "durationMin" | "isActive">[];
     _count?: { reservations: number };
   };
-  services: Pick<Service, "id" | "name" | "slug" | "durationMin">[];
+  services: Array<Pick<Service, "id" | "name" | "slug" | "durationMin"> & { category?: { slug: string } | null }>;
   state: VetActionState;
   isPending: boolean;
   formKey?: string;

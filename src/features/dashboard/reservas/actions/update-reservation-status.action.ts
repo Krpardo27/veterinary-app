@@ -37,7 +37,7 @@ export async function updateReservationStatusAction(
     }
 
     const updatedReservation = await prisma.reservation.updateMany({
-      where: { id: reservationId },
+      where: { id: reservationId, status: { in: ACTIVE_RESERVATION_STATUSES } },
       data: {
         status: targetStatus,
         completedAt: targetStatus === "COMPLETED" ? new Date() : null,
@@ -45,7 +45,7 @@ export async function updateReservationStatusAction(
     });
 
     if (updatedReservation.count === 0) {
-      return { error: "Reserva no encontrada" };
+      return { error: "La reserva ya no está disponible para cambiar de estado" };
     }
 
     revalidatePath("/admin/agenda");

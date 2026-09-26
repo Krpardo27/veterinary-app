@@ -28,7 +28,7 @@ export default async function EditServicePage({ params }: EditServicePageProps) 
       OR: [{ isActive: true }, { id: service.categoryId }],
     },
     orderBy: { name: "asc" },
-    select: { id: true, name: true },
+    select: { id: true, name: true, slug: true },
   });
 
   return (

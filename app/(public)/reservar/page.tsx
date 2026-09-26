@@ -17,6 +17,9 @@ export default async function ReservarPage({
       where: {
         isActive: true,
       },
+      include: {
+        category: { select: { slug: true, name: true } },
+      },
       orderBy: {
         name: "asc",
       },

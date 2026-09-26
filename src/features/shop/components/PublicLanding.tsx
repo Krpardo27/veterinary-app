@@ -1,7 +1,6 @@
 import Banner from "@/features/shop/components/Banner";
 import Hero from "./Hero";
 import Link from "next/link";
-import VeterinaryTeam from "./VeterinaryTeam";
 import ServiceCard from "./ServiceCard";
 import StatsBar from "./StatsBar";
 import Testimonials from "./Testimonials";
@@ -9,6 +8,7 @@ import FaqSection from "./FaqSection";
 import CtaSection from "./CtaSection";
 import { COLORS } from "@/shared/constants/theme";
 import { FaHeart, FaStethoscope, FaClock } from "react-icons/fa";
+import VeterinaryTeam from "./VeterinaryTeam";
 
 const services = [
   {
@@ -35,7 +35,7 @@ export default function PublicLanding() {
 
       <StatsBar />
 
-      <section id="servicios" className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+      <section id="servicios" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-16 lg:px-8">
         <div className="mb-8 max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.3em]" style={{ color: COLORS.accent }}>
             Servicios
@@ -70,9 +70,9 @@ export default function PublicLanding() {
 
       <Testimonials />
 
-      <CtaSection />
-
       <FaqSection />
+
+      <CtaSection />
     </div>
   );
 }

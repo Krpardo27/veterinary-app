@@ -24,17 +24,19 @@ export default async function VeterinariosPage() {
     prisma.service.findMany({
       where: { isActive: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, slug: true, durationMin: true },
+      select: { id: true, name: true, slug: true, durationMin: true, category: { select: { slug: true } } },
     }),
   ]);
   const activeCount = professionals.filter((professional) => professional.isActive).length;
   const inactiveCount = professionals.length - activeCount;
+  const veterinaryCount = professionals.filter((professional) => professional.role === "VETERINARY").length;
+  const groomingCount = professionals.filter((professional) => professional.role === "GROOMING").length;
 
   return (
     <AdminSectionPage
       eyebrow="Equipo"
       title="Profesionales"
-      description="Gestiona perfiles, especialidades y asignación de servicios."
+      description="Gestiona profesionales de veterinaria y peluquería, sus servicios y disponibilidad."
       badge="Equipo"
     >
       <div className="space-y-6">
@@ -43,6 +45,8 @@ export default async function VeterinariosPage() {
           total={professionals.length}
           activeCount={activeCount}
           inactiveCount={inactiveCount}
+          veterinaryCount={veterinaryCount}
+          groomingCount={groomingCount}
         />
 
         {professionals.length === 0 ? (

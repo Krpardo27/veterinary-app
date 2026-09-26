@@ -100,19 +100,19 @@ export default function SlotPicker({
               caption_label: "text-sm font-semibold capitalize text-[#1D3A35]",
               nav: "flex items-center justify-between",
               button_previous:
-                "flex size-9 items-center justify-center border border-[#DCE8E2] text-[#2A6A5D] transition-colors hover:bg-[#F0F8F5]",
+                "flex size-9 cursor-pointer items-center justify-center border border-[#DCE8E2] text-[#2A6A5D] transition-colors hover:border-[#2A6A5D] hover:bg-[#F0F8F5] focus:outline-none focus:ring-2 focus:ring-[#2A6A5D]/30 disabled:cursor-not-allowed disabled:opacity-50",
               button_next:
-                "flex size-9 items-center justify-center border border-[#DCE8E2] text-[#2A6A5D] transition-colors hover:bg-[#F0F8F5]",
+                "flex size-9 cursor-pointer items-center justify-center border border-[#DCE8E2] text-[#2A6A5D] transition-colors hover:border-[#2A6A5D] hover:bg-[#F0F8F5] focus:outline-none focus:ring-2 focus:ring-[#2A6A5D]/30 disabled:cursor-not-allowed disabled:opacity-50",
               month_grid: "mt-2 w-full border-collapse",
               weekdays: "border-b border-[#E7EFEB]",
               weekday: "h-9 text-center text-[11px] font-semibold uppercase text-[#6F817A]",
               week: "h-10",
               day: "p-0 text-center",
               day_button:
-                "mx-auto flex size-9 items-center justify-center border border-transparent text-sm font-medium transition-colors hover:border-[#B9D9CF] hover:bg-[#E6F3EE] focus:outline-none focus:ring-2 focus:ring-[#2A6A5D]/30",
-              selected: "bg-[#2A6A5D] text-white",
+                "mx-auto flex size-9 cursor-pointer items-center justify-center border border-transparent text-sm font-medium transition-colors hover:border-[#2A6A5D] hover:bg-[#F0F8F5] hover:text-[#0F766E] focus:outline-none focus:ring-2 focus:ring-[#2A6A5D]/30 disabled:cursor-not-allowed disabled:hover:border-transparent disabled:hover:bg-transparent",
+              selected: "bg-[#2A6A5D] text-white hover:bg-[#1D554A] hover:text-white",
               today: "text-[#0F766E]",
-              disabled: "text-[#B7C4BF] line-through opacity-60",
+              disabled: "cursor-not-allowed text-[#B7C4BF] line-through opacity-60",
               outside: "text-[#B7C4BF]",
             }}
           />
@@ -171,8 +171,8 @@ export default function SlotPicker({
                       : !slot.available
                         ? "cursor-not-allowed border-[#E2E8E5] bg-[#F7FAF9] text-[#AAB9B3] opacity-60"
                         : selectedTime === slot.time
-                          ? "border-[#2A6A5D] bg-[#2A6A5D] text-white"
-                          : "border-[#DCE8E2] bg-white text-[#1D3A35] hover:border-[#79A99C] hover:bg-[#F0F8F5]"
+                          ? "cursor-pointer border-[#2A6A5D] bg-[#2A6A5D] text-white hover:bg-[#1D554A]"
+                          : "cursor-pointer border-[#DCE8E2] bg-white text-[#1D3A35] hover:border-[#2A6A5D] hover:bg-[#F0F8F5] hover:text-[#0F766E]"
                   }
                 `}
               >

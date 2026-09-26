@@ -61,7 +61,7 @@ export default function ArchiveCustomerButton({
       type="button"
       onClick={handleArchive}
       disabled={isPending}
-      className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/25 px-3 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg border border-amber-500/25 px-3 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60"
     >
       <FiArchive className="h-4 w-4" />
       {isPending ? "Dando de baja" : "Dar de baja"}

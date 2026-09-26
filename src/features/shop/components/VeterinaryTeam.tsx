@@ -34,7 +34,7 @@ export default async function VeterinaryTeam() {
   if (veterinarians.length === 0) return null;
 
   return (
-    <section id="equipo" className="relative overflow-hidden py-20 sm:py-24" style={{ backgroundColor: COLORS.bg_light }}>
+    <section id="equipo" className="relative scroll-mt-24 overflow-hidden py-20 sm:py-24" style={{ backgroundColor: COLORS.bg_light }}>
       {/* Decorative blobs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-40 top-10 h-80 w-80 rounded-full opacity-50 blur-3xl" style={{ backgroundColor: "#D1FAE5" }} />

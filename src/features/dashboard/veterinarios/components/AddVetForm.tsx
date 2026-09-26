@@ -17,7 +17,7 @@ import {
 import { confirmSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 
 type AddVetFormProps = {
-  services: Pick<Service, "id" | "name" | "slug" | "durationMin">[];
+  services: Array<Pick<Service, "id" | "name" | "slug" | "durationMin"> & { category?: { slug: string } | null }>;
   successRedirectHref?: string;
   onSuccess?: () => void;
   children: ReactNode;

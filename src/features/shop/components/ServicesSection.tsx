@@ -1,4 +1,4 @@
-import { services, servicesCopy } from "../data";
+import { services, servicesCopy } from "./data";
 import ServiceCard from "./ServiceCard";
 
 export default function ServicesSection() {

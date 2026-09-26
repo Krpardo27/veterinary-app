@@ -8,6 +8,7 @@ import {
   FiInstagram,
   FiFacebook,
   FiAlertCircle,
+  FiArrowRight,
 } from "react-icons/fi";
 import { COLORS } from "@/shared/constants/theme";
 
@@ -15,7 +16,7 @@ export default function Footer() {
   return (
     <footer
       id="contacto"
-      className="relative overflow-hidden border-t text-[#5c6f68]"
+      className="relative scroll-mt-24 overflow-hidden border-t text-[#5c6f68]"
       style={{ borderColor: COLORS.border, backgroundColor: "#eef5f0" }}
     >
       <Image
@@ -24,7 +25,7 @@ export default function Footer() {
         width={180}
         height={160}
         aria-hidden
-        className="pointer-events-none absolute -left-8 bottom-0 hidden select-none lg:block"
+        className="pointer-events-none absolute -left-8 bottom-0 z-0 hidden select-none opacity-70 lg:block"
       />
       <Image
         src="/shop/animal-print-2.png"
@@ -32,7 +33,7 @@ export default function Footer() {
         width={180}
         height={160}
         aria-hidden
-        className="pointer-events-none absolute right-0 top-0 hidden -rotate-180 select-none lg:block"
+        className="pointer-events-none absolute right-0 top-0 z-0 hidden -rotate-180 select-none opacity-70 lg:block"
       />
       <Image
         src="/shop/animal-print-1.png"
@@ -40,7 +41,7 @@ export default function Footer() {
         width={100}
         height={100}
         aria-hidden
-        className="pointer-events-none absolute left-1/4 top-6 hidden rotate-[20deg] select-none lg:block"
+        className="pointer-events-none absolute left-1/4 top-6 z-0 hidden rotate-20 select-none opacity-60 lg:block"
       />
       <Image
         src="/shop/animal-print-1.png"
@@ -48,7 +49,7 @@ export default function Footer() {
         width={80}
         height={80}
         aria-hidden
-        className="pointer-events-none absolute right-1/3 bottom-8 hidden rotate-[-8deg] select-none lg:block"
+        className="pointer-events-none absolute right-1/3 bottom-8 z-0 hidden rotate-[-8deg] select-none opacity-60 lg:block"
       />
       <Image
         src="/shop/animal-print-1.png"
@@ -56,15 +57,15 @@ export default function Footer() {
         width={64}
         height={64}
         aria-hidden
-        className="pointer-events-none absolute left-2/3 top-1/2 hidden rotate-[35deg] select-none lg:block"
+        className="pointer-events-none absolute left-2/3 top-1/2 z-0 hidden rotate-35 select-none opacity-50 lg:block"
       />
 
-      <div className="relative mx-auto max-w-7xl px-6 py-12">
+      <div className="relative z-10 mx-auto max-w-7xl px-6 py-12 sm:py-14">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Marca */}
           <div className="space-y-3">
             <p className="text-lg font-bold" style={{ color: COLORS.dark }}>
-              Luma Vet
+              Veterinaria El Abrazo
             </p>
             <p className="text-sm leading-relaxed">
               Cuidado veterinario integral, cercano y profesional para cada
@@ -73,15 +74,19 @@ export default function Footer() {
             <div className="flex gap-3 pt-1">
               <a
                 href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Síguenos en Instagram"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#DCE8E2] bg-white text-[#1D3A35] transition-colors hover:border-[#0F766E]/40 hover:text-[#0F766E]"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#DCE8E2] bg-white text-[#1D3A35] transition-colors hover:border-[#0F766E]/40 hover:text-[#0F766E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/30"
               >
                 <FiInstagram className="h-4 w-4" />
               </a>
               <a
                 href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Síguenos en Facebook"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#DCE8E2] bg-white text-[#1D3A35] transition-colors hover:border-[#0F766E]/40 hover:text-[#0F766E]"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#DCE8E2] bg-white text-[#1D3A35] transition-colors hover:border-[#0F766E]/40 hover:text-[#0F766E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/30"
               >
                 <FiFacebook className="h-4 w-4" />
               </a>
@@ -95,28 +100,29 @@ export default function Footer() {
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li>
-                <Link href="/servicios/consulta-general" className="transition-colors hover:text-[#0F766E]">
+                <Link href="/servicios/consulta-general" className="transition-colors hover:text-[#0F766E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/30">
                   Consultas generales
                 </Link>
               </li>
               <li>
-                <Link href="/servicios/vacuna-octuple" className="transition-colors hover:text-[#0F766E]">
+                <Link href="/servicios/vacunacion" className="transition-colors hover:text-[#0F766E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/30">
                   Vacunación
                 </Link>
               </li>
               <li>
-                <Link href="/servicios/esterilizacion" className="transition-colors hover:text-[#0F766E]">
+                <Link href="/servicios/cirugia" className="transition-colors hover:text-[#0F766E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/30">
                   Cirugías
                 </Link>
               </li>
               <li>
-                <Link href="/servicios/bano-completo" className="transition-colors hover:text-[#0F766E]">
+                <Link href="/servicios/peluqueria" className="transition-colors hover:text-[#0F766E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/30">
                   Peluquería y estética
                 </Link>
               </li>
               <li>
-                <Link href="/servicios" className="font-medium transition-colors hover:text-[#0D6B63]" style={{ color: COLORS.primary }}>
-                  Ver todos →
+                <Link href="/servicios" className="inline-flex items-center gap-1 font-medium transition-colors hover:text-[#0D6B63] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/30" style={{ color: COLORS.primary }}>
+                  Ver todos
+                  <FiArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </li>
             </ul>
@@ -168,14 +174,14 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-2">
                 <FiPhone className="mt-0.5 h-4 w-4 shrink-0" style={{ color: COLORS.primary }} />
-                <a href="tel:+56221457892" className="transition-colors hover:text-[#0F766E]">
+                <a href="tel:+56221457892" className="transition-colors hover:text-[#0F766E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/30">
                   +562 21457892
                 </a>
               </li>
               <li className="flex items-start gap-2">
                 <FiMail className="mt-0.5 h-4 w-4 shrink-0" style={{ color: COLORS.primary }} />
-                <a href="mailto:contacto@lumavet.com" className="break-all transition-colors hover:text-[#0F766E]">
-                  contacto@lumavet.com
+                <a href="mailto:contacto@elabrazo.cl" className="break-all transition-colors hover:text-[#0F766E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/30">
+                  contacto@elabrazo.cl
                 </a>
               </li>
             </ul>
@@ -194,9 +200,14 @@ export default function Footer() {
           className="mt-10 flex flex-col items-center gap-3 border-t pt-6 text-xs sm:flex-row sm:justify-between"
           style={{ borderColor: COLORS.border }}
         >
-          <p>© {new Date().getFullYear()} Luma Vet. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} Veterinaria El Abrazo. Todos los derechos reservados.</p>
           <div className="flex gap-4">
-            <span className="text-zinc-400">Privacidad · Términos</span>
+            <Link href="/privacidad" className="text-zinc-400 transition-colors hover:text-[#0F766E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/30">
+              Privacidad
+            </Link>
+            <Link href="/terminos" className="text-zinc-400 transition-colors hover:text-[#0F766E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/30">
+              Términos
+            </Link>
           </div>
         </div>
       </div>

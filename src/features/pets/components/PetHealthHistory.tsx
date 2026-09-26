@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { FiEdit3, FiTrash2 } from "react-icons/fi";
 import { toast } from "sonner";
 
-import FormErrors from "@/features/admin/components/FormErrors";
+import FormErrors from "@/shared/ui/FormErrors";
 import { confirmSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 import {
   deleteWeightRecordAction,
@@ -178,6 +178,7 @@ function WeightRecordRow({
         <input
           name="measuredAt"
           type="date"
+          max={new Date().toISOString().slice(0, 10)}
           defaultValue={dateInputValue(record.measuredAt)}
           required
           className={inputClassName}
@@ -353,6 +354,7 @@ function VaccinationRecordRow({
         <input
           name="appliedAt"
           type="date"
+          max={new Date().toISOString().slice(0, 10)}
           defaultValue={dateInputValue(record.appliedAt)}
           required
           className={inputClassName}

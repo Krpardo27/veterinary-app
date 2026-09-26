@@ -9,7 +9,7 @@ import type { ProfessionalRole } from "@/features/booking/serviceRoles";
 import type { Service } from "@/generated/prisma/client";
 
 type GlobalReservationButtonProps = {
-  services: Service[];
+  services: Array<Service & { category?: { slug: string; name: string } | null }>;
   professionals: Array<{
     id: string;
     name: string;
@@ -55,10 +55,11 @@ export default function GlobalReservationButton({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 cursor-pointer right-4 z-40 inline-flex h-12 items-center gap-2 rounded-xl bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[#115E59] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2 lg:bottom-6 lg:right-6"
+        aria-label="Nueva reserva"
+        className="fixed bottom-24 right-4 z-40 inline-flex h-12 w-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-[#0F766E] text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[#115E59] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2 lg:bottom-6 lg:right-6 lg:w-auto lg:rounded-xl lg:px-4"
       >
         <FiPlus className="size-5" />
-        Nueva reserva
+        <span className="hidden lg:inline">Nueva reserva</span>
       </button>
 
       {isOpen && (
@@ -66,7 +67,7 @@ export default function GlobalReservationButton({
           <button
             type="button"
             aria-label="Cerrar creación de reserva"
-            aria-hidden="true"
+            tabIndex={-1}
             onClick={() => setIsOpen(false)}
             className="absolute inset-0 bg-[#0F172A]/30"
           />
@@ -90,7 +91,7 @@ export default function GlobalReservationButton({
                 ref={closeButtonRef}
                 aria-label="Cerrar"
                 onClick={() => setIsOpen(false)}
-                className="flex size-10 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#F8FAFC] hover:text-[#0F766E]"
+                className="flex size-10 cursor-pointer items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#F8FAFC] hover:text-[#0F766E] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20"
               >
                 <FiX className="size-5" />
               </button>

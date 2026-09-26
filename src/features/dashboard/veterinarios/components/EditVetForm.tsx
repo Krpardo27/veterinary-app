@@ -13,7 +13,7 @@ type EditVetFormProps = {
     services?: Pick<ProfessionalService, "serviceId" | "durationMin" | "isActive">[];
     _count?: { reservations: number };
   };
-  services: Pick<Service, "id" | "name" | "slug" | "durationMin">[];
+  services: Array<Pick<Service, "id" | "name" | "slug" | "durationMin"> & { category?: { slug: string } | null }>;
   successRedirectHref?: string;
   children: ReactNode;
 };

@@ -1,4 +1,4 @@
-import { scheduleItems } from "../data";
+import { scheduleItems } from "./data";
 
 export default function ScheduleCard() {
   return (

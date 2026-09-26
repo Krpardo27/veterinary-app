@@ -13,6 +13,7 @@ type Service = {
   name: string;
   slug: string;
   durationMin: number;
+  category?: { slug: string } | null;
 };
 
 type ServiceAssignment = {
@@ -56,7 +57,7 @@ export default function FormSelectServices({
   const [query, setQuery] = useState("");
 
   const roleServices = services.filter(
-    (service) => getRequiredProfessionalRole(service.slug) === selectedRole,
+    (service) => getRequiredProfessionalRole(service.slug, service.category?.slug) === selectedRole,
   );
   const filtered = roleServices.filter((s) =>
     s.name.toLowerCase().includes(query.toLowerCase()),

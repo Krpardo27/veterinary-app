@@ -50,6 +50,13 @@ export default function LogoutButton({
   ) : null;
 
   if (variant === "rail") {
+    const railItemClass = expanded
+      ? "w-full justify-start gap-3 px-3"
+      : "w-10.5 justify-center px-0";
+    const labelClass = expanded
+      ? "max-w-36 opacity-100"
+      : "max-w-0 opacity-0";
+
     return (
       <>
         {loader}
@@ -58,9 +65,7 @@ export default function LogoutButton({
           onClick={handleLogout}
           disabled={loading}
           aria-label="Cerrar sesión"
-          className={`relative flex h-[42px] rounded-xl transition-colors disabled:pointer-events-none disabled:opacity-50 ${
-            expanded ? "w-full items-center gap-3 px-3" : "size-[42px] items-center justify-center"
-          }`}
+          className={`relative flex h-10.5 cursor-pointer items-center overflow-hidden rounded-xl transition-[width,background-color,color] duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 ${railItemClass}`}
           style={{ color: COLORS.text_muted }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = COLORS.primary_bg;
@@ -71,8 +76,10 @@ export default function LogoutButton({
             e.currentTarget.style.color = COLORS.text_muted;
           }}
         >
-          <FiLogOut className="size-5" />
-          <span className={expanded ? "text-sm font-medium" : "sr-only"}>Cerrar sesión</span>
+          <FiLogOut className="size-5 shrink-0" />
+          <span className={`whitespace-nowrap text-sm font-medium transition-[max-width,opacity] duration-150 ease-out ${labelClass}`}>
+            Cerrar sesión
+          </span>
         </button>
       </>
     );

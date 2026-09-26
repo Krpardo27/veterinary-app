@@ -5,7 +5,7 @@ import { FiActivity } from "react-icons/fi";
 import { FaSyringe } from "react-icons/fa";
 import { toast } from "sonner";
 
-import FormErrors from "@/features/admin/components/FormErrors";
+import FormErrors from "@/shared/ui/FormErrors";
 import { confirmSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 import {
   createWeightRecordAction,
@@ -47,6 +47,8 @@ export default function PetHealthForms({ petId }: Props) {
 
     if (weightState.status === "success") {
       toast.success(weightState.message);
+      const timeoutId = window.setTimeout(() => setOpenForm(null), 0);
+      return () => window.clearTimeout(timeoutId);
     } else if (weightState.status === "error") {
       toast.error(weightState.message);
     }
@@ -57,6 +59,8 @@ export default function PetHealthForms({ petId }: Props) {
 
     if (vaccineState.status === "success") {
       toast.success(vaccineState.message);
+      const timeoutId = window.setTimeout(() => setOpenForm(null), 0);
+      return () => window.clearTimeout(timeoutId);
     } else if (vaccineState.status === "error") {
       toast.error(vaccineState.message);
     }
@@ -104,7 +108,7 @@ export default function PetHealthForms({ petId }: Props) {
       <button
         type="button"
         onClick={() => setOpenForm(openForm === "weight" ? null : "weight")}
-        className="inline-flex h-9 items-center gap-1.5 border border-[#B9D9CF] px-3 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5]"
+        className="inline-flex h-9 cursor-pointer items-center gap-1.5 border border-[#B9D9CF] px-3 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5]"
       >
         <FiActivity className="size-4" />
         Registrar peso
@@ -112,7 +116,7 @@ export default function PetHealthForms({ petId }: Props) {
       <button
         type="button"
         onClick={() => setOpenForm(openForm === "vaccine" ? null : "vaccine")}
-        className="inline-flex h-9 items-center gap-1.5 border border-[#B9D9CF] px-3 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5]"
+        className="inline-flex h-9 cursor-pointer items-center gap-1.5 border border-[#B9D9CF] px-3 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5]"
       >
         <FaSyringe className="size-4" />
         Registrar vacuna
@@ -130,7 +134,7 @@ export default function PetHealthForms({ petId }: Props) {
             </div>
             <div>
               <label htmlFor="measuredAt" className="mb-1.5 block text-xs font-semibold text-[#52736A]">Fecha</label>
-              <input id="measuredAt" name="measuredAt" type="date" defaultValue={getToday()} required className={inputClassName} />
+              <input id="measuredAt" name="measuredAt" type="date" max={getToday()} defaultValue={getToday()} required className={inputClassName} />
               {weightState.fieldErrors?.measuredAt?.[0] && (
                 <FormErrors>{weightState.fieldErrors.measuredAt[0]}</FormErrors>
               )}
@@ -144,10 +148,10 @@ export default function PetHealthForms({ petId }: Props) {
             </div>
           </div>
           <div className="mt-3 flex gap-2">
-            <button type="submit" disabled={isWeightPending || isWeightConfirming} className="bg-[#2A6A5D] px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">
+            <button type="submit" disabled={isWeightPending || isWeightConfirming} className="bg-[#2A6A5D] cursor-pointer px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">
               {isWeightPending || isWeightConfirming ? "Guardando..." : "Guardar peso"}
             </button>
-            <button type="button" onClick={() => setOpenForm(null)} className="border border-[#B9D9CF] px-4 py-2 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#EAF4F1]">
+            <button type="button" onClick={() => setOpenForm(null)} className="border border-[#B9D9CF] cursor-pointer px-4 py-2 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#EAF4F1]">
               Cancelar
             </button>
           </div>
@@ -166,7 +170,7 @@ export default function PetHealthForms({ petId }: Props) {
             </div>
             <div>
               <label htmlFor="appliedAt" className="mb-1.5 block text-xs font-semibold text-[#52736A]">Fecha de aplicación</label>
-              <input id="appliedAt" name="appliedAt" type="date" defaultValue={getToday()} required className={inputClassName} />
+              <input id="appliedAt" name="appliedAt" type="date" max={getToday()} defaultValue={getToday()} required className={inputClassName} />
               {vaccineState.fieldErrors?.appliedAt?.[0] && (
                 <FormErrors>{vaccineState.fieldErrors.appliedAt[0]}</FormErrors>
               )}
@@ -187,10 +191,10 @@ export default function PetHealthForms({ petId }: Props) {
             </div>
           </div>
           <div className="mt-3 flex gap-2">
-            <button type="submit" disabled={isVaccinePending || isVaccineConfirming} className="bg-[#2A6A5D] px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">
+            <button type="submit" disabled={isVaccinePending || isVaccineConfirming} className="bg-[#2A6A5D] cursor-pointer px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">
               {isVaccinePending || isVaccineConfirming ? "Guardando..." : "Guardar vacuna"}
             </button>
-            <button type="button" onClick={() => setOpenForm(null)} className="border border-[#B9D9CF] px-4 py-2 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#EAF4F1]">
+            <button type="button" onClick={() => setOpenForm(null)} className="border border-[#B9D9CF] cursor-pointer px-4 py-2 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#EAF4F1]">
               Cancelar
             </button>
           </div>

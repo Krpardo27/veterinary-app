@@ -62,18 +62,17 @@ export default async function AgendaPage({
     }),
     prisma.professional.findMany({
       where: { isActive: true },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
+      orderBy: [{ role: "asc" }, { name: "asc" }],
+      select: { id: true, name: true, role: true },
     }),
   ]);
 
   const pendingCount = reservations.filter(
     (reservation) => reservation.status === ReservationStatus.PENDING,
   ).length;
-  const estimatedRevenue = reservations.reduce(
-    (total, reservation) => total + reservation.servicePrice,
-    0,
-  );
+  const confirmedCount = reservations.filter(
+    (reservation) => reservation.status === ReservationStatus.CONFIRMED,
+  ).length;
   const slots = buildDailySlots(activeDate);
 
   return (
@@ -89,9 +88,8 @@ export default async function AgendaPage({
       <AgendaStats
         reservationsCount={reservations.length}
         pendingCount={pendingCount}
-        estimatedRevenue={estimatedRevenue}
+        confirmedCount={confirmedCount}
         reservationsLabel={isUpcomingView ? "Reservas próximas" : "Reservas del día"}
-        revenueLabel={isUpcomingView ? "Ingreso estimado 14 días" : "Ingreso estimado"}
       />
       {isUpcomingView ? (
         <AgendaReservationList reservations={reservations} />

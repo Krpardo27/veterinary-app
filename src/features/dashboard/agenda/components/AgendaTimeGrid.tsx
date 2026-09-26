@@ -19,6 +19,37 @@ type Props = {
 
 const SLOT_HEIGHT = 56;
 
+const ROLE_LABELS = {
+  VETERINARY: "Veterinaria",
+  GROOMING: "Peluquería y baño",
+} as const;
+
+type AgendaColumn = AgendaProfessional | { id: "unassigned"; name: "Sin asignar"; role?: never };
+
+function getColumnReservations(
+  reservations: AgendaReservation[],
+  column: AgendaColumn,
+) {
+  return reservations.filter((reservation) =>
+    column.id === "unassigned"
+      ? reservation.professional === null
+      : reservation.professional?.id === column.id,
+  );
+}
+
+function ColumnTitle({ column }: { column: AgendaColumn }) {
+  return (
+    <div className="min-w-0">
+      <p className="truncate text-sm font-semibold text-[#1D3A35]">{column.name}</p>
+      {column.role && (
+        <p className="mt-0.5 text-[11px] font-medium text-[#6F817A]">
+          {ROLE_LABELS[column.role]}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function ReservationCard({ reservation }: { reservation: AgendaReservation }) {
   return (
     <div className="overflow-hidden border-l-4 border-[#0F766E] bg-[#EAF4F1] px-2 py-1.5 text-xs text-[#1D3A35] shadow-sm">
@@ -44,7 +75,7 @@ export default function AgendaTimeGrid({
   const unassignedReservations = reservations.filter(
     (reservation) => reservation.professional === null,
   );
-  const columns = unassignedReservations.length > 0
+  const columns: AgendaColumn[] = unassignedReservations.length > 0
     ? [...professionals, { id: "unassigned", name: "Sin asignar" }]
     : professionals;
   const dayStart = slots[0]?.start;
@@ -58,23 +89,19 @@ export default function AgendaTimeGrid({
       <div className="flex items-center justify-between border-b border-[#E7EFEB] px-4 py-3 sm:px-5">
         <div>
           <h3 className="font-semibold text-[#1D3A35]">Agenda del día</h3>
-          <p className="mt-0.5 text-xs text-[#6F817A]">Reservas por profesional</p>
+          <p className="mt-0.5 text-xs text-[#6F817A]">Reservas por profesional y área</p>
         </div>
         <span className="text-xs font-semibold text-[#0F766E]">{reservations.length} activas</span>
       </div>
 
       <div className="space-y-4 p-4 md:hidden">
         {columns.map((column) => {
-          const columnReservations = reservations.filter((reservation) =>
-            column.id === "unassigned"
-              ? reservation.professional === null
-              : reservation.professional?.id === column.id,
-          );
+          const columnReservations = getColumnReservations(reservations, column);
 
           return (
             <section key={column.id} className="border border-[#DCE8E2]">
               <div className="flex items-center justify-between border-b border-[#E7EFEB] bg-[#F7FAF9] px-3 py-2">
-                <p className="text-sm font-semibold text-[#1D3A35]">{column.name}</p>
+                <ColumnTitle column={column} />
                 <span className="text-xs font-semibold text-[#0F766E]">{columnReservations.length}</span>
               </div>
               {columnReservations.length === 0 ? (
@@ -109,8 +136,8 @@ export default function AgendaTimeGrid({
         <div className="min-w-176" style={{ display: "grid", gridTemplateColumns }}>
           <div className="border-b border-[#E7EFEB] px-3 py-3 text-xs font-semibold uppercase tracking-widest text-[#52736A]">Hora</div>
           {columns.map((column) => (
-            <div key={column.id} className="border-b border-l border-[#E7EFEB] px-3 py-3 text-sm font-semibold text-[#1D3A35]">
-              {column.name}
+            <div key={column.id} className="border-b border-l border-[#E7EFEB] px-3 py-3">
+              <ColumnTitle column={column} />
             </div>
           ))}
         </div>
@@ -125,11 +152,7 @@ export default function AgendaTimeGrid({
           </div>
 
           {columns.map((column) => {
-            const columnReservations = reservations.filter((reservation) =>
-              column.id === "unassigned"
-                ? reservation.professional === null
-                : reservation.professional?.id === column.id,
-            );
+            const columnReservations = getColumnReservations(reservations, column);
 
             return (
               <div key={column.id} className="relative border-l border-[#E7EFEB]" style={{ height: gridHeight }}>

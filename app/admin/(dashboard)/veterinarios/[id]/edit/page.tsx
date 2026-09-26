@@ -29,7 +29,7 @@ export default async function EditVetPage({ params }: EditVetPageProps) {
   const services = await prisma.service.findMany({
     where: { isActive: true },
     orderBy: { name: "asc" },
-    select: { id: true, name: true, slug: true, durationMin: true },
+    select: { id: true, name: true, slug: true, durationMin: true, category: { select: { slug: true } } },
   });
 
   return (

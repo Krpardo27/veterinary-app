@@ -11,7 +11,7 @@ export default function Header() {
             <FaPaw className="text-lg" />
           </span>
           <div>
-            <p className="text-lg font-semibold tracking-tight">Luma Vet</p>
+            <p className="text-lg font-semibold tracking-tight">Veterinaria El Abrazo</p>
             <p className="text-sm text-[#5c6f68]">
               Cuidado atento para cada mascota
             </p>

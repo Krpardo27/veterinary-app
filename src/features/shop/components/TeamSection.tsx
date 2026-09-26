@@ -1,5 +1,5 @@
 import ScheduleCard from "./ScheduleCard";
-import { teamCopy } from "../data";
+import { teamCopy } from "./data";
 
 export default function TeamSection() {
   return (

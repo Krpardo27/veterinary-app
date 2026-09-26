@@ -6,12 +6,12 @@ import { ReservationSchema } from "../schemas/reservation.schema";
 import {
   findAvailableProfessional,
   getActiveService,
+  getBusinessHoursForDate,
   getDayRange,
   getDurationForProfessional,
   hasReservationConflict,
   isInsideBusinessWindow,
   isValidReservationStart,
-  resolveBusinessHours,
 } from "../services/availability";
 import { getBusinessDateInput, parseBusinessDateTimeInput } from "@/shared/utils/businessTime";
 import { requireAdminAction } from "@/lib/auth-server";
@@ -52,7 +52,6 @@ export async function createReservationAction(
   }
 
   const normalizedCustomerEmail = customerEmail || null;
-  const businessHours = resolveBusinessHours();
 
   try {
     const reservation = await prisma.$transaction(async (tx): Promise<ReservationTransactionResult> => {
@@ -65,8 +64,9 @@ export async function createReservationAction(
       }
 
       const start = parseBusinessDateTimeInput(startAt!);
+      const businessHours = start ? getBusinessHoursForDate(getBusinessDateInput(start)) : null;
 
-      if (!start || !isValidReservationStart(start, new Date(), businessHours)) {
+      if (!start || !businessHours || !isValidReservationStart(start, new Date(), businessHours)) {
         return {
           errors: [{ message: "Selecciona una fecha y hora válida." }],
         };

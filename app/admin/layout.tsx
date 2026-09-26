@@ -22,6 +22,7 @@ export default async function DashboardLayout({
   const [services, professionals] = await Promise.all([
     prisma.service.findMany({
       where: { isActive: true },
+      include: { category: { select: { slug: true, name: true } } },
       orderBy: { name: "asc" },
     }),
     prisma.professional.findMany({

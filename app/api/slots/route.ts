@@ -6,6 +6,7 @@ import {
   buildSlotStart,
   getActiveService,
   getAvailabilityCandidates,
+  getBusinessHoursForDate,
   isInsideBusinessWindow,
   isValidReservationStart,
 } from "@/features/booking/services/availability";
@@ -26,17 +27,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const dayOfWeek = new Date(`${date}T12:00:00`).getDay();
+  const businessHours = getBusinessHoursForDate(date);
 
-  if (dayOfWeek === 0) {
+  if (!businessHours) {
     return NextResponse.json({ slots: [], closed: true });
   }
-
-  const isSaturday = dayOfWeek === 6;
-  const businessHours = isSaturday
-    ? { openHour: 9, closeHour: 16, openMinute: 30, closeMinute: 30 }
-    : undefined;
-  const slotCount = isSaturday ? 14 : 22;
 
   const service = await getActiveService(prisma, serviceId);
 
@@ -49,26 +44,20 @@ export async function GET(request: NextRequest) {
     service,
     professionalId,
   );
+  const openMinutes = businessHours.openHour * 60 + businessHours.openMinute;
+  const closeMinutes = businessHours.closeHour * 60 + businessHours.closeMinute;
+  const slotCount = Math.ceil((closeMinutes - openMinutes) / SLOT_INTERVAL_MINUTES);
 
   const slots = Array.from({ length: slotCount }, (_, index) => {
     const start = buildSlotStart(date, index * SLOT_INTERVAL_MINUTES, businessHours);
-    const end = start
-      ? new Date(start.getTime() + service.durationMin * 60 * 1000)
-      : null;
-    const isInsideHours = Boolean(
-      start &&
-        end &&
-        isValidReservationStart(start, new Date(), businessHours) &&
-        isInsideBusinessWindow({ start, end, businessHours }),
-    );
+    const isValidStart = Boolean(start && isValidReservationStart(start, new Date(), businessHours));
 
     return {
       time: start
         ? `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`
         : "",
       start,
-      end,
-      isInsideHours,
+      isValidStart,
     };
   });
 
@@ -76,8 +65,8 @@ export async function GET(request: NextRequest) {
     where: {
       professionalId: { in: candidates.map((candidate) => candidate.professionalId) },
       status: { in: ["PENDING", "CONFIRMED"] },
-      startAt: { lt: new Date(`${date}T${isSaturday ? "16:30" : "20:00"}:00`) },
-      endAt: { gt: new Date(`${date}T09:00:00`) },
+      startAt: { lt: buildSlotStart(date, closeMinutes - openMinutes, businessHours)! },
+      endAt: { gt: buildSlotStart(date, 0, businessHours)! },
     },
     select: { professionalId: true, startAt: true, endAt: true },
   });
@@ -87,11 +76,15 @@ export async function GET(request: NextRequest) {
     slots: slots.map((slot) => ({
       time: slot.time,
       available:
-        slot.isInsideHours &&
+        slot.isValidStart &&
         candidates.some((candidate) => {
           const candidateEnd = new Date(
             slot.start!.getTime() + candidate.durationMin * 60 * 1000,
           );
+
+          if (!isInsideBusinessWindow({ start: slot.start!, end: candidateEnd, businessHours })) {
+            return false;
+          }
 
           return !reservations.some(
             (reservation) =>

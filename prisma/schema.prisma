@@ -211,6 +211,7 @@ model WeightRecord {
   pet        Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
 
   @@index([petId])
   @@index([measuredAt])
@@ -258,6 +259,7 @@ model Reservation {
   @@index([customerId])
   @@index([serviceId])
   @@index([professionalId], map: "Reservation_veterinarianId_idx")
+  @@index([professionalId, status, startAt, endAt])
   @@index([startAt])
   @@index([status])
 }

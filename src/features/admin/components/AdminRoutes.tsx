@@ -62,9 +62,15 @@ export const ADMIN_ROUTES = [
 
 export default function AdminRoutes({ expanded = false }: { expanded?: boolean }) {
   const pathname = usePathname();
+  const itemClass = expanded
+    ? "w-full justify-start gap-3 px-3"
+    : "w-10.5 justify-center px-0";
+  const labelClass = expanded
+    ? "max-w-36 opacity-100"
+    : "max-w-0 opacity-0";
 
   return (
-    <div className={`flex flex-col gap-3 ${expanded ? "items-stretch" : "items-center"}`}>
+    <div className="flex flex-col items-center gap-3 px-0">
       {ADMIN_ROUTES.map((route) => {
         const active = isAdminRouteActive(pathname, route.href);
 
@@ -75,16 +81,16 @@ export default function AdminRoutes({ expanded = false }: { expanded?: boolean }
             {...(route.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             aria-label={route.label}
             aria-current={active && !route.external ? "page" : undefined}
-            className={`relative flex h-[42px] items-center rounded-xl transition-colors ${
-              expanded ? "w-full justify-start gap-3 px-3" : "size-[42px] justify-center"
-            } ${
+            className={`relative flex h-10.5 items-center overflow-hidden rounded-xl transition-[width,background-color,color] duration-200 ease-out ${itemClass} ${
               active
                 ? "bg-[#D1FAE5] text-[#0F766E]"
                 : "text-[#94A3B8] hover:bg-[#F8FAFC] hover:text-[#0F766E]"
             }`}
           >
-            <route.icon className="size-5" />
-            <span className={expanded ? "text-sm font-medium" : "sr-only"}>{route.label}</span>
+            <route.icon className="size-5 shrink-0" />
+            <span className={`whitespace-nowrap text-sm font-medium transition-[max-width,opacity] duration-150 ease-out ${labelClass}`}>
+              {route.label}
+            </span>
             {active && <span className={`absolute h-5 w-0.5 rounded-l bg-[#0F766E] ${expanded ? "-right-3" : "-right-5"}`} />}
           </Link>
         );

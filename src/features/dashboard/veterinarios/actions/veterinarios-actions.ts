@@ -50,7 +50,7 @@ function vetValuesFrom(formData: FormData): VetFormValues {
     if (key.startsWith(durationPrefix)) {
       const serviceId = key.slice(durationPrefix.length);
       serviceValues[serviceId] = {
-        isActive: false,
+        isActive: serviceValues[serviceId]?.isActive ?? false,
         durationMin: value.toString(),
       };
     }
@@ -84,13 +84,13 @@ type VetServiceConfig = {
 
 function parseVetServiceConfigs(
   formData: FormData,
-  services: Array<{ id: string; slug: string }>,
+  services: Array<{ id: string; slug: string; category?: { slug: string } | null }>,
   role: ProfessionalRole,
 ): { configs: VetServiceConfig[]; error: string | null } {
   const configs: VetServiceConfig[] = [];
 
   for (const service of services) {
-    const supportsRole = getRequiredProfessionalRole(service.slug) === role;
+    const supportsRole = getRequiredProfessionalRole(service.slug, service.category?.slug) === role;
     const rawDuration = formData.get(`serviceDuration:${service.id}`)?.toString().trim() ?? "";
     const isActive = supportsRole && formData.get(`serviceEnabled:${service.id}`) === "on";
     let durationMin: number | null = null;
@@ -118,7 +118,7 @@ async function getServiceConfigsFromForm(formData: FormData) {
   const role = formData.get("role") === "GROOMING" ? "GROOMING" : "VETERINARY";
   const services = await prisma.service.findMany({
     where: { isActive: true },
-    select: { id: true, slug: true },
+    select: { id: true, slug: true, category: { select: { slug: true } } },
     orderBy: { name: "asc" },
   });
 

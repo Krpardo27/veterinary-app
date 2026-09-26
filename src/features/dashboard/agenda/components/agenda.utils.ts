@@ -1,15 +1,10 @@
 import {
   buildSlotStart,
-  resolveBusinessHours,
+  getBusinessHoursForDate,
   SLOT_INTERVAL_MINUTES,
 } from "@/features/booking/services/availability";
 import { getBusinessDateOnly } from "@/shared/utils/businessTime";
 import type { AgendaSlot } from "./agenda.types";
-
-const SATURDAY_BUSINESS_HOURS = resolveBusinessHours({
-  openHour: "09:30",
-  closeHour: "16:30",
-});
 
 export function addDays(dateInput: string, days: number) {
   const date = new Date(`${dateInput}T12:00:00`);
@@ -24,13 +19,10 @@ export function isValidDateInput(value: string | undefined): value is string {
 }
 
 export function buildDailySlots(dateInput: string): AgendaSlot[] | null {
-  const dayOfWeek = new Date(`${dateInput}T12:00:00`).getDay();
+  const businessHours = getBusinessHoursForDate(dateInput);
 
-  if (dayOfWeek === 0) return null;
+  if (!businessHours) return null;
 
-  const businessHours = dayOfWeek === 6
-    ? SATURDAY_BUSINESS_HOURS
-    : resolveBusinessHours();
   const totalMinutes =
     businessHours.closeHour * 60 +
     businessHours.closeMinute -

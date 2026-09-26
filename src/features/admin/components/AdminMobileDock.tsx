@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiGrid, FiX } from "react-icons/fi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import LogoutButton from "@/features/auth/components/LogoutButton";
 import { ADMIN_ROUTES, isAdminRouteActive } from "./AdminRoutes";
@@ -38,6 +38,12 @@ export default function AdminMobileDock() {
     isAdminRouteActive(pathname, route.href),
   );
 
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setMoreOpen(false), 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [pathname]);
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
       {moreOpen && (
@@ -45,7 +51,8 @@ export default function AdminMobileDock() {
           type="button"
           aria-label="Cerrar opciones"
           onClick={() => setMoreOpen(false)}
-          className="fixed inset-0 -z-10 bg-[#102C27]/20 backdrop-blur-sm"
+          tabIndex={-1}
+          className="fixed inset-0 -z-10 cursor-default bg-[#102C27]/20 backdrop-blur-sm"
         />
       )}
 
@@ -53,7 +60,7 @@ export default function AdminMobileDock() {
         <section
           id="admin-more-options"
           aria-label="Más opciones de administración"
-          className="mx-auto mb-3 max-w-xl overflow-hidden border-y border-[#D8E6E0] bg-[#FFFEFC]/95 shadow-[0_-14px_40px_rgba(21,57,50,0.16)] backdrop-blur-2xl"
+          className="mx-3 mb-3 overflow-hidden rounded-3xl border border-[#D8E6E0] bg-[#FFFEFC]/95 shadow-[0_-14px_40px_rgba(21,57,50,0.16)] backdrop-blur-2xl sm:mx-auto sm:max-w-xl"
         >
           <div className="mx-auto mt-2 h-1 w-9 rounded-full bg-[#B6C9C1]" />
           <div className="flex items-center justify-between px-5 pb-3 pt-4">
@@ -64,7 +71,7 @@ export default function AdminMobileDock() {
               type="button"
               onClick={() => setMoreOpen(false)}
               aria-label="Cerrar opciones"
-              className="flex size-11 items-center justify-center rounded-full bg-[#EAF3EF] text-[#315D53] transition-colors active:scale-95"
+              className="flex size-11 cursor-pointer items-center justify-center rounded-full bg-[#EAF3EF] text-[#315D53] transition-colors hover:bg-[#DCEBE5] focus:outline-none focus:ring-2 focus:ring-[#0A6B5D]/20 active:scale-95"
             >
               <FiX className="size-5" />
             </button>
@@ -83,7 +90,7 @@ export default function AdminMobileDock() {
                   {...(route.external
                     ? { target: "_blank", rel: "noopener noreferrer" }
                     : {})}
-                  className={`flex min-h-22 flex-col items-center justify-center gap-2 rounded-2xl px-2 py-3 text-center text-[11px] font-semibold transition-colors active:scale-[0.97] ${
+                  className={`flex min-h-22 flex-col items-center justify-center gap-2 rounded-2xl px-2 py-3 text-center text-[11px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#0A6B5D]/20 active:scale-[0.97] ${
                     active
                       ? "bg-[#DDF2EB] text-[#0A6B5D]"
                       : "text-[#294B43] hover:bg-[#F2F7F4]"
@@ -116,7 +123,7 @@ export default function AdminMobileDock() {
               href={route.href}
               onClick={() => setMoreOpen(false)}
               aria-current={active ? "page" : undefined}
-              className={`relative flex min-h-12 flex-col items-center justify-center gap-1 px-1 py-1 text-[10px] font-semibold transition-colors active:scale-95 ${
+              className={`relative flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-[10px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#0A6B5D]/20 active:scale-95 ${
                 active ? "text-[#0A6B5D]" : "text-[#6C8279]"
               }`}
             >
@@ -134,7 +141,8 @@ export default function AdminMobileDock() {
           onClick={() => setMoreOpen((current) => !current)}
           aria-expanded={moreOpen}
           aria-controls="admin-more-options"
-          className={`relative flex min-h-12 flex-col items-center justify-center gap-1 px-1 py-1 text-[10px] font-semibold transition-colors active:scale-95 ${
+          aria-label={moreOpen ? "Cerrar más opciones" : "Abrir más opciones"}
+          className={`relative flex min-h-12 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-[10px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#0A6B5D]/20 active:scale-95 ${
             moreOpen || secondaryRouteActive ? "text-[#0A6B5D]" : "text-[#6C8279]"
           }`}
         >

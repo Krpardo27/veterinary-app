@@ -6,7 +6,7 @@ import type { Category } from "@/generated/prisma/client";
 import ServiceAdminForm from "./ServiceAdminForm";
 
 type CreateServiceButtonProps = {
-  categories: Pick<Category, "id" | "name">[];
+  categories: Pick<Category, "id" | "name" | "slug">[];
 };
 
 export default function CreateServiceButton({ categories }: CreateServiceButtonProps) {

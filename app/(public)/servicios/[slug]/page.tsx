@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const category = await prisma.category.findUnique({ where: { slug } });
   return {
-    title: category ? `${category.name} | Luma Vet` : "Servicios | Luma Vet",
+    title: category ? `${category.name} | Veterinaria El Abrazo` : "Servicios | Veterinaria El Abrazo",
   };
 }
 

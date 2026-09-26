@@ -77,6 +77,7 @@ export async function createPetAction(
     });
 
     revalidatePath("/admin/clientes");
+    revalidatePath(`/admin/clientes/${customer.id}`);
     revalidatePath("/admin");
 
     return { status: "success", message: "Mascota creada correctamente" };
