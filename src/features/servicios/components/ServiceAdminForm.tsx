@@ -316,7 +316,7 @@ export default function ServiceAdminForm({
               <>
                 <input type="hidden" name="categoryId" value="" />
                 <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
-                  No hay categorías disponibles. Crea una antes de agregar servicios.
+                  No hay categorías disponibles. Cierra este formulario, crea una categoría y vuelve a agregar el servicio.
                 </div>
               </>
             )}
