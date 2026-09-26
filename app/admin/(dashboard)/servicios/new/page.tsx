@@ -6,7 +6,7 @@ export default async function NewServicePage() {
   const categories = await prisma.category.findMany({
     where: { isActive: true },
     orderBy: { name: "asc" },
-    select: { id: true, name: true },
+    select: { id: true, name: true, slug: true },
   });
 
   return (

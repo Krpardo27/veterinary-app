@@ -12,7 +12,7 @@ import {
 } from "../schemas/reservation.schema";
 import type { Service } from "@/generated/prisma/client";
 import type { PetSpecies } from "@/generated/prisma/enums";
-import FormErrors from "@/features/admin/components/FormErrors";
+import FormErrors from "@/shared/ui/FormErrors";
 import { formatDayMonthYearDateTime } from "@/utils/dateFormatters";
 import CustomerDetails from "./CustomerDetails";
 import SlotPicker from "./SlotPicker";
@@ -20,7 +20,7 @@ import { getRequiredProfessionalRole, type ProfessionalRole } from "../serviceRo
 import { confirmSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 
 type Props = {
-  services: Service[];
+  services: Array<Service & { category?: { slug: string; name: string } | null }>;
   professionals: Array<{
     id: string;
     name: string;
@@ -46,6 +46,20 @@ const PET_SPECIES_LABELS: Record<PetSpecies, string> = {
   CAT: "Gato",
   BIRD: "Ave",
   OTHER: "Otro",
+};
+
+function formatDuration(minutes: number) {
+  if (minutes < 60) return `${minutes} min`;
+
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+
+  return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
+}
+
+const PROFESSIONAL_ROLE_LABELS: Record<ProfessionalRole, string> = {
+  VETERINARY: "veterinaria",
+  GROOMING: "peluquería y baño",
 };
 
 type CustomerPet = {
@@ -99,7 +113,7 @@ export default function ReservationForm({
     (professional) => professional.id === professionalId,
   );
   const requiredProfessionalRole = selectedService
-    ? getRequiredProfessionalRole(selectedService.slug)
+    ? getRequiredProfessionalRole(selectedService.slug, selectedService.category?.slug)
     : null;
   const availableProfessionals = professionals.filter(
     (professional) =>
@@ -110,6 +124,20 @@ export default function ReservationForm({
   const selectedProfessionalIsAvailable = professionalId
     ? availableProfessionals.some((professional) => professional.id === professionalId)
     : true;
+  const servicesByCategory = services.reduce<
+    Array<{ label: string; services: typeof services }>
+  >((groups, service) => {
+    const label = service.category?.name ?? "Otros servicios";
+    const currentGroup = groups.find((group) => group.label === label);
+
+    if (currentGroup) {
+      currentGroup.services.push(service);
+      return groups;
+    }
+
+    groups.push({ label, services: [service] });
+    return groups;
+  }, []);
 
   const syncServiceUrl = useCallback(
     (nextServiceId: string) => {
@@ -224,22 +252,34 @@ export default function ReservationForm({
           className={inputClassName}
         >
           <option value="">Selecciona un servicio</option>
-          {services.map((service) => (
-            <option key={service.id} value={service.id}>
-              {service.name} - ${service.price.toLocaleString("es-CL")} ({service.durationMin} min)
-            </option>
+          {servicesByCategory.map((group) => (
+            <optgroup key={group.label} label={group.label}>
+              {group.services.map((service) => (
+                <option key={service.id} value={service.id}>
+                  {service.name} - ${service.price.toLocaleString("es-CL")} ({formatDuration(service.durationMin)})
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
+        {selectedService && requiredProfessionalRole && (
+          <div className="mt-3 rounded-xl border border-[#DCE8E2] bg-[#F7FAF9] px-4 py-3 text-sm text-[#5C6F68]">
+            <p className="font-semibold text-[#1D3A35]">{selectedService.name}</p>
+            <p className="mt-1">
+              {formatDuration(selectedService.durationMin)} · {currencyFormatter.format(selectedService.price)} · Atención de {PROFESSIONAL_ROLE_LABELS[requiredProfessionalRole]}
+            </p>
+          </div>
+        )}
         {errors.serviceId && <FormErrors>{errors.serviceId.message}</FormErrors>}
         {serviceId && !hasAvailableProfessionals && (
-          <FormErrors>No hay profesionales activos asignados a este servicio.</FormErrors>
+          <FormErrors>No hay profesionales activos de {requiredProfessionalRole ? PROFESSIONAL_ROLE_LABELS[requiredProfessionalRole] : "este tipo"} asignados a este servicio.</FormErrors>
         )}
       </div>
 
       {serviceId && availableProfessionals.length > 0 && (
         <div>
           <label className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#52736A]">
-            Profesional (opcional)
+            Profesional {requiredProfessionalRole ? `(${PROFESSIONAL_ROLE_LABELS[requiredProfessionalRole]}, opcional)` : "(opcional)"}
           </label>
           <select
             {...register("professionalId", {
@@ -254,6 +294,9 @@ export default function ReservationForm({
               </option>
             ))}
           </select>
+          <p className="mt-2 text-xs leading-5 text-[#6F817A]">
+            Si no eliges uno, asignaremos automáticamente el primer horario disponible entre profesionales compatibles.
+          </p>
         </div>
       )}
 

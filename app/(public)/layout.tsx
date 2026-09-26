@@ -4,7 +4,7 @@ import Header from "@/shared/components/Header";
 import Footer from "@/shared/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Luma Vet | Clínica Veterinaria Moderna",
+  title: "Veterinaria El Abrazo",
   description:
     "Clínica veterinaria integral con atención personalizada, diagnóstico avanzado y seguimiento cercano para el bienestar de tu mascota.",
   keywords: [
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     "cirugía veterinaria",
   ],
   openGraph: {
-    title: "Luma Vet | Clínica Veterinaria Moderna",
+    title: "Veterinaria El Abrazo",
     description:
       "Cuidado integral para tu mascota con medicina preventiva, hospitalización y atención personalizada.",
     type: "website",

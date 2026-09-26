@@ -2,12 +2,55 @@
 
 import { useState } from "react";
 import { FiCheckCircle, FiEdit3, FiPlus, FiSave, FiSlash, FiTrash2 } from "react-icons/fi";
+import { toast } from "sonner";
+import FormErrors from "@/shared/ui/FormErrors";
 import Form from "./Form";
-import FormErrors from "./FormErrors";
 import FormInput from "./FormInput";
 import FormLabel from "./FormLabel";
 import FormSelectServices from "./FormSelectServices";
-import { useVetForm } from "./VetFormContext";
+import { useVetForm, type VetFormContextValue } from "./VetFormContext";
+
+function formValue(formData: FormData, name: string) {
+  return formData.get(name)?.toString().trim() ?? "";
+}
+
+function vetHasChanges(
+  vet: NonNullable<VetFormContextValue["vet"]>,
+  formData: FormData,
+) {
+  const isActive = formData.get("isActive") === "on";
+  const basicChanged =
+    formValue(formData, "name") !== vet.name ||
+    formValue(formData, "phone") !== (vet.phone ?? "") ||
+    formValue(formData, "email") !== (vet.email ?? "") ||
+    formValue(formData, "role") !== vet.role ||
+    formValue(formData, "imageUrl") !== (vet.imageUrl ?? "") ||
+    formValue(formData, "bio") !== (vet.bio ?? "") ||
+    isActive !== vet.isActive;
+
+  if (basicChanged) return true;
+
+  const assignments = new Map(
+    (vet.services ?? []).map((assignment) => [assignment.serviceId, assignment]),
+  );
+
+  for (const [key, value] of formData.entries()) {
+    if (!key.startsWith("serviceDuration:")) continue;
+
+    const serviceId = key.slice("serviceDuration:".length);
+    const assignment = assignments.get(serviceId);
+    const submittedDuration = value.toString().trim();
+    const currentDuration = assignment?.durationMin ? String(assignment.durationMin) : "";
+    const submittedActive = formData.get(`serviceEnabled:${serviceId}`) === "on";
+    const currentActive = assignment?.isActive ?? false;
+
+    if (submittedDuration !== currentDuration || submittedActive !== currentActive) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 export default function VetAdminForm() {
   const { vet, services, state, isPending, formKey, onSubmit, onDeactivate, onDelete } = useVetForm();
@@ -25,11 +68,29 @@ export default function VetAdminForm() {
     return `+569${n.slice(0, 8)}`;
   }
 
+  const handleSubmit = async (formData: FormData) => {
+    if (vet && !vetHasChanges(vet, formData)) {
+      toast.warning("No se detectaron cambios en el profesional");
+      return;
+    }
+
+    await onSubmit(formData);
+  };
+
+  const handleDelete = () => {
+    if (hasReservations) {
+      toast.error("Este profesional tiene horas agendadas o historial de reservas, por eso no se puede eliminar. Puedes desactivarlo.");
+      return;
+    }
+
+    onDelete?.();
+  };
+
   return (
     <Form
       key={formKey}
       noValidate
-      action={onSubmit}
+      action={handleSubmit}
       className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm"
     >
       <div className="flex items-start justify-between gap-4 border-b border-zinc-100 bg-[#0F766E]/5 px-5 py-5 pr-16 sm:px-7">
@@ -140,11 +201,14 @@ export default function VetAdminForm() {
                 Desactivar
               </button>
             )}
-            {vet && onDelete && !hasReservations && (
-              <button type="button" onClick={onDelete} disabled={isPending}
-                className="inline-flex h-11 cursor-pointer w-full items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-xs font-bold uppercase tracking-wide text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
+            {vet && onDelete && (
+              <button type="button" onClick={handleDelete}
+                title={hasReservations ? "No se puede eliminar un profesional con reservas asociadas. Puedes desactivarlo." : undefined}
+                disabled={isPending}
+                aria-disabled={hasReservations}
+                className={`inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-xs font-bold uppercase tracking-wide text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto ${hasReservations ? "opacity-60" : ""}`}>
                 <FiTrash2 className="h-4 w-4" />
-                Eliminar
+                {hasReservations ? "Eliminar bloqueado" : "Eliminar"}
               </button>
             )}
             <button type="submit" disabled={isPending}

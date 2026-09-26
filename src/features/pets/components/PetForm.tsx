@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 
-import FormErrors from "@/features/admin/components/FormErrors";
+import FormErrors from "@/shared/ui/FormErrors";
 import { feedbackSwal } from "@/shared/utils/sweetAlert";
 import {
   getBreedsForSpecies,
@@ -180,7 +180,7 @@ export default function PetForm({ customerId, onSuccess, pet }: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full bg-[#2A6A5D] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1D554A] disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full bg-[#2A6A5D] cursor-pointer px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1D554A] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isPending ? "Guardando..." : pet ? "Guardar cambios" : "Guardar mascota"}
       </button>

@@ -29,7 +29,7 @@ export default async function ServicesPage() {
     prisma.category.findMany({
       where: { isActive: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true },
+      select: { id: true, name: true, slug: true },
     }),
   ]);
   const activeCount = services.filter((service) => service.isActive).length;

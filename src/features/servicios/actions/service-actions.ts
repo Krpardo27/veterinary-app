@@ -124,23 +124,6 @@ export async function createServiceAction(
 
   const serviceData = serviceFormDataFrom(formData);
 
-  if (!serviceData.categoryId) {
-    const defaultCategory = await prisma.category.findFirst({
-      where: { isActive: true },
-      orderBy: { name: "asc" },
-      select: { id: true },
-    });
-
-    if (!defaultCategory) {
-      return {
-        status: "error",
-        message: "No hay categorías disponibles. Crea una categoría primero.",
-      };
-    }
-
-    serviceData.categoryId = defaultCategory.id;
-  }
-
   const parsed = ServiceSchema.safeParse(serviceData);
 
   if (!parsed.success) {

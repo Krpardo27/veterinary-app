@@ -2,8 +2,10 @@ import { notFound } from "next/navigation";
 
 import GoBackButton from "@/features/admin/components/GoBackButton";
 import ArchiveCustomerButton from "@/features/dashboard/clients/components/ArchiveCustomerButton";
+import ExportClientProfileButton from "@/features/dashboard/clients/components/ExportClientProfileButton";
 import AddPetButton from "@/features/pets/components/AddPetButton";
 import PetCard from "@/features/pets/components/PetCard";
+import { SEX_LABELS, SPECIES_LABELS } from "@/features/pets/constants/petLabels";
 import {
   RESERVATION_STATUS_LABELS,
   RESERVATION_STATUS_STYLES,
@@ -30,11 +32,29 @@ export default async function ClientDetails({ params }: Props) {
       pets: {
         where: { isActive: true },
         orderBy: { createdAt: "desc" },
-        select: { id: true, name: true, species: true, breed: true, isActive: true },
+        select: {
+          id: true,
+          name: true,
+          species: true,
+          breed: true,
+          sex: true,
+          birthDate: true,
+          color: true,
+          weight: true,
+          notes: true,
+          isActive: true,
+          weightRecords: {
+            orderBy: [{ measuredAt: "desc" }, { createdAt: "desc" }],
+            select: { weight: true, measuredAt: true, notes: true },
+          },
+          vaccinations: {
+            orderBy: [{ appliedAt: "desc" }, { createdAt: "desc" }],
+            select: { vaccineName: true, appliedAt: true, nextDueAt: true, notes: true },
+          },
+        },
       },
       reservations: {
         orderBy: { startAt: "desc" },
-        take: 10,
         select: {
           id: true,
           serviceName: true,
@@ -50,6 +70,43 @@ export default async function ClientDetails({ params }: Props) {
   if (!customer) {
     notFound();
   }
+
+  const customerForExport = {
+    name: customer.name,
+    phone: customer.phone,
+    email: customer.email,
+    notes: customer.notes,
+    isActive: customer.isActive,
+    createdAtLabel: formatShortDate(customer.createdAt),
+    pets: customer.pets.map((pet) => ({
+      name: pet.name,
+      species: SPECIES_LABELS[pet.species],
+      breed: pet.breed,
+      sex: pet.sex ? SEX_LABELS[pet.sex] : null,
+      birthDateLabel: pet.birthDate ? formatShortDate(pet.birthDate) : null,
+      color: pet.color,
+      weight: pet.weight,
+      notes: pet.notes,
+      weightRecords: pet.weightRecords.map((record) => ({
+        weight: record.weight,
+        measuredAtLabel: formatShortDate(record.measuredAt),
+        notes: record.notes,
+      })),
+      vaccinations: pet.vaccinations.map((record) => ({
+        vaccineName: record.vaccineName,
+        appliedAtLabel: formatShortDate(record.appliedAt),
+        nextDueAtLabel: record.nextDueAt ? formatShortDate(record.nextDueAt) : null,
+        notes: record.notes,
+      })),
+    })),
+    reservations: customer.reservations.map((reservation) => ({
+      serviceName: reservation.serviceName,
+      statusLabel: RESERVATION_STATUS_LABELS[reservation.status],
+      startAtLabel: formatAppointmentDateTime(reservation.startAt),
+      petName: reservation.pet?.name ?? null,
+      professionalName: reservation.professional?.name ?? null,
+    })),
+  };
 
   return (
     <div className="space-y-6">
@@ -82,6 +139,7 @@ export default async function ClientDetails({ params }: Props) {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <AddPetButton customerId={customer.id} customerName={customer.name} />
+            <ExportClientProfileButton customer={customerForExport} />
             {customer.isActive && <ArchiveCustomerButton customerId={customer.id} customerName={customer.name} />}
           </div>
         </div>

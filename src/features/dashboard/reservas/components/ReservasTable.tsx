@@ -7,6 +7,10 @@ import {
   RESERVATION_STATUS_STYLES,
 } from "./reservationStatus";
 
+function hasStatusActions(status: ReservationTableItem["status"]) {
+  return status === "PENDING" || status === "CONFIRMED";
+}
+
 interface ReservasTableProps {
   reservations: ReservationTableItem[];
   emptyMessage?: string;
@@ -83,7 +87,11 @@ export default function ReservasTable({
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex justify-end">
-                      <ReservationStatusButtons reservationId={r.id} status={r.status} variant="compact" />
+                      {hasStatusActions(r.status) ? (
+                        <ReservationStatusButtons reservationId={r.id} status={r.status} variant="compact" />
+                      ) : (
+                        <span className="text-xs text-zinc-400">Sin acciones</span>
+                      )}
                     </div>
                   </td>
                 </tr>

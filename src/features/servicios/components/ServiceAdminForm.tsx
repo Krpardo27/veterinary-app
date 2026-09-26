@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState, useEffect, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { FiCheckCircle, FiEdit3, FiPlus, FiSave, FiSlash, FiTrash2 } from "react-icons/fi";
 import { toast } from "sonner";
 import type { Category, Service } from "@/generated/prisma/client";
+import { getRequiredProfessionalRole, type ProfessionalRole } from "@/features/booking/serviceRoles";
 import {
   createServiceAction,
   deactivateServiceAction,
@@ -12,12 +13,12 @@ import {
   updateServiceAction,
 } from "../actions/service-actions";
 import type { ServiceActionState } from "../actions/service-actions";
-import FormErrors from "@/features/dashboard/veterinarios/components/FormErrors";
+import FormErrors from "@/shared/ui/FormErrors";
 import FormSelectCategory from "@/features/dashboard/veterinarios/components/FormSelectCategory";
 import { confirmSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 
 type ServiceAdminFormProps = {
-  categories: Pick<Category, "id" | "name">[];
+  categories: Pick<Category, "id" | "name" | "slug">[];
   service?: Service & { _count?: { reservations: number } };
   successRedirectHref?: string;
   onSuccess?: () => void;
@@ -26,6 +27,11 @@ type ServiceAdminFormProps = {
 const initialServiceActionState: ServiceActionState = {
   status: "idle",
   message: "",
+};
+
+const PROFESSIONAL_ROLE_LABELS: Record<ProfessionalRole, string> = {
+  VETERINARY: "Veterinario/a",
+  GROOMING: "Peluquería y baño",
 };
 
 function SubmitButton({ editing, pending }: { editing: boolean; pending: boolean }) {
@@ -48,9 +54,11 @@ function formValue(formData: FormData, name: string) {
 function serviceHasChanges(service: Service, formData: FormData) {
   const featured = formData.get("featured") === "on";
   const isActive = formData.get("isActive") === "on";
+  const submittedSlug = formValue(formData, "slug") || service.slug;
 
   return (
     formValue(formData, "name") !== service.name ||
+    submittedSlug !== service.slug ||
     formValue(formData, "description") !== (service.description ?? "") ||
     Number(formValue(formData, "price")) !== service.price ||
     Number(formValue(formData, "durationMin")) !== service.durationMin ||
@@ -68,6 +76,7 @@ export default function ServiceAdminForm({
 }: ServiceAdminFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [selectedCategoryId, setSelectedCategoryId] = useState(service?.categoryId ?? "");
   const editing = Boolean(service);
   const action = service
     ? updateServiceAction.bind(null, service.id)
@@ -75,6 +84,10 @@ export default function ServiceAdminForm({
   const [state, formAction] = useActionState(action, initialServiceActionState);
   const errors = state.fieldErrors;
   const hasReservations = (service?._count?.reservations ?? 0) > 0;
+  const selectedCategory = categories.find((category) => category.id === selectedCategoryId);
+  const requiredProfessionalRole = selectedCategory
+    ? getRequiredProfessionalRole(service?.slug ?? "", selectedCategory.slug)
+    : null;
 
   const handleSubmit = async (formData: FormData) => {
     if (service && !serviceHasChanges(service, formData)) {
@@ -109,6 +122,11 @@ export default function ServiceAdminForm({
 
   const handleDelete = async () => {
     if (!service) {
+      return;
+    }
+
+    if (hasReservations) {
+      toast.error("Este servicio tiene horas agendadas o historial de reservas, por eso no se puede eliminar. Puedes desactivarlo.");
       return;
     }
 
@@ -241,6 +259,20 @@ export default function ServiceAdminForm({
           </label>
 
           <label className="space-y-2 text-sm font-medium text-zinc-700">
+            <span>URL pública</span>
+            <input
+              name="slug"
+              defaultValue={service?.slug ?? ""}
+              placeholder="consulta-general"
+              className="h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E]/20"
+            />
+            <p className="text-xs leading-5 text-zinc-500">
+              Usa letras, números y guiones. Si lo dejas vacío al crear, se genera desde el nombre.
+            </p>
+            {errors?.slug?.[0] && <FormErrors>{errors.slug[0]}</FormErrors>}
+          </label>
+
+          <label className="space-y-2 text-sm font-medium text-zinc-700">
             <span>Precio CLP</span>
             <input
               name="price"
@@ -271,7 +303,8 @@ export default function ServiceAdminForm({
             {categories.length > 0 ? (
               <FormSelectCategory
                 name="categoryId"
-                defaultValue={service?.categoryId ?? ""}>
+                defaultValue={service?.categoryId ?? ""}
+                onChange={(event) => setSelectedCategoryId(event.currentTarget.value)}>
                 <option value="">Selecciona una categoría</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -286,6 +319,11 @@ export default function ServiceAdminForm({
                   No hay categorías disponibles. Crea una antes de agregar servicios.
                 </div>
               </>
+            )}
+            {requiredProfessionalRole && (
+              <p className="rounded-xl border border-[#DCE8E2] bg-[#F7FAF9] px-3 py-2 text-xs text-zinc-600">
+                Este servicio se asignará a profesionales de {PROFESSIONAL_ROLE_LABELS[requiredProfessionalRole]}.
+              </p>
             )}
             {errors?.categoryId?.[0] && <FormErrors>{errors.categoryId[0]}</FormErrors>}
           </label>
@@ -343,15 +381,17 @@ export default function ServiceAdminForm({
               </button>
             )}
 
-            {service && !hasReservations && (
+            {service && (
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={isPending}
-                className="inline-flex cursor-pointer h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-xs font-bold uppercase tracking-wide text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                aria-disabled={hasReservations}
+                title={hasReservations ? "No se puede eliminar un servicio con reservas asociadas. Puedes desactivarlo." : undefined}
+                className={`inline-flex cursor-pointer h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-xs font-bold uppercase tracking-wide text-red-500 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto ${hasReservations ? "opacity-60" : ""}`}
               >
                 <FiTrash2 className="h-4 w-4" />
-                Eliminar
+                {hasReservations ? "Eliminar bloqueado" : "Eliminar"}
               </button>
             )}
 

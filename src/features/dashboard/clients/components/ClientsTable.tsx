@@ -7,6 +7,10 @@ import {
 import ClientMobileCard from "./ClientMobileCard";
 import type { ClientTableCustomer } from "./client.types";
 
+function activeReservationsLabel(count: number) {
+  return count === 1 ? "1 cita activa" : `${count} citas activas`;
+}
+
 interface ClientsTableProps {
   customers: ClientTableCustomer[];
   emptyMessage?: string;
@@ -107,7 +111,7 @@ export default function ClientsTable({
                       <td className="px-5 py-4">
                         <span className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-sm font-semibold ${customer.activeReservationsCount > 0 ? "border-emerald-200 bg-emerald-50 text-[#0F766E]" : "border-zinc-200 bg-zinc-50 text-zinc-500"}`}>
                           <FiCalendar className="h-3 w-3 shrink-0" />
-                          <span>{customer.activeReservationsCount}</span>
+                          <span>{activeReservationsLabel(customer.activeReservationsCount)}</span>
                         </span>
                       </td>
                       <td className="px-5 py-4">
@@ -131,7 +135,7 @@ export default function ClientsTable({
                       <td className="px-5 py-4 text-right">
                         <Link
                           href={`/admin/clientes/${customer.id}`}
-                          className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-[#B9D9CF] px-3 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5]"
+                          className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#B9D9CF] px-3 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20"
                         >
                           Ver ficha
                           <FiArrowRight className="size-3.5" />

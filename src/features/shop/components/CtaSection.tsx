@@ -22,7 +22,7 @@ export default function CtaSection() {
 
       <div className="relative mx-auto max-w-4xl px-6 text-center lg:px-8">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white">
-          🐾 Luma Vet
+          🐾 Veterinaria El Abrazo
         </span>
         <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Tu mascota se merece la mejor atención

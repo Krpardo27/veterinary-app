@@ -5,7 +5,7 @@ import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
 import type { ReservationFormData } from "../schemas/reservation.schema";
-import FormErrors from "@/features/admin/components/FormErrors";
+import FormErrors from "@/shared/ui/FormErrors";
 import type { PetSpecies } from "@/generated/prisma/enums";
 
 type Customer = {

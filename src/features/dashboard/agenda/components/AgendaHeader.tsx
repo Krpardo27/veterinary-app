@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import FormErrors from "@/features/admin/components/FormErrors";
+import FormErrors from "@/shared/ui/FormErrors";
 import { formatLongDate } from "@/utils/dateFormatters";
 
 type Props = {
@@ -13,7 +13,7 @@ type Props = {
 };
 
 function navLinkClass(isActive: boolean) {
-  return `border px-3 py-2 text-xs font-semibold transition-colors ${isActive ? "border-[#2A6A5D] bg-[#2A6A5D] text-white" : "border-[#B9D9CF] text-[#1D554A] hover:bg-[#F0F8F5]"}`;
+  return `inline-flex h-9 cursor-pointer items-center rounded-xl border px-3 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#2A6A5D]/20 ${isActive ? "border-[#2A6A5D] bg-[#2A6A5D] text-white" : "border-[#B9D9CF] bg-white text-[#1D554A] hover:bg-[#F0F8F5]"}`;
 }
 
 export default function AgendaHeader({
@@ -50,20 +50,23 @@ export default function AgendaHeader({
             Mañana
           </Link>
           <Link href="/admin/agenda?view=upcoming" aria-current={isUpcomingView ? "page" : undefined} className={navLinkClass(isUpcomingView)}>
-            Próximas
+            Próximos 14 días
           </Link>
         </div>
       </header>
 
-      <form noValidate className="flex flex-col gap-3 border border-[#DCE8E2] bg-[#F7FAF9] p-4 sm:flex-row sm:items-end">
+      <form noValidate className="flex flex-col gap-3 rounded-2xl border border-[#DCE8E2] bg-[#F7FAF9] p-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <label htmlFor="agenda-date" className="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-[#52736A]">
-            Fecha
+            Ver agenda por fecha
           </label>
-          <input id="agenda-date" name="date" type="date" defaultValue={activeDate} className="border border-[#DCE8E2] bg-white px-3 py-2 text-sm text-[#1D3A35] outline-none focus:border-[#2A6A5D]" />
+          <input id="agenda-date" name="date" type="date" defaultValue={activeDate} className="h-10 rounded-xl border border-[#DCE8E2] bg-white px-3 text-sm text-[#1D3A35] outline-none transition-colors focus:border-[#2A6A5D] focus:ring-2 focus:ring-[#2A6A5D]/10" />
+          <p className="mt-1.5 text-xs text-[#6F817A]">
+            {isUpcomingView ? "Selecciona una fecha para volver a la vista diaria." : "Domingos sin atención."}
+          </p>
           {dateError && <FormErrors>{dateError}</FormErrors>}
         </div>
-        <button type="submit" className="bg-[#2A6A5D] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#1D554A]">
+        <button type="submit" className="inline-flex h-10 cursor-pointer items-center justify-center rounded-xl bg-[#2A6A5D] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#1D554A] focus:outline-none focus:ring-2 focus:ring-[#2A6A5D]/20">
           Ver agenda
         </button>
       </form>

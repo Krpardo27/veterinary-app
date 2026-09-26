@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FaCheck } from "react-icons/fa";
+import { FiPhone } from "react-icons/fi";
 
 import { prisma } from "@/lib/prisma";
 import { formatDayMonthYearDateTime } from "@/utils/dateFormatters";
@@ -23,6 +24,7 @@ export default async function ConfirmationPage({
   const reservation = await prisma.reservation.findUnique({
     where: { id },
     select: {
+      id: true,
       serviceName: true,
       servicePrice: true,
       durationMin: true,
@@ -57,10 +59,10 @@ export default async function ConfirmationPage({
             Reserva registrada
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#1D3A35] sm:text-4xl">
-            Tu visita quedó agendada
+            Tu cita quedó agendada
           </h1>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[#5C6F68] sm:text-base">
-            Guardamos el detalle de tu atención. Te contactaremos si necesitamos confirmar algún dato.
+            Recibimos tu reserva. Si necesitamos confirmar algún dato, te contactaremos por teléfono o correo.
           </p>
         </header>
 
@@ -107,12 +109,39 @@ export default async function ConfirmationPage({
               </dd>
             </div>
             <div className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
-              <dt className="text-sm text-[#6F817A]">Total</dt>
+              <dt className="text-sm text-[#6F817A]">Valor estimado</dt>
               <dd className="text-lg font-bold text-[#0F766E] sm:text-right">
                 {formattedPrice}
               </dd>
             </div>
           </dl>
+
+          <div className="mt-7 rounded-2xl border border-[#DCE8E2] bg-[#F7FAF9] p-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#52736A]">
+              Antes de venir
+            </p>
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-[#5C6F68]">
+              <li>Llega 10 minutos antes de la hora agendada.</li>
+              <li>Trae carnet de vacunas o exámenes recientes si corresponde.</li>
+              <li>Si tu mascota toma medicamentos, trae el nombre o indicación.</li>
+            </ul>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-[#B9D9CF] bg-white p-4">
+            <p className="text-sm font-semibold text-[#1D3A35]">
+              ¿Necesitas cambiar tu hora?
+            </p>
+            <p className="mt-1 text-sm leading-6 text-[#5C6F68]">
+              Llámanos si necesitas reagendar, cancelar o comentar algo antes de venir.
+            </p>
+            <a
+              href="tel:+56221457892"
+              className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 border border-[#B9D9CF] px-4 text-sm font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5] sm:w-auto"
+            >
+              <FiPhone className="h-4 w-4" />
+              Llamar a la clínica
+            </a>
+          </div>
 
           <div className="mt-7 grid gap-3 sm:grid-cols-2">
             <Link

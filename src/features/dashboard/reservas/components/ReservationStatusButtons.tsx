@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import type { ReservationStatus } from "@/generated/prisma/enums";
 import { cancelReservationAction } from "@/features/dashboard/reservas/actions/cancel-reservation.action";
 import { updateReservationStatusAction } from "@/features/dashboard/reservas/actions/update-reservation-status.action";
@@ -18,14 +18,18 @@ export default function ReservationStatusButtons({
   variant?: "default" | "compact";
 }) {
   const router = useRouter();
+  const [pendingAction, setPendingAction] = useState<ReservationStatus | "CANCELLED" | null>(null);
   const [isPending, startTransition] = useTransition();
   const isActive = status === "PENDING" || status === "CONFIRMED";
+  const isBusy = isPending || pendingAction !== null;
 
   if (!isActive) {
     return null;
   }
 
   async function updateStatus(targetStatus: ReservationStatus) {
+    if (isBusy) return;
+
     const confirm = await confirmSwal({
       title: "Actualizar estado",
       html: swalSummaryHtml([
@@ -39,28 +43,33 @@ export default function ReservationStatusButtons({
 
     if (!confirm.isConfirmed) return;
 
+    setPendingAction(targetStatus);
     startTransition(async () => {
-      const result = await updateReservationStatusAction(reservationId, targetStatus);
+      try {
+        const result = await updateReservationStatusAction(reservationId, targetStatus);
 
-      if (result?.error) {
+        if (result?.error) {
+          await feedbackSwal({
+            title: "No se pudo actualizar",
+            message: result.error,
+            icon: "error",
+            confirmButtonColor: "#dc2626",
+          });
+          return;
+        }
+
         await feedbackSwal({
-          title: "No se pudo actualizar",
-          message: result.error,
-          icon: "error",
-          confirmButtonColor: "#dc2626",
+          title: "Estado actualizado",
+          message: `La cita quedó como ${RESERVATION_STATUS_LABELS[targetStatus]}.`,
+          icon: "success",
+          confirmButtonText: "Perfecto",
+          confirmButtonColor: "#16a34a",
         });
-        return;
+
+        router.refresh();
+      } finally {
+        setPendingAction(null);
       }
-
-      await feedbackSwal({
-        title: "Estado actualizado",
-        message: `La cita quedó como ${RESERVATION_STATUS_LABELS[targetStatus]}.`,
-        icon: "success",
-        confirmButtonText: "Perfecto",
-        confirmButtonColor: "#16a34a",
-      });
-
-      router.refresh();
     });
   }
 
@@ -81,6 +90,8 @@ export default function ReservationStatusButtons({
     successText: string;
     confirmButtonColor: string;
   }) {
+    if (isBusy) return;
+
     const confirm = await confirmSwal({
       title,
       message: text,
@@ -91,34 +102,39 @@ export default function ReservationStatusButtons({
 
     if (!confirm.isConfirmed) return;
 
+    setPendingAction("CANCELLED");
     startTransition(async () => {
-      const result = await action();
+      try {
+        const result = await action();
 
-      if (result.error) {
+        if (result.error) {
+          await feedbackSwal({
+            title: "No se pudo actualizar",
+            message: result.error,
+            icon: "error",
+            confirmButtonColor: "#dc2626",
+          });
+          return;
+        }
+
         await feedbackSwal({
-          title: "No se pudo actualizar",
-          message: result.error,
-          icon: "error",
-          confirmButtonColor: "#dc2626",
+          title: successTitle,
+          message: successText,
+          icon: "success",
+          confirmButtonText: "Perfecto",
+          confirmButtonColor,
         });
-        return;
+
+        router.refresh();
+      } finally {
+        setPendingAction(null);
       }
-
-      await feedbackSwal({
-        title: successTitle,
-        message: successText,
-        icon: "success",
-        confirmButtonText: "Perfecto",
-        confirmButtonColor,
-      });
-
-      router.refresh();
     });
   }
 
   const buttonClass = variant === "compact"
-    ? "rounded-lg px-2.5 py-1 text-[11px] font-semibold disabled:cursor-not-allowed disabled:opacity-60"
-    : "rounded px-3 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60";
+    ? "rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+    : "rounded px-3 py-1 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
@@ -126,23 +142,23 @@ export default function ReservationStatusButtons({
         <>
           <button
             type="button"
-            disabled={isPending}
+            disabled={isBusy}
             onClick={() => updateStatus("COMPLETED")}
-            className={`${buttonClass} bg-blue-600 text-white`}
+            className={`${buttonClass} cursor-pointer bg-blue-600 text-white hover:bg-blue-700`}
           >
-            Completada
+            {pendingAction === "COMPLETED" ? "Guardando..." : "Completada"}
           </button>
           <button
             type="button"
-            disabled={isPending}
+            disabled={isBusy}
             onClick={() => updateStatus("NO_SHOW")}
-            className={`${buttonClass} bg-orange-600 text-white`}
+            className={`${buttonClass} cursor-pointer bg-orange-600 text-white hover:bg-orange-700`}
           >
-            No asistió
+            {pendingAction === "NO_SHOW" ? "Guardando..." : "No asistió"}
           </button>
           <button
             type="button"
-            disabled={isPending}
+            disabled={isBusy}
             onClick={() => runAction({
               action: () => cancelReservationAction(reservationId),
               title: "Cancelar reserva",
@@ -152,9 +168,9 @@ export default function ReservationStatusButtons({
               successText: "La cita quedó cancelada.",
               confirmButtonColor: "#dc2626",
             })}
-            className={`${buttonClass} bg-red-600 text-white`}
+            className={`${buttonClass} cursor-pointer bg-red-600 text-white hover:bg-red-700`}
           >
-            Cancelar
+            {pendingAction === "CANCELLED" ? "Cancelando..." : "Cancelar"}
           </button>
         </>
       )}

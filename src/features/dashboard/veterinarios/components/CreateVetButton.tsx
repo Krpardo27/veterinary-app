@@ -7,7 +7,7 @@ import AddVetForm from "./AddVetForm";
 import VetAdminForm from "./VetAdminForm";
 
 type CreateVetButtonProps = {
-  services: Pick<Service, "id" | "name" | "slug" | "durationMin">[];
+  services: Array<Pick<Service, "id" | "name" | "slug" | "durationMin"> & { category?: { slug: string } | null }>;
 };
 
 export default function CreateVetButton({ services }: CreateVetButtonProps) {

@@ -10,6 +10,10 @@ interface ClientMobileCardProps {
   customer: ClientTableCustomer;
 }
 
+function activeReservationsLabel(count: number) {
+  return count === 1 ? "1 cita activa" : `${count} citas activas`;
+}
+
 export default function ClientMobileCard({ customer }: ClientMobileCardProps) {
   const nextReservation = customer.reservations[0];
 
@@ -26,7 +30,7 @@ export default function ClientMobileCard({ customer }: ClientMobileCardProps) {
         </div>
         <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-1 text-xs font-semibold ${customer.activeReservationsCount > 0 ? "border-emerald-200 bg-[#D1FAE5] text-[#0F766E]" : "border-zinc-200 bg-zinc-50 text-zinc-500"}`}>
           <FiCalendar className="h-3 w-3 shrink-0" />
-          <span className="font-semibold">{customer.activeReservationsCount}</span>
+          <span className="font-semibold">{activeReservationsLabel(customer.activeReservationsCount)}</span>
         </span>
       </div>
 
@@ -40,7 +44,7 @@ export default function ClientMobileCard({ customer }: ClientMobileCardProps) {
             {customer.phone}
           </a>
         </div>
-        {customer.email && (
+        {customer.email ? (
           <div className="flex items-center gap-2">
             <FiMail className="h-4 w-4 shrink-0 text-[#0F766E]" />
             <a
@@ -49,6 +53,11 @@ export default function ClientMobileCard({ customer }: ClientMobileCardProps) {
             >
               {customer.email}
             </a>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-[#94A3B8]">
+            <FiMail className="h-4 w-4 shrink-0" />
+            <span className="text-sm">Sin email</span>
           </div>
         )}
       </div>
@@ -81,7 +90,7 @@ export default function ClientMobileCard({ customer }: ClientMobileCardProps) {
       <div className="space-y-2 border-t border-[#E2E8F0] pt-3">
         <Link
           href={`/admin/clientes/${customer.id}`}
-          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[#B9D9CF] px-3 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5]"
+          className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#B9D9CF] px-3 text-xs font-semibold text-[#1D554A] transition-colors hover:bg-[#F0F8F5] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20"
         >
           Ver ficha
           <FiArrowRight className="size-3.5" />

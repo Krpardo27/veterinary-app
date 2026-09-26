@@ -12,7 +12,7 @@ type AdminShellProps = {
   children: ReactNode;
   userName: string;
   userEmail: string;
-  services: Service[];
+  services: Array<Service & { category?: { slug: string; name: string } | null }>;
   professionals: Array<{
     id: string;
     name: string;
@@ -28,7 +28,7 @@ export default function AdminShell({
   services,
   professionals,
 }: AdminShellProps) {
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
 
   return (
     <div className="min-h-dvh bg-[#F8FAFC] text-[#0F172A]">
@@ -49,7 +49,7 @@ export default function AdminShell({
           <header className="mb-8 flex flex-col gap-4 border-b border-[#E2E8F0] pb-6 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-[#0F766E]">
-                Luma Vet · Administración
+                Veterinaria El Abrazo · Administración
               </p>
               <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#0F172A]">
                 Panel clínico

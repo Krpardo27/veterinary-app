@@ -16,7 +16,7 @@ export default function LoginCard({ callbackURL }: LoginCardProps) {
         <div className="flex items-center gap-2">
           <FaPaw className="h-4 w-4" style={{ color: COLORS.primary }} />
           <p className="text-xs font-bold uppercase tracking-[0.28em]" style={{ color: COLORS.primary }}>
-            Luma Vet
+            Veterinaria El Abrazo
           </p>
         </div>
         <Link
