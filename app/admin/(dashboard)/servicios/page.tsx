@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { FiClock, FiDollarSign, FiEdit3, FiStar, FiTag } from "react-icons/fi";
 import AdminSectionPage from "@/features/admin/components/AdminSectionPage";
+import CreateCategoryButton from "@/features/servicios/components/CreateCategoryButton";
 import CreateServiceButton from "@/features/servicios/components/CreateServiceButton";
 
 const currencyFormatter = new Intl.NumberFormat("es-CL", {
@@ -64,7 +65,10 @@ export default async function ServicesPage() {
               <FiStar className="size-3.5" />
               {featuredCount} destacados
             </span>
-            <CreateServiceButton categories={categories} />
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <CreateCategoryButton />
+              <CreateServiceButton categories={categories} />
+            </div>
           </div>
         </div>
 
