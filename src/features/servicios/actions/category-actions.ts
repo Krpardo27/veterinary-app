@@ -34,6 +34,18 @@ function revalidateCategories() {
   revalidatePath("/servicios");
 }
 
+async function createAvailableCategorySlug(baseSlug: string) {
+  let candidate = baseSlug;
+  let suffix = 2;
+
+  while (await prisma.category.findUnique({ where: { slug: candidate }, select: { id: true } })) {
+    candidate = `${baseSlug}-${suffix}`;
+    suffix += 1;
+  }
+
+  return candidate;
+}
+
 export async function createCategoryAction(
   _previousState: CategoryActionState,
   formData: FormData,
@@ -54,9 +66,10 @@ export async function createCategoryAction(
     };
   }
 
-  const slug = normalizeServiceSlug(parsed.data.slug || parsed.data.name);
+  const submittedSlug = parsed.data.slug?.trim() ?? "";
+  const baseSlug = normalizeServiceSlug(submittedSlug || parsed.data.name);
 
-  if (!validateServiceSlug(slug)) {
+  if (!validateServiceSlug(baseSlug)) {
     return {
       status: "error",
       message: "No fue posible generar una URL válida para la categoría",
@@ -64,10 +77,25 @@ export async function createCategoryAction(
     };
   }
 
-  const existingCategory = await prisma.category.findUnique({
-    where: { slug },
+  const existingName = await prisma.category.findFirst({
+    where: { name: { equals: parsed.data.name, mode: "insensitive" } },
     select: { id: true },
   });
+
+  if (existingName) {
+    return {
+      status: "error",
+      message: "Ya existe una categoría con ese nombre",
+      fieldErrors: { name: ["Usa una categoría existente o elige otro nombre"] },
+    };
+  }
+
+  const existingCategory = submittedSlug
+    ? await prisma.category.findUnique({
+      where: { slug: baseSlug },
+      select: { id: true },
+    })
+    : null;
 
   if (existingCategory) {
     return {
@@ -76,6 +104,8 @@ export async function createCategoryAction(
       fieldErrors: { name: ["Elige otro nombre para generar una URL única"] },
     };
   }
+
+  const slug = submittedSlug ? baseSlug : await createAvailableCategorySlug(baseSlug);
 
   try {
     await prisma.category.create({

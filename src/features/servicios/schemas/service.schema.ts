@@ -23,6 +23,12 @@ export const ServiceSchema = z.object({
     .optional()
     .or(z.literal("")),
 
+  imageUrl: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal("")),
+
   price: z.coerce
     .number({ message: "Ingresa un precio válido" })
     .int({ message: "El precio debe ser un número entero" })

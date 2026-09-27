@@ -3,27 +3,33 @@
 import { useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
 import { COLORS } from "@/shared/constants/theme";
+import Heading from "@/shared/ui/Heading";
 
 const faqs = [
   {
     question: "¿Cómo reservo una cita?",
-    answer: "Puedes reservar directamente desde nuestra web en /reservar. Elige el servicio, selecciona el horario disponible e ingresa los datos de tu mascota. En menos de 2 minutos tienes tu cita confirmada.",
+    answer:
+      "Puedes reservar directamente desde nuestra web en /reservar. Elige el servicio, selecciona el horario disponible e ingresa los datos de tu mascota. En menos de 2 minutos tienes tu cita confirmada.",
   },
   {
     question: "¿Qué pasa si necesito cancelar mi reserva?",
-    answer: "Puedes cancelar con al menos 12 horas de anticipación contactándonos por teléfono o correo. Entendemos que los imprevistos ocurren y buscamos siempre acomodarte en otro horario disponible.",
+    answer:
+      "Puedes cancelar con al menos 12 horas de anticipación contactándonos por teléfono o correo. Entendemos que los imprevistos ocurren y buscamos siempre acomodarte en otro horario disponible.",
   },
   {
     question: "¿Atienden urgencias?",
-    answer: "Sí, contamos con atención prioritaria para urgencias. Te recomendamos llamarnos antes de venir para preparar la atención y asegurarnos de tener disponibilidad inmediata para tu mascota.",
+    answer:
+      "Sí, contamos con atención prioritaria para urgencias. Te recomendamos llamarnos antes de venir para preparar la atención y asegurarnos de tener disponibilidad inmediata para tu mascota.",
   },
   {
     question: "¿Qué especies atienden?",
-    answer: "Atendemos perros, gatos, aves y otras mascotas de compañía. Para especies exóticas o silvestres, te recomendamos consultar previamente con nuestro equipo.",
+    answer:
+      "Atendemos perros, gatos, aves y otras mascotas de compañía. Para especies exóticas o silvestres, te recomendamos consultar previamente con nuestro equipo.",
   },
   {
     question: "¿Tienen servicio a domicilio?",
-    answer: "Ofrecemos visitas a domicilio para casos seleccionados, como pacientes postoperatorios o mascotas con movilidad reducida. Consulta disponibilidad y tarifas con nosotros.",
+    answer:
+      "Ofrecemos visitas a domicilio para casos seleccionados, como pacientes postoperatorios o mascotas con movilidad reducida. Consulta disponibilidad y tarifas con nosotros.",
   },
 ];
 
@@ -67,26 +73,37 @@ export default function FaqSection() {
     <section className="py-20 sm:py-24">
       <div className="mx-auto max-w-3xl px-6 lg:px-8">
         <div className="mb-12 text-center">
-          <span
+          <Heading
+            level={3}
             className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-            style={{ backgroundColor: COLORS.primary_bg, color: COLORS.primary }}
+            style={{
+              backgroundColor: COLORS.primary_bg,
+              color: COLORS.primary,
+            }}
           >
             ❓ Preguntas frecuentes
-          </span>
+          </Heading>
           <h2
             className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl"
             style={{ color: COLORS.darker }}
           >
             ¿Tienes dudas?
           </h2>
-          <p className="mt-3 text-[15px] leading-relaxed" style={{ color: COLORS.text_muted }}>
+          <p
+            className="mt-3 text-[15px] leading-relaxed"
+            style={{ color: COLORS.text_muted }}
+          >
             Aquí respondemos las consultas más comunes.
           </p>
         </div>
 
         <div className="space-y-3">
           {faqs.map((faq) => (
-            <FaqItem key={faq.question} question={faq.question} answer={faq.answer} />
+            <FaqItem
+              key={faq.question}
+              question={faq.question}
+              answer={faq.answer}
+            />
           ))}
         </div>
       </div>

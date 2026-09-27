@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 type Props = {
   searchParams: Promise<{
     servicio?: string;
+    profesional?: string;
   }>;
 };
 
@@ -44,6 +45,13 @@ export default async function ReservarPage({
         (service) => service.slug === params.servicio
       )
     : undefined;
+  const defaultProfessional = params.profesional
+    ? professionals.find(
+      (professional) =>
+        professional.id === params.profesional &&
+        (!defaultService || professional.services.some((service) => service.serviceId === defaultService.id)),
+    )
+    : undefined;
 
   return (
     <div className="min-h-screen bg-[#F7FAF9] py-10 sm:py-14">
@@ -70,6 +78,7 @@ export default async function ReservarPage({
             serviceIds: services.map((service) => service.serviceId),
           }))}
           defaultServiceId={defaultService?.id}
+          defaultProfessionalId={defaultProfessional?.id}
         />
         </div>
       </div>
