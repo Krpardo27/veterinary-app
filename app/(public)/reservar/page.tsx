@@ -1,17 +1,51 @@
 import ReservationForm from "@/features/booking/components/ReservationForm";
 import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
 
 type Props = {
-  searchParams: Promise<{
-    servicio?: string;
-    profesional?: string;
-  }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+const SUPPORTED_SEARCH_PARAMS = new Set(["servicio", "profesional"]);
+
+function hasSearchParam(
+  params: Record<string, string | string[] | undefined>,
+  key: string,
+) {
+  return Object.prototype.hasOwnProperty.call(params, key);
+}
+
+function readSingleSearchParam(
+  params: Record<string, string | string[] | undefined>,
+  key: string,
+) {
+  const value = params[key];
+
+  if (value === undefined) return undefined;
+  if (Array.isArray(value)) return null;
+
+  const trimmedValue = value.trim();
+  return trimmedValue ? trimmedValue : null;
+}
 
 export default async function ReservarPage({
   searchParams,
 }: Props) {
   const params = await searchParams;
+
+  if (Object.keys(params).some((key) => !SUPPORTED_SEARCH_PARAMS.has(key))) {
+    notFound();
+  }
+
+  const serviceSlug = readSingleSearchParam(params, "servicio");
+  const professionalId = readSingleSearchParam(params, "profesional");
+
+  if (
+    (hasSearchParam(params, "servicio") && !serviceSlug) ||
+    (hasSearchParam(params, "profesional") && !professionalId)
+  ) {
+    notFound();
+  }
 
   const [services, professionals] = await Promise.all([
     prisma.service.findMany({
@@ -40,18 +74,27 @@ export default async function ReservarPage({
     }),
   ]);
 
-  const defaultService = params.servicio
+  const defaultService = serviceSlug
     ? services.find(
-        (service) => service.slug === params.servicio
+        (service) => service.slug === serviceSlug
       )
     : undefined;
-  const defaultProfessional = params.profesional
+
+  if (serviceSlug && !defaultService) {
+    notFound();
+  }
+
+  const defaultProfessional = professionalId
     ? professionals.find(
       (professional) =>
-        professional.id === params.profesional &&
+        professional.id === professionalId &&
         (!defaultService || professional.services.some((service) => service.serviceId === defaultService.id)),
     )
     : undefined;
+
+  if (professionalId && !defaultProfessional) {
+    notFound();
+  }
 
   return (
     <div className="min-h-screen bg-[#F7FAF9] py-10 sm:py-14">
