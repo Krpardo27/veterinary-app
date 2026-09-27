@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { FiArrowLeft, FiCalendar, FiShield } from "react-icons/fi";
 import { FaPaw } from "react-icons/fa";
-// import BackgroundPattern from "./BackgroundPattern";
 import VetIllustration from "./VetIllustration";
 import StatCard from "./StatCard";
 import FeatureCard from "./FeatureCard";
@@ -24,9 +23,9 @@ export default function VetHero() {
           Portal clínico
         </p>
         <div className="space-y-3">
-          <h1 className="max-w-md text-4xl font-bold leading-tight tracking-tight  xl:text-5xl">
+          <h2 className="max-w-md text-4xl font-bold leading-tight tracking-tight xl:text-5xl">
             La ficha de cada paciente, siempre al día.
-          </h1>
+          </h2>
           <p className="max-w-sm text-sm leading-relaxed" style={{ color: "#A7C4BB" }}>
             Agenda, historiales y equipo en un solo panel, pensado para el
             ritmo real de la consulta.
@@ -38,12 +37,12 @@ export default function VetHero() {
           <StatCard
             value="+1.200"
             label="mascotas atendidas"
-            className="absolute -left-2 top-0 hidden rotate-[-4deg] xl:block"
+            className="absolute -left-2 top-0 hidden -rotate-4 xl:block"
           />
           <StatCard
             value="98%"
             label="dueños conformes"
-            className="absolute -right-2 bottom-4 hidden rotate-[3deg] xl:block"
+            className="absolute -right-2 bottom-4 hidden rotate-2 xl:block"
           />
         </div>
       </div>
