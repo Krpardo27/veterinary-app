@@ -28,7 +28,7 @@ export default function LoginCard({ callbackURL }: LoginCardProps) {
         </Link>
       </div>
 
-      <div className="mx-auto flex min-h-[420px] max-w-sm flex-col justify-center pt-6 lg:pt-10">
+      <div className="mx-auto flex min-h-105 max-w-sm flex-col justify-center pt-6 lg:pt-10">
         {/* Icon + título */}
         <div className="mb-8 space-y-4">
           <div
@@ -76,40 +76,13 @@ export default function LoginCard({ callbackURL }: LoginCardProps) {
   );
 }
 
-function ClipIcon() {
-  return (
-    <svg width="56" height="60" viewBox="0 0 56 60" aria-hidden="true">
-      <rect
-        x="18"
-        y="0"
-        width="20"
-        height="40"
-        rx="10"
-        fill="none"
-        stroke="var(--border)"
-        strokeWidth="5"
-      />
-      <rect
-        x="10"
-        y="26"
-        width="36"
-        height="16"
-        rx="8"
-        fill="var(--secondary)"
-        stroke="var(--border)"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
 function StampBadge() {
   return (
     <svg
       width="20"
       height="20"
       viewBox="0 0 20 20"
-      className="shrink-0 text-[var(--primary)]"
+      className="shrink-0 text-(--primary)"
       aria-hidden="true"
     >
       <circle
