@@ -24,13 +24,13 @@ export default function CategoryList({ categories }: CategoryListProps) {
   return (
     <div className="relative">
       <nav
-        className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="scrollbar-none flex snap-x gap-2 overflow-x-auto pb-1 pr-14 [-ms-overflow-style:none] sm:pr-0 [&::-webkit-scrollbar]:hidden"
         aria-label="Categorías de servicios"
       >
         <Link
           href="/servicios"
           aria-current={isAllActive ? "page" : undefined}
-          className={`${baseStyles} ${isAllActive ? activeStyles : inactiveStyles}`}
+          className={`snap-start ${baseStyles} ${isAllActive ? activeStyles : inactiveStyles}`}
         >
           Todos
         </Link>
@@ -43,7 +43,7 @@ export default function CategoryList({ categories }: CategoryListProps) {
               key={category.id}
               href={`/servicios/${category.slug}`}
               aria-current={isActive ? "page" : undefined}
-              className={`${baseStyles} ${isActive ? activeStyles : inactiveStyles}`}
+              className={`snap-start ${baseStyles} ${isActive ? activeStyles : inactiveStyles}`}
             >
               {category.name}
             </Link>
@@ -51,7 +51,7 @@ export default function CategoryList({ categories }: CategoryListProps) {
         })}
       </nav>
 
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[#F7FAF9] to-transparent sm:hidden" />
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-linear-to-l from-[#F7FAF9] to-transparent sm:hidden" />
     </div>
   );
 }
