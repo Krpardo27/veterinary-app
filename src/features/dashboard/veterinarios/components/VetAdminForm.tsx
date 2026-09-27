@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import FormErrors from "@/shared/ui/FormErrors";
 import Form from "./Form";
 import FormInput from "./FormInput";
+import ProfessionalImageUpload from "./ProfessionalImageUpload";
 import FormLabel from "./FormLabel";
 import FormSelectServices from "./FormSelectServices";
 import { useVetForm, type VetFormContextValue } from "./VetFormContext";
@@ -33,13 +34,21 @@ function vetHasChanges(
   const assignments = new Map(
     (vet.services ?? []).map((assignment) => [assignment.serviceId, assignment]),
   );
+  const submittedServiceIds = new Set(assignments.keys());
 
-  for (const [key, value] of formData.entries()) {
-    if (!key.startsWith("serviceDuration:")) continue;
+  for (const [key] of formData.entries()) {
+    if (key.startsWith("serviceDuration:")) {
+      submittedServiceIds.add(key.slice("serviceDuration:".length));
+    }
 
-    const serviceId = key.slice("serviceDuration:".length);
+    if (key.startsWith("serviceEnabled:")) {
+      submittedServiceIds.add(key.slice("serviceEnabled:".length));
+    }
+  }
+
+  for (const serviceId of submittedServiceIds) {
     const assignment = assignments.get(serviceId);
-    const submittedDuration = value.toString().trim();
+    const submittedDuration = formData.get(`serviceDuration:${serviceId}`)?.toString().trim() ?? "";
     const currentDuration = assignment?.durationMin ? String(assignment.durationMin) : "";
     const submittedActive = formData.get(`serviceEnabled:${serviceId}`) === "on";
     const currentActive = assignment?.isActive ?? false;
@@ -158,10 +167,14 @@ export default function VetAdminForm() {
             </select>
           </div>
 
-          <div className="space-y-2">
-            <FormLabel htmlFor="imageUrl">Imagen URL</FormLabel>
-            <FormInput id="imageUrl" name="imageUrl" defaultValue={values?.imageUrl ?? vet?.imageUrl ?? ""}
-              error={!!errors?.imageUrl?.[0]} />
+          <div className="md:col-span-2">
+            <ProfessionalImageUpload
+              image={values?.imageUrl ?? vet?.imageUrl ?? ""}
+              label="Foto del profesional"
+              alt={values?.name ?? vet?.name ?? "Foto del profesional"}
+              folderName="professionals"
+              initialName={values?.name ?? vet?.name ?? ""}
+            />
             {errors?.imageUrl?.[0] && <FormErrors>{errors.imageUrl[0]}</FormErrors>}
           </div>
         </div>

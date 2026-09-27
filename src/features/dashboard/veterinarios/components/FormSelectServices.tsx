@@ -84,6 +84,11 @@ export default function FormSelectServices({
       <p className="text-xs text-zinc-400">
         {selectedCount} de {roleServices.length} servicios de {roleLabel} seleccionados
       </p>
+      {roleServices.length === 0 && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-700">
+          Este selector muestra servicios, no categorías. Si creaste una categoría nueva, crea al menos un servicio activo dentro de ella para poder asignarlo a este profesional.
+        </div>
+      )}
 
       {roleServices
         .filter((service) => enabled[service.id])
@@ -99,7 +104,9 @@ export default function FormSelectServices({
       {/* Service list */}
       <div className="max-h-72 overflow-y-auto rounded-xl border border-zinc-200 bg-white divide-y divide-zinc-100">
         {filtered.length === 0 && (
-          <p className="p-4 text-center text-sm text-zinc-400">Sin resultados</p>
+          <p className="p-4 text-center text-sm text-zinc-400">
+            {roleServices.length === 0 ? "No hay servicios disponibles para este rol" : "Sin resultados"}
+          </p>
         )}
 
         {filtered.map((service) => {

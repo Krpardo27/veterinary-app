@@ -33,14 +33,14 @@ export default function FormErrors({ children }: { children: ReactNode }) {
       ref={errorRef}
       role="alert"
       aria-live="polite"
-      className="mt-2 flex items-start gap-3 rounded-xl border border-l-4 border-red-200 border-l-red-500 bg-red-50 p-2 text-red-700 shadow-sm"
+      className="mt-2 text-sm flex items-start gap-3 rounded-xl border border-l-4 border-red-200 border-l-red-500 bg-red-50 p-2 text-red-700 shadow-sm"
     >
       <IoWarningOutline
         className="mt-0.5 h-5 w-5 shrink-0 text-red-500"
         aria-hidden="true"
       />
       <div className="min-w-0 space-y-1">
-        <p className="font-semibold text-red-800">Ocurrió un error</p>
+        <p className="font-semibold text-xs text-red-800">Ocurrió un error</p>
         <p className="text-xs leading-5 wrap-break-word">{children}</p>
       </div>
     </div>

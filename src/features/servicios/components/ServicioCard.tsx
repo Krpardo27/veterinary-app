@@ -1,5 +1,6 @@
 import type { Service } from "@/generated/prisma/client";
 import { FiClock, FiStar } from "react-icons/fi";
+import Image from "next/image";
 import Link from "next/link";
 
 type ServiceCardProps = {
@@ -17,6 +18,18 @@ export default function ServicioCard({ service }: ServiceCardProps) {
   return (
     <article className="group flex h-full flex-col justify-between rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#0F766E]/30 hover:shadow-md sm:p-6">
       <div className="space-y-4">
+        {service.imageUrl && (
+          <div className="relative h-40 overflow-hidden rounded-xl bg-[#EAF4F1]">
+            <Image
+              src={service.imageUrl}
+              alt={service.name}
+              fill
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        )}
+
         <div className="flex items-start justify-between gap-3">
           {service.featured && (
             <span className="inline-flex items-center gap-1 rounded-full border border-[#0F766E]/20 bg-[#0F766E]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#0F766E]">

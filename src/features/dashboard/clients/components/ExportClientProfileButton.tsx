@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { FiDownload } from "react-icons/fi";
+import { downloadCsv } from "@/shared/utils/csvExport";
 
 type ClientProfileExport = {
   name: string;
@@ -53,9 +54,8 @@ export default function ExportClientProfileButton({ customer }: ExportClientProf
 
   const handleExport = () => {
     startTransition(async () => {
-      const XLSX = await import("xlsx");
       const generatedAt = new Date().toISOString().slice(0, 10);
-      const workbook = XLSX.utils.book_new();
+      const filePrefix = `ficha-${fileSafeName(customer.name)}-${generatedAt}`;
       const profileRows = customer.pets.length > 0
         ? customer.pets.map((pet) => ({
           Cliente: customer.name,
@@ -90,15 +90,10 @@ export default function ExportClientProfileButton({ customer }: ExportClientProf
           "Notas cliente": customer.notes ?? "",
         }];
 
-      XLSX.utils.book_append_sheet(
-        workbook,
-        XLSX.utils.json_to_sheet(profileRows),
-        "Ficha completa",
-      );
-
-      XLSX.utils.book_append_sheet(
-        workbook,
-        XLSX.utils.json_to_sheet([
+      downloadCsv(`${filePrefix}-ficha-completa.csv`, profileRows);
+      downloadCsv(
+        `${filePrefix}-cliente.csv`,
+        [
           {
             Nombre: customer.name,
             Teléfono: customer.phone,
@@ -107,13 +102,12 @@ export default function ExportClientProfileButton({ customer }: ExportClientProf
             "Cliente desde": customer.createdAtLabel,
             Notas: customer.notes ?? "",
           },
-        ]),
-        "Cliente",
+        ],
       );
 
-      XLSX.utils.book_append_sheet(
-        workbook,
-        XLSX.utils.json_to_sheet(customer.pets.map((pet) => ({
+      downloadCsv(
+        `${filePrefix}-mascotas.csv`,
+        customer.pets.map((pet) => ({
           Mascota: pet.name,
           Especie: pet.species,
           Raza: pet.breed ?? "",
@@ -122,38 +116,35 @@ export default function ExportClientProfileButton({ customer }: ExportClientProf
           Color: pet.color ?? "",
           "Peso actual (kg)": pet.weight ?? "",
           Notas: pet.notes ?? "",
-        }))),
-        "Mascotas",
+        })),
       );
 
-      XLSX.utils.book_append_sheet(
-        workbook,
-        XLSX.utils.json_to_sheet(customer.reservations.map((reservation) => ({
+      downloadCsv(
+        `${filePrefix}-reservas.csv`,
+        customer.reservations.map((reservation) => ({
           Servicio: reservation.serviceName,
           Estado: reservation.statusLabel,
           "Fecha y hora": reservation.startAtLabel,
           Mascota: reservation.petName ?? "",
           Profesional: reservation.professionalName ?? "",
-        }))),
-        "Reservas",
+        })),
       );
 
-      XLSX.utils.book_append_sheet(
-        workbook,
-        XLSX.utils.json_to_sheet(customer.pets.flatMap((pet) =>
+      downloadCsv(
+        `${filePrefix}-controles-de-peso.csv`,
+        customer.pets.flatMap((pet) =>
           pet.weightRecords.map((record) => ({
             Mascota: pet.name,
             Peso: record.weight,
             Fecha: record.measuredAtLabel,
             Notas: record.notes ?? "",
           })),
-        )),
-        "Controles de peso",
+        ),
       );
 
-      XLSX.utils.book_append_sheet(
-        workbook,
-        XLSX.utils.json_to_sheet(customer.pets.flatMap((pet) =>
+      downloadCsv(
+        `${filePrefix}-vacunas.csv`,
+        customer.pets.flatMap((pet) =>
           pet.vaccinations.map((record) => ({
             Mascota: pet.name,
             Vacuna: record.vaccineName,
@@ -161,11 +152,8 @@ export default function ExportClientProfileButton({ customer }: ExportClientProf
             "Próxima dosis": record.nextDueAtLabel ?? "",
             Notas: record.notes ?? "",
           })),
-        )),
-        "Vacunas",
+        ),
       );
-
-      XLSX.writeFile(workbook, `ficha-${fileSafeName(customer.name)}-${generatedAt}.xlsx`);
     });
   };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -28,6 +28,7 @@ type Props = {
     serviceIds: string[];
   }>;
   defaultServiceId?: string;
+  defaultProfessionalId?: string;
   variant?: "public" | "admin";
   onSuccess?: () => void;
 };
@@ -73,6 +74,7 @@ export default function ReservationForm({
   services,
   professionals,
   defaultServiceId,
+  defaultProfessionalId,
   variant = "public",
   onSuccess,
 }: Props) {
@@ -87,6 +89,7 @@ export default function ReservationForm({
     resolver: zodResolver(ReservationSchema),
     defaultValues: {
       serviceId: defaultServiceId ?? "",
+      professionalId: defaultProfessionalId,
       customerMode: variant === "admin" ? "search" : "new",
       petId: "",
       petName: "",
@@ -112,6 +115,13 @@ export default function ReservationForm({
   const selectedProfessional = professionals.find(
     (professional) => professional.id === professionalId,
   );
+  const requestedProfessionalId = variant === "admin"
+    ? undefined
+    : searchParams.get("profesional") ?? defaultProfessionalId;
+  const requestedProfessional = professionals.find(
+    (professional) => professional.id === requestedProfessionalId,
+  );
+  const requestedProfessionalServiceIds = requestedProfessional?.serviceIds ?? [];
   const requiredProfessionalRole = selectedService
     ? getRequiredProfessionalRole(selectedService.slug, selectedService.category?.slug)
     : null;
@@ -124,7 +134,13 @@ export default function ReservationForm({
   const selectedProfessionalIsAvailable = professionalId
     ? availableProfessionals.some((professional) => professional.id === professionalId)
     : true;
-  const servicesByCategory = services.reduce<
+  const requestedProfessionalIsAvailable = requestedProfessionalId
+    ? availableProfessionals.some((professional) => professional.id === requestedProfessionalId)
+    : false;
+  const servicesForSelect = requestedProfessional
+    ? services.filter((service) => requestedProfessional.serviceIds.includes(service.id))
+    : services;
+  const servicesByCategory = servicesForSelect.reduce<
     Array<{ label: string; services: typeof services }>
   >((groups, service) => {
     const label = service.category?.name ?? "Otros servicios";
@@ -139,28 +155,31 @@ export default function ReservationForm({
     return groups;
   }, []);
 
-  const syncServiceUrl = useCallback(
-    (nextServiceId: string) => {
-      if (variant === "admin") return;
+  function syncServiceUrl(nextServiceId: string) {
+    if (variant === "admin") return;
 
-      const nextService = services.find((service) => service.id === nextServiceId);
-      const params = new URLSearchParams(searchParams.toString());
+    const nextService = services.find((service) => service.id === nextServiceId);
+    const params = new URLSearchParams(searchParams.toString());
+    const canKeepRequestedProfessional = requestedProfessionalServiceIds.includes(nextServiceId);
 
-      params.delete("serviceId");
+    params.delete("serviceId");
+    params.delete("profesional");
 
-      if (nextService) {
-        params.set("servicio", nextService.slug);
-      } else {
-        params.delete("servicio");
-      }
+    if (nextService) {
+      params.set("servicio", nextService.slug);
+    } else {
+      params.delete("servicio");
+    }
 
-      const queryString = params.toString();
-      router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams, services, variant],
-  );
+    if (requestedProfessionalId && canKeepRequestedProfessional) {
+      params.set("profesional", requestedProfessionalId);
+    }
+
+    const queryString = params.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    });
+  }
 
   useEffect(() => {
     const selectedServiceIsAvailable = services.some(
@@ -171,9 +190,11 @@ export default function ReservationForm({
       setValue("serviceId", "");
       setValue("professionalId", undefined);
       setValue("startAt", "");
-      syncServiceUrl("");
+      if (variant !== "admin") {
+        router.replace(pathname, { scroll: false });
+      }
     }
-  }, [serviceId, services, setValue, syncServiceUrl]);
+  }, [pathname, router, serviceId, services, setValue, variant]);
 
   useEffect(() => {
     if (!selectedProfessionalIsAvailable) {
@@ -181,6 +202,12 @@ export default function ReservationForm({
       setValue("startAt", "");
     }
   }, [selectedProfessionalIsAvailable, setValue]);
+
+  useEffect(() => {
+    if (requestedProfessionalId && requestedProfessionalIsAvailable) {
+      setValue("professionalId", requestedProfessionalId, { shouldDirty: false });
+    }
+  }, [requestedProfessionalId, requestedProfessionalIsAvailable, setValue]);
 
   const onSubmit = async (data: ReservationFormData) => {
     if (isProcessing) return;
@@ -244,8 +271,11 @@ export default function ReservationForm({
           {...register("serviceId")}
           onChange={(event) => {
             const nextServiceId = event.target.value;
+            const nextProfessionalId = requestedProfessional && requestedProfessionalServiceIds.includes(nextServiceId)
+              ? requestedProfessional.id
+              : undefined;
             setValue("serviceId", nextServiceId);
-            setValue("professionalId", undefined);
+            setValue("professionalId", nextProfessionalId);
             setValue("startAt", "");
             syncServiceUrl(nextServiceId);
           }}
@@ -268,6 +298,11 @@ export default function ReservationForm({
             <p className="mt-1">
               {formatDuration(selectedService.durationMin)} · {currencyFormatter.format(selectedService.price)} · Atención de {PROFESSIONAL_ROLE_LABELS[requiredProfessionalRole]}
             </p>
+            {selectedProfessional && (
+              <p className="mt-1 font-medium text-[#1D3A35]">
+                Profesional: {selectedProfessional.name}
+              </p>
+            )}
           </div>
         )}
         {errors.serviceId && <FormErrors>{errors.serviceId.message}</FormErrors>}
@@ -282,9 +317,12 @@ export default function ReservationForm({
             Profesional {requiredProfessionalRole ? `(${PROFESSIONAL_ROLE_LABELS[requiredProfessionalRole]}, opcional)` : "(opcional)"}
           </label>
           <select
-            {...register("professionalId", {
-              onChange: () => setValue("startAt", ""),
-            })}
+            {...register("professionalId")}
+            value={professionalId ?? ""}
+            onChange={(event) => {
+              setValue("professionalId", event.currentTarget.value || undefined, { shouldDirty: true });
+              setValue("startAt", "");
+            }}
             className={inputClassName}
           >
             <option value="">Cualquier profesional disponible</option>

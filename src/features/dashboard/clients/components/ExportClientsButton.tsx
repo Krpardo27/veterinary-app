@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { FiDownload } from "react-icons/fi";
+import { downloadCsv } from "@/shared/utils/csvExport";
 import type { ClientExportCustomer } from "./client.types";
 
 type ExportClientsButtonProps = {
@@ -17,7 +18,6 @@ export default function ExportClientsButton({ customers }: ExportClientsButtonPr
 
   const handleExport = () => {
     startTransition(async () => {
-      const XLSX = await import("xlsx");
       const generatedAt = new Date().toISOString().slice(0, 10);
 
       const clientRows = customers.map((customer) => ({
@@ -58,11 +58,9 @@ export default function ExportClientsButton({ customers }: ExportClientsButtonPr
         })),
       );
 
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(clientRows), "Clientes");
-      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(petRows), "Mascotas");
-      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(reservationRows), "Reservas");
-      XLSX.writeFile(workbook, `clientes-veterinaria-el-abrazo-${generatedAt}.xlsx`);
+      downloadCsv(`clientes-veterinaria-el-abrazo-${generatedAt}.csv`, clientRows);
+      downloadCsv(`mascotas-veterinaria-el-abrazo-${generatedAt}.csv`, petRows);
+      downloadCsv(`reservas-veterinaria-el-abrazo-${generatedAt}.csv`, reservationRows);
     });
   };
 

@@ -14,6 +14,7 @@ import {
 } from "../actions/service-actions";
 import type { ServiceActionState } from "../actions/service-actions";
 import FormErrors from "@/shared/ui/FormErrors";
+import ImageUpload from "@/shared/ui/ImageUpload";
 import FormSelectCategory from "@/features/dashboard/veterinarios/components/FormSelectCategory";
 import { confirmSwal, swalSummaryHtml } from "@/shared/utils/sweetAlert";
 
@@ -51,6 +52,32 @@ function formValue(formData: FormData, name: string) {
   return formData.get(name)?.toString().trim() ?? "";
 }
 
+function normalizeCategoryName(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function uniqueCategories(
+  categories: Pick<Category, "id" | "name" | "slug">[],
+  selectedCategoryId: string,
+) {
+  const categoriesByName = new Map<string, Pick<Category, "id" | "name" | "slug">>();
+
+  for (const category of categories) {
+    const key = normalizeCategoryName(category.name);
+    const currentCategory = categoriesByName.get(key);
+
+    if (!currentCategory || category.id === selectedCategoryId) {
+      categoriesByName.set(key, category);
+    }
+  }
+
+  return Array.from(categoriesByName.values());
+}
+
 function serviceHasChanges(service: Service, formData: FormData) {
   const featured = formData.get("featured") === "on";
   const isActive = formData.get("isActive") === "on";
@@ -60,6 +87,7 @@ function serviceHasChanges(service: Service, formData: FormData) {
     formValue(formData, "name") !== service.name ||
     submittedSlug !== service.slug ||
     formValue(formData, "description") !== (service.description ?? "") ||
+    formValue(formData, "imageUrl") !== (service.imageUrl ?? "") ||
     Number(formValue(formData, "price")) !== service.price ||
     Number(formValue(formData, "durationMin")) !== service.durationMin ||
     formValue(formData, "categoryId") !== service.categoryId ||
@@ -84,6 +112,7 @@ export default function ServiceAdminForm({
   const [state, formAction] = useActionState(action, initialServiceActionState);
   const errors = state.fieldErrors;
   const hasReservations = (service?._count?.reservations ?? 0) > 0;
+  const categoriesForSelect = uniqueCategories(categories, selectedCategoryId);
   const selectedCategory = categories.find((category) => category.id === selectedCategoryId);
   const requiredProfessionalRole = selectedCategory
     ? getRequiredProfessionalRole(service?.slug ?? "", selectedCategory.slug)
@@ -250,6 +279,7 @@ export default function ServiceAdminForm({
           <label className="space-y-2 text-sm font-medium text-zinc-700">
             <span>Nombre</span>
             <input
+              id="service-name"
               name="name"
               defaultValue={service?.name ?? ""}
               minLength={2}
@@ -300,13 +330,13 @@ export default function ServiceAdminForm({
 
           <label className="space-y-2 text-sm font-medium text-zinc-700">
             <span>Categoría</span>
-            {categories.length > 0 ? (
+            {categoriesForSelect.length > 0 ? (
               <FormSelectCategory
                 name="categoryId"
                 defaultValue={service?.categoryId ?? ""}
                 onChange={(event) => setSelectedCategoryId(event.currentTarget.value)}>
                 <option value="">Selecciona una categoría</option>
-                {categories.map((category) => (
+                {categoriesForSelect.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -323,11 +353,22 @@ export default function ServiceAdminForm({
             {requiredProfessionalRole && (
               <p className="rounded-xl border border-[#DCE8E2] bg-[#F7FAF9] px-3 py-2 text-xs text-zinc-600">
                 Este servicio se asignará a profesionales de {PROFESSIONAL_ROLE_LABELS[requiredProfessionalRole]}.
+                {requiredProfessionalRole === "VETERINARY" && " Para especialidades clínicas como radiografías, laboratorio o curaciones, no necesitas crear un rol nuevo: crea el servicio y asígnalo solo a los profesionales que lo atienden."}
               </p>
             )}
             {errors?.categoryId?.[0] && <FormErrors>{errors.categoryId[0]}</FormErrors>}
           </label>
         </div>
+
+        <ImageUpload
+          image={service?.imageUrl ?? ""}
+          label="Imagen del servicio"
+          alt={service?.name ?? "Imagen del servicio"}
+          folderName="services"
+          initialName={service?.name ?? ""}
+          nameInputId="service-name"
+        />
+        {errors?.imageUrl?.[0] && <FormErrors>{errors.imageUrl[0]}</FormErrors>}
 
         <label className="space-y-2 text-sm font-medium text-zinc-700">
           <span>Descripción</span>

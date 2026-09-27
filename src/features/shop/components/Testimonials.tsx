@@ -5,6 +5,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { COLORS } from "@/shared/constants/theme";
 import { FaQuoteLeft } from "react-icons/fa";
 import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import Heading from "@/shared/ui/Heading";
 
 const testimonials = [
   {
@@ -78,7 +79,8 @@ export default function Testimonials() {
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span
+          <Heading 
+            level={3}
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
             style={{
               backgroundColor: COLORS.primary_bg,
@@ -86,13 +88,14 @@ export default function Testimonials() {
             }}
           >
             🐾 Lo que dicen nuestros clientes
-          </span>
-          <h2
+          </Heading>
+          <Heading
+            level={2}
             className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl"
             style={{ color: COLORS.darker }}
           >
             Historias reales, cuidados reales
-          </h2>
+          </Heading>
         </div>
 
         <div className="mt-14 overflow-hidden [--slide-gap:1.25rem] [--slides-per-view:1] sm:[--slides-per-view:2] lg:[--slides-per-view:4]" ref={emblaRef}>
